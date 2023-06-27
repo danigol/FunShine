@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Funshine Theme Colors-->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="gray_100">#FFDDDDCD</color> <!--Light Mode Background-->
+    <color name="gray_500">#FF808080</color> <!--Light Mode Drop Shadow and Deselected Items-->
+    <color name="gray_800">#FF1A1A1A</color> <!--Dark Mode Background-->
+    <color name="gray_900">#FF101010</color> <!--Light Mode Drop Shadow-->
+
+    <!-- Other Colors -->
+    <color name="red">#FFFF0000</color>
+    <color name="green">#FF00FF00</color>
+    <color name="blue">#FF0000FF</color>
+</resources>
