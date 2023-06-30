@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.WeatherContainerFragment">
+    android:background="?attr/colorPrimary"
+    tools:context=".ui.weather.WeatherContainerFragment">
 
     <!-- TODO Obviously get rid of this -->
     <TextView

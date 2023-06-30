@@ -1,4 +1,4 @@
-package com.daniellegolinsky.funshine.ui.home
+package com.daniellegolinsky.funshine.ui.weather
 
 import android.os.Bundle
 import android.view.LayoutInflater

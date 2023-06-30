@@ -1,4 +1,4 @@
-package com.daniellegolinsky.funshine.ui.home
+package com.daniellegolinsky.funshine.ui.weather
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
