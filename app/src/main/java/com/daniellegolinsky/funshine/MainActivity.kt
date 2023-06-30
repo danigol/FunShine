@@ -1,18 +1,39 @@
 package com.daniellegolinsky.funshine
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.daniellegolinsky.funshine.databinding.ActivityMainBinding
+import com.daniellegolinsky.funshine.ui.weather.WeatherScreen
+import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContent {
+            Box(modifier = Modifier.fillMaxSize().background(Color(0xFFDDDDCD))) {// TODO, theme dependent
+                WeatherScreen(
+                    WeatherScreenViewState(
+                        weatherCode = 0,
+                        temperature = 74,
+                        forecast = "Clear throughout the day\nHigh: 82ºF\nLow: 70ºF\nChance of rain: 0%"
+                    ),
+                )
+            }
+        }
+
+//        binding = ActivityMainBinding.inflate(layoutInflater)
+//        setContentView(binding.root)
 
 //        val navView: BottomNavigationView = binding.navView
 
