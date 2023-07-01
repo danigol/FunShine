@@ -5,25 +5,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.daniellegolinsky.designsystem.*
+import com.daniellegolinsky.designsystem.components.FsText
 import com.daniellegolinsky.designsystem.components.WeatherStatusImage
-import com.daniellegolinsky.designsystem.designelements.getShadowAlpha
-import com.daniellegolinsky.designsystem.designelements.getTextColor
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
-import com.daniellegolinsky.designsystem.designelements.ThemeConstants
 
 @Composable
 fun WeatherScreen(
@@ -39,42 +30,17 @@ fun WeatherScreen(
             imageResource = R.drawable.ic_sunny_black,
             imageResourceContentDescription = R.string.ic_sunny_content_description,
         )
-        Text(
-            text = "${viewState.temperature}ºF", // Obviously we're mocking this out.
-            fontSize = 28.sp, // TODO No, bad! :P Lazy dev!
-            textAlign = TextAlign.Center,
-            color = getTextColor(),
-            style = MaterialTheme.typography.bodyLarge.copy(
-                shadow = Shadow(
-                    color = colorResource(id = R.color.black).copy(alpha = getShadowAlpha()),
-                    offset = Offset(
-                        x = ThemeConstants.SHADOW_OFFSET_X_FLOAT,
-                        y = ThemeConstants.SHADOW_OFFSET_Y_FLOAT
-                    ),
-                    blurRadius = 12f
-                ),
-                fontWeight = FontWeight(600)
-            ),
-            //modifier = Modifier.shadow(16.dp).fillMaxWidth().height(42.dp) // TODO Obviously we'll make a design system version
+        FsText(
+            text = "${viewState.temperature}ºF", // TODO Make this a string resource
+            fontSize = 28.sp,
+            fontWeight = 600,
+            maxLines = 1
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            viewState.forecast,
+        FsText(
+            text = viewState.forecast,
             fontSize = 16.sp,
-            textAlign = TextAlign.Center,
-            color = getTextColor(),
-            maxLines = 8,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                shadow = Shadow(
-                    color = colorResource(id = R.color.black).copy(alpha = getShadowAlpha()),
-                    offset = Offset(
-                        x = ThemeConstants.SHADOW_OFFSET_X_FLOAT,
-                        y = ThemeConstants.SHADOW_OFFSET_Y_FLOAT
-                    ),
-                    blurRadius = ThemeConstants.SHADOW_BLUR_RADIUS
-                ),
-                fontWeight = FontWeight(450)
-            ),
+            maxLines = 8
         )
     }
 }
