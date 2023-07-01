@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.daniellegolinsky.designsystem.*
 import com.daniellegolinsky.designsystem.components.WeatherStatusImage
+import com.daniellegolinsky.designsystem.designelements.getShadowAlpha
+import com.daniellegolinsky.designsystem.designelements.getTextColor
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 
 @Composable
@@ -48,9 +50,10 @@ fun WeatherScreen(
             text = "${viewState.temperature}ºF", // Obviously we're mocking this out.
             fontSize = 28.sp, // TODO No, bad! :P Lazy dev!
             textAlign = TextAlign.Center,
+            color = getTextColor(),
             style = MaterialTheme.typography.bodyLarge.copy(
                 shadow = Shadow(
-                    color = colorResource(id = R.color.black).copy(alpha = 0.2f),
+                    color = colorResource(id = R.color.black).copy(alpha = getShadowAlpha()),
                     offset = Offset(x = 40f, y = 40f),
                     blurRadius = 12f
                 ),
@@ -63,10 +66,11 @@ fun WeatherScreen(
             viewState.forecast,
             fontSize = 16.sp,
             textAlign = TextAlign.Center,
+            color = getTextColor(),
             maxLines = 8,
             style = MaterialTheme.typography.bodyLarge.copy(
                 shadow = Shadow(
-                    color = colorResource(id = R.color.black).copy(alpha = 0.2f),
+                    color = colorResource(id = R.color.black).copy(alpha = getShadowAlpha()),
                     offset = Offset(x = 40f, y = 40f),
                     blurRadius = 12f
                 ),

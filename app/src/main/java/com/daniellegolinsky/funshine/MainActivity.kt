@@ -4,11 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import com.daniellegolinsky.designsystem.designelements.getBackgroundColor
 import com.daniellegolinsky.funshine.databinding.ActivityMainBinding
 import com.daniellegolinsky.funshine.ui.weather.WeatherScreen
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
@@ -21,7 +24,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            Box(modifier = Modifier.fillMaxSize().background(Color(0xFFDDDDCD))) {// TODO, theme dependent
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .background(getBackgroundColor())) {// TODO, theme dependent
                 WeatherScreen(
                     WeatherScreenViewState(
                         weatherCode = 0,
