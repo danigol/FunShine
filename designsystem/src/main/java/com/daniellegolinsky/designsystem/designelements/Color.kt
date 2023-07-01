@@ -23,5 +23,5 @@ fun getForegroundItemColor(): Color {
 
 @Composable
 fun getShadowAlpha(): Float {
-    return if (isSystemInDarkTheme()) 0.95f else 0.2f
+    return if (isSystemInDarkTheme()) 0.80f else 0.2f
 }

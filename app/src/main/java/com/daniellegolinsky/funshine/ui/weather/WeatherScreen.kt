@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,6 +23,7 @@ import com.daniellegolinsky.designsystem.components.WeatherStatusImage
 import com.daniellegolinsky.designsystem.designelements.getShadowAlpha
 import com.daniellegolinsky.designsystem.designelements.getTextColor
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
+import com.daniellegolinsky.designsystem.designelements.ThemeConstants
 
 @Composable
 fun WeatherScreen(
@@ -36,12 +35,6 @@ fun WeatherScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(32.dp) // TODO Obviously bad
     ) {
-//        Icon(
-//            painter = painterResource(id = R.drawable.ic_sunny_black),
-//            contentDescription = "",
-//            modifier = Modifier.padding(32.dp)
-//        )
-//        Spacer(modifier = Modifier.height(16.dp)) // Okay, yeah, we'll standardize everything, okay?
         WeatherStatusImage(
             imageResource = R.drawable.ic_sunny_black,
             imageResourceContentDescription = R.string.ic_sunny_content_description,
@@ -54,7 +47,10 @@ fun WeatherScreen(
             style = MaterialTheme.typography.bodyLarge.copy(
                 shadow = Shadow(
                     color = colorResource(id = R.color.black).copy(alpha = getShadowAlpha()),
-                    offset = Offset(x = 40f, y = 40f),
+                    offset = Offset(
+                        x = ThemeConstants.SHADOW_OFFSET_X_FLOAT,
+                        y = ThemeConstants.SHADOW_OFFSET_Y_FLOAT
+                    ),
                     blurRadius = 12f
                 ),
                 fontWeight = FontWeight(600)
@@ -71,8 +67,11 @@ fun WeatherScreen(
             style = MaterialTheme.typography.bodyLarge.copy(
                 shadow = Shadow(
                     color = colorResource(id = R.color.black).copy(alpha = getShadowAlpha()),
-                    offset = Offset(x = 40f, y = 40f),
-                    blurRadius = 12f
+                    offset = Offset(
+                        x = ThemeConstants.SHADOW_OFFSET_X_FLOAT,
+                        y = ThemeConstants.SHADOW_OFFSET_Y_FLOAT
+                    ),
+                    blurRadius = ThemeConstants.SHADOW_BLUR_RADIUS
                 ),
                 fontWeight = FontWeight(450)
             ),
