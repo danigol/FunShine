@@ -10,10 +10,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.daniellegolinsky.designsystem.*
 import com.daniellegolinsky.designsystem.components.FsText
 import com.daniellegolinsky.designsystem.components.WeatherStatusImage
+import com.daniellegolinsky.designsystem.font.getBodyFontStyle
+import com.daniellegolinsky.designsystem.font.getHeadingFontStyle
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 
 @Composable
@@ -32,14 +33,13 @@ fun WeatherScreen(
         )
         FsText(
             text = "${viewState.temperature}ºF", // TODO Make this a string resource
-            fontSize = 28.sp,
-            fontWeight = 600,
+            textStyle = getHeadingFontStyle(),
             maxLines = 1
         )
         Spacer(modifier = Modifier.height(16.dp))
         FsText(
             text = viewState.forecast,
-            fontSize = 16.sp,
+            textStyle = getBodyFontStyle(),
             maxLines = 8
         )
     }
