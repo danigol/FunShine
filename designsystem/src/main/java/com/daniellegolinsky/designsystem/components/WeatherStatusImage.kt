@@ -28,7 +28,7 @@ fun WeatherStatusImage(
     Box(modifier = modifier.fillMaxWidth()) {
         Icon(
             painter = painterResource(id = imageResource),
-            contentDescription = stringResource(imageResourceContentDescription),
+            contentDescription = null,
             modifier = Modifier
                 .alpha(alpha = getShadowAlpha())
                 .offset(x = getShadowXOffset(), y = getShadowYOffset())
@@ -37,7 +37,7 @@ fun WeatherStatusImage(
         )
         Icon(
             painter = painterResource(id = R.drawable.ic_sunny_black),
-            contentDescription = "",
+            contentDescription = stringResource(imageResourceContentDescription),
             tint = getForegroundItemColor(),
             modifier = Modifier.padding(maxOf(getShadowXOffset(), getShadowYOffset())),
         )
