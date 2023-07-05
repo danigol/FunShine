@@ -5,7 +5,6 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -21,7 +20,7 @@ import com.daniellegolinsky.designsystem.R
 import com.daniellegolinsky.designsystem.designelements.getForegroundItemColor
 
 @Composable
-fun FsButton(
+fun FsIconButton(
     @DrawableRes buttonIcon: Int,
     @StringRes buttonIconContentDescription: Int,
     modifier: Modifier = Modifier,
@@ -34,7 +33,7 @@ fun FsButton(
             disabledContainerColor = Color.Transparent,
         ),
         contentPadding = PaddingValues(0.dp),
-        modifier = modifier.height(FsButtonDefaults.BUTTON_HEIGHT),
+        modifier = modifier.height(FsButtonDefaults.BUTTON_HEIGHT).padding(0.dp),
         onClick = { onClick() }
     ) {
         Icon(
@@ -49,7 +48,7 @@ fun FsButton(
 @Preview
 @Composable
 fun PreviewFsButtonRefresh() {
-    FsButton(
+    FsIconButton(
         buttonIcon = R.drawable.ic_refresh_button_black,
         buttonIconContentDescription = R.string.ic_refresh_button_content_description,
         onClick = {}
@@ -59,7 +58,7 @@ fun PreviewFsButtonRefresh() {
 @Preview
 @Composable
 fun PreviewFsButtonSettings() {
-    FsButton(
+    FsIconButton(
         buttonIcon = R.drawable.ic_settings_button_black,
         buttonIconContentDescription = R.string.ic_settings_button_content_description,
         onClick = {}

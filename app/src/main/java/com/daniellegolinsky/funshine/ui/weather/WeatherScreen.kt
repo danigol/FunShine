@@ -17,7 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.daniellegolinsky.designsystem.*
-import com.daniellegolinsky.designsystem.components.FsButton
+import com.daniellegolinsky.designsystem.components.FsIconButton
 import com.daniellegolinsky.designsystem.components.FsText
 import com.daniellegolinsky.designsystem.components.WeatherStatusImage
 import com.daniellegolinsky.designsystem.font.getBodyFontStyle
@@ -57,13 +57,13 @@ fun WeatherScreen(
             horizontalArrangement = Arrangement.End,
             modifier = Modifier.fillMaxWidth()
                 ){
-            FsButton(
+            FsIconButton(
                 buttonIcon = R.drawable.ic_settings_button_black,
                 buttonIconContentDescription = R.string.ic_settings_button_content_description,
                 onClick = { Toast.makeText(context, "What's wrong with my settings?", Toast.LENGTH_SHORT).show() }
             )
             Spacer(modifier = Modifier.width(2.dp))
-            FsButton(
+            FsIconButton(
                 buttonIcon = R.drawable.ic_refresh_button_black,
                 buttonIconContentDescription = R.string.ic_refresh_button_content_description,
                 onClick = { Toast.makeText(context, "How refreshing!", Toast.LENGTH_SHORT).show() }

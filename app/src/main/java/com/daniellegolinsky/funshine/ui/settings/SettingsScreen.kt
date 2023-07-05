@@ -16,7 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.daniellegolinsky.designsystem.components.FsIconButton
+import com.daniellegolinsky.designsystem.R
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
 
 @Composable
@@ -26,26 +27,43 @@ fun SettingsScreen(
 ) {
     // TODO TODOs all around!
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
+        horizontalAlignment = Alignment.Start,
+        modifier = modifier
+            .fillMaxSize()
+            .padding(top = 16.dp)
     ) {
-        Row (
+        // Faux heading line/appbar (I always found them a bit ugly, but a back arrow is okay?)
+        Row(
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(
-                text = "<",
-                fontSize = 32.sp,
-                modifier = Modifier.padding(16.dp),
-            ) // TODO Obviously, replace!
+            FsIconButton(
+                buttonIcon = R.drawable.ic_arrow_left_black,
+                buttonIconContentDescription = R.string.ic_settings_button_back,
+                onClick = {} // TODO Basic back
+            )
+            // TODO Do we want to just make an app bar with the title? Or is it obvious with just 2 screens?
         }
-        Spacer(modifier = Modifier.height(32.dp))
-        TextField(value = viewState.apiKey, onValueChange = {})
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(value = "${viewState.latitude}, ${viewState.longitude}", onValueChange = {})
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { /*TODO*/ }) {
-            Text("Save Changes")
+        // Content
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(top = 64.dp, start = 32.dp, end = 32.dp, bottom = 64.dp)
+        ) {
+            TextField( // TODO Make a custom text field so it's consistent across Android versions?
+                value = viewState.apiKey,
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            TextField(
+                value = "${viewState.latitude}, ${viewState.longitude}",
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = { /*TODO*/ }) {// TODO Make FsTextButton
+                Text("Save Changes")
+            }
         }
     }
 }

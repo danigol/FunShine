@@ -4,4 +4,5 @@
 
     <string name="ic_refresh_button_content_description">Refresh button icon</string>
     <string name="ic_settings_button_content_description">Settings button icon</string>
+    <string name="ic_settings_button_back">Back button icon</string>
 </resources>
