@@ -26,13 +26,7 @@ class WeatherContainerFragment : Fragment() {
             ViewModelProvider(this)[WeatherViewModel::class.java]
 
         _binding = FragmentWeatherBinding.inflate(inflater, container, false)
-        val root: View = binding.root
-
-        val textView: TextView = binding.textHome
-        weatherViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
-        return root
+        return binding.root
     }
 
     override fun onDestroyView() {
