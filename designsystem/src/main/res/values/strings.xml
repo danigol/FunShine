@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Buttons -->
+    <string name="button_save_settings">Save Settings</string>
+    <!--  ~~ Content Descriptors ~~  -->
+    <!-- Weather icon content descriptions -->
     <string name="ic_sunny_content_description">Sunny icon</string>
-
+    <!-- Other Content Descriptions -->
     <string name="ic_refresh_button_content_description">Refresh button icon</string>
     <string name="ic_settings_button_content_description">Settings button icon</string>
     <string name="ic_settings_button_back">Back button icon</string>
+    <string name="ic_precise_location_button">Precise location arrow button</string>
 </resources>

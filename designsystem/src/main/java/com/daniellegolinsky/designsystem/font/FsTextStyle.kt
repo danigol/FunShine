@@ -13,6 +13,8 @@ import com.daniellegolinsky.designsystem.designelements.ThemeConstants
 import com.daniellegolinsky.designsystem.designelements.getShadowAlpha
 import com.daniellegolinsky.designsystem.font.FsTextStyle.BODY_FONT_SIZE
 import com.daniellegolinsky.designsystem.font.FsTextStyle.BODY_FONT_WEIGHT
+import com.daniellegolinsky.designsystem.font.FsTextStyle.BUTTON_FONT_SIZE
+import com.daniellegolinsky.designsystem.font.FsTextStyle.BUTTON_FONT_WEIGHT
 import com.daniellegolinsky.designsystem.font.FsTextStyle.HEADING_FONT_SIZE
 import com.daniellegolinsky.designsystem.font.FsTextStyle.HEADING_FONT_WEIGHT
 
@@ -21,6 +23,8 @@ object FsTextStyle {
     const val HEADING_FONT_WEIGHT: Int = 600
     const val BODY_FONT_SIZE: Int = 16
     const val HEADING_FONT_SIZE: Int = 28
+    const val BUTTON_FONT_WEIGHT: Int = 450
+    const val BUTTON_FONT_SIZE: Int = 20
 }
 
 @Composable
@@ -52,5 +56,13 @@ fun getHeadingFontStyle(): TextStyle {
         ),
         fontWeight = FontWeight(HEADING_FONT_WEIGHT),
         fontSize = HEADING_FONT_SIZE.sp
+    )
+}
+
+@Composable
+fun getButtonTextStyle(): TextStyle {
+    return typography.bodyLarge.copy(
+        fontWeight = FontWeight(BUTTON_FONT_WEIGHT),
+        fontSize = BUTTON_FONT_SIZE.sp
     )
 }
