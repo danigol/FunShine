@@ -7,4 +7,5 @@ plugins {
 
 ext {
     KOTLIN_COMPILER_EXTENSION_VERSION = '1.4.6'
+    NAVIGATION_VERSION = '2.6.0'
 }

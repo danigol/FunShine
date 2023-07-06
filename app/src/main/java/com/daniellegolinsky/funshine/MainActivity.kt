@@ -13,7 +13,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.daniellegolinsky.designsystem.designelements.getBackgroundColor
 import com.daniellegolinsky.funshine.databinding.ActivityMainBinding
+import com.daniellegolinsky.funshine.ui.settings.SettingsScreen
 import com.daniellegolinsky.funshine.ui.weather.WeatherScreen
+import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 
 class MainActivity : ComponentActivity() {
@@ -34,6 +36,13 @@ class MainActivity : ComponentActivity() {
                         forecast = "Clear throughout the day\nHigh: 82ºF\nLow: 70ºF\nChance of rain: 0%"
                     ),
                 )
+//                SettingsScreen(
+//                    viewState = SettingsViewState(
+//                        apiKey = "8675309",
+//                        latitude = 40.73f,
+//                        longitude = -73.99f,
+//                    )
+//                )
             }
         }
 
