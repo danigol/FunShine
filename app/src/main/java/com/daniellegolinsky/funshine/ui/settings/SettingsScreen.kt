@@ -1,33 +1,31 @@
 package com.daniellegolinsky.funshine.ui.settings
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.daniellegolinsky.designsystem.components.FsIconButton
 import com.daniellegolinsky.designsystem.R
 import com.daniellegolinsky.designsystem.components.FsText
 import com.daniellegolinsky.designsystem.components.FsTextButton
 import com.daniellegolinsky.designsystem.components.FsTextField
 import com.daniellegolinsky.designsystem.font.getBodyFontStyle
+import com.daniellegolinsky.funshine.navigation.MainNavHost
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
 
 @Composable
 fun SettingsScreen(
     viewState: SettingsViewState,
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     // TODO TODOs all around!
@@ -41,7 +39,7 @@ fun SettingsScreen(
         FsIconButton(
             buttonIcon = R.drawable.ic_arrow_left_black,
             buttonIconContentDescription = R.string.ic_settings_button_back,
-            onClick = {} // TODO Basic back
+            onClick = { navController.navigateUp() }
         )
         // TODO Do we want to just make an app bar with the title? Or is it obvious with just 2 screens?
         Spacer(modifier = Modifier.height(64.dp))
@@ -72,7 +70,8 @@ fun SettingsScreen(
                         buttonIconContentDescription = R.string.ic_precise_location_button,
                         modifier = Modifier.height(16.dp)
                     ) {
-                        // TODO Onclick
+                        // TODO Get location from GPS (requires permissions)
+                        // TODO Disable/don't show if they haven't granted permissions?
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -82,8 +81,11 @@ fun SettingsScreen(
                 buttonText = R.string.button_save_settings,
                 modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
             ) {
-                // TODO Onclick
-
+                // TODO Onclick (save data to system preferences)
+                // Go back to the weather screen
+                // Note: We navigate here, not using back in case of changes
+                //       or the user wants to go back and change a setting quickly
+                navController.navigate(MainNavHost.WEATHER)
             }
         }
     }
@@ -97,6 +99,7 @@ fun PreviewSettingsScreen() {
             apiKey = "8675309",
             latitude = 40.73f,
             longitude = -73.99f,
-        )
+        ),
+        rememberNavController()
     )
 }
