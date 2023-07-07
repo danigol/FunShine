@@ -16,17 +16,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.daniellegolinsky.designsystem.*
 import com.daniellegolinsky.designsystem.components.FsIconButton
 import com.daniellegolinsky.designsystem.components.FsText
 import com.daniellegolinsky.designsystem.components.WeatherStatusImage
 import com.daniellegolinsky.designsystem.font.getBodyFontStyle
 import com.daniellegolinsky.designsystem.font.getHeadingFontStyle
+import com.daniellegolinsky.funshine.navigation.MainNavHost
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 
 @Composable
 fun WeatherScreen(
     viewState: WeatherScreenViewState,
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -60,7 +64,9 @@ fun WeatherScreen(
             FsIconButton(
                 buttonIcon = R.drawable.ic_settings_button_black,
                 buttonIconContentDescription = R.string.ic_settings_button_content_description,
-                onClick = { Toast.makeText(context, "What's wrong with my settings?", Toast.LENGTH_SHORT).show() }
+                onClick = {
+                    navController.navigate(MainNavHost.SETTINGS)
+                }
             )
             Spacer(modifier = Modifier.width(2.dp))
             FsIconButton(
@@ -80,6 +86,7 @@ fun PreviewWeatherScreen() {
             0,
             78,
             "It's going to be nice, all day, forever, just super nice."
-        )
+        ),
+        rememberNavController()
     )
 }
