@@ -69,6 +69,7 @@ fun WeatherScreen(
                 }
             )
             Spacer(modifier = Modifier.width(2.dp))
+            // TODO: Refresh will re-load from server. Composable itself will be responsive
             FsIconButton(
                 buttonIcon = R.drawable.ic_refresh_button_black,
                 buttonIconContentDescription = R.string.ic_refresh_button_content_description,

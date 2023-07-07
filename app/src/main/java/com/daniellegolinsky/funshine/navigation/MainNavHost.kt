@@ -1,7 +1,6 @@
 package com.daniellegolinsky.funshine.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -32,7 +31,8 @@ fun MainNavHost(destination: String) {
                     apiKey = "8675309",
                     latitude = 40.73f,
                     longitude = -73.99f,
-                )
+                ),
+                navController
             )
         }
     }
