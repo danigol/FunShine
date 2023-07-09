@@ -14,6 +14,7 @@ import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 @Composable
 fun MainNavHost(destination: String) {
     val navController = rememberNavController()
+
     NavHost(navController = navController, startDestination = destination) {
         composable(WEATHER) {
             WeatherScreen(
