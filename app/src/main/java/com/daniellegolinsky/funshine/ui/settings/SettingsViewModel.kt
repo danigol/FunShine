@@ -31,11 +31,8 @@ class SettingsViewModel @Inject constructor(val settingsRepo: SettingsRepo): Vie
         _settingsViewState.value = mapSettingsViewState(apiKey, location)
     }
 
-    fun updateApiKey(apiKey: String) {
-        viewModelScope.launch {
-            settingsRepo.setApiKey(apiKey)
-            refreshSettings()
-        }
+    fun updateViewStateApiKey(apiKey: String) {
+        _settingsViewState.value = mapSettingsViewState(ApiKey(apiKey), null)
     }
 
     fun updateLocation(locationString: String) {
@@ -54,17 +51,41 @@ class SettingsViewModel @Inject constructor(val settingsRepo: SettingsRepo): Vie
         }
     }
 
-    suspend fun saveSettings(apiKey: String, latitude: Float, longitude: Float) {
-        settingsRepo.setApiKey(apiKey)
-        settingsRepo.setLocation(latitude, longitude)
-        refreshSettings()
+    fun saveSettings() {
+        saveStateToDatastore(this._settingsViewState.value)
     }
 
-    private fun mapSettingsViewState(apiKey: ApiKey, location: Location): SettingsViewState {
+    private fun saveStateToDatastore(viewState: SettingsViewState) {
+        viewModelScope.launch {
+            settingsRepo.setApiKey(viewState.apiKey)
+            settingsRepo.setLocation(viewState.latitude, viewState.longitude)
+            refreshSettings()
+        }
+    }
+
+    private fun mapSettingsViewState(apiKey: ApiKey?, location: Location?): SettingsViewState {
+        val key = if (apiKey == null) {
+            if (_settingsViewState.value.apiKey != null) {
+                ApiKey(_settingsViewState.value.apiKey)
+            } else {
+                ApiKey(emptyState.apiKey)
+            }
+        } else {
+            apiKey
+        }
+        val loc = if (location == null) {
+            if (_settingsViewState.value.latitude != null && _settingsViewState.value.longitude != null) {
+                Location(_settingsViewState.value.latitude, _settingsViewState.value.longitude)
+            } else {
+                Location(emptyState.latitude, emptyState.longitude)
+            }
+        } else {
+            location
+        }
         return SettingsViewState(
-            apiKey = apiKey.toString(),
-            latitude = location.latitude,
-            longitude = location.longitude
+            apiKey = key.key,
+            latitude = loc.latitude,
+            longitude = loc.longitude
         )
     }
 }

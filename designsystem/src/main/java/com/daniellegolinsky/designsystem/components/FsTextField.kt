@@ -29,7 +29,7 @@ fun FsTextField(
         ),
         trailingIcon = trailingIcon,
         modifier = modifier,
-        onValueChange = { onValueChange("") }
+        onValueChange = { onValueChange(it) }
     )
 }
 

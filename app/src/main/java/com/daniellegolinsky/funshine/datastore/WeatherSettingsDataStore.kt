@@ -25,8 +25,6 @@ class WeatherSettingsDataStore @Inject constructor(
         val LONGITUDE = floatPreferencesKey("longitude")
     }
 
-//    private val dataStore = appContext.dataStore
-
     private val settingsFlow = dataStore.data.catch {
         if (it is IOException) {
             Log.e("DATASTORE", "Error retrieving settings datastore.", it)
