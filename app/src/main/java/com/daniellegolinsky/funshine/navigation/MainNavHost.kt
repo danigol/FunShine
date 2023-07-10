@@ -1,12 +1,14 @@
 package com.daniellegolinsky.funshine.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.daniellegolinsky.funshine.navigation.MainNavHost.SETTINGS
 import com.daniellegolinsky.funshine.navigation.MainNavHost.WEATHER
 import com.daniellegolinsky.funshine.ui.settings.SettingsScreen
+import com.daniellegolinsky.funshine.ui.settings.SettingsViewModel
 import com.daniellegolinsky.funshine.ui.weather.WeatherScreen
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
@@ -14,6 +16,7 @@ import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 @Composable
 fun MainNavHost(destination: String) {
     val navController = rememberNavController()
+
     NavHost(navController = navController, startDestination = destination) {
         composable(WEATHER) {
             WeatherScreen(
@@ -26,12 +29,14 @@ fun MainNavHost(destination: String) {
             )
         }
         composable(SETTINGS) {
+            val settingsViewModel = hiltViewModel<SettingsViewModel>()
             SettingsScreen(
-                viewState = SettingsViewState(
-                    apiKey = "8675309",
-                    latitude = 40.73f,
-                    longitude = -73.99f,
-                ),
+//                viewState = SettingsViewState(
+//                    apiKey = "8675309",
+//                    latitude = 40.73f,
+//                    longitude = -73.99f,
+//                ),
+                settingsViewModel,
                 navController
             )
         }
