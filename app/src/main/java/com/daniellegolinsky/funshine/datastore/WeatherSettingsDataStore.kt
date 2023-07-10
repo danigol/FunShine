@@ -10,8 +10,12 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.daniellegolinsky.funshine.di.ApplicationModule
 import com.daniellegolinsky.funshine.models.ApiKey
 import com.daniellegolinsky.funshine.models.Location
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -34,14 +38,25 @@ class WeatherSettingsDataStore @Inject constructor(
     }
 
     override suspend fun getApiKey(): ApiKey {
-        return settingsFlow.last().toPreferences()[StoreKeys.API_KEY] as ApiKey
+        return settingsFlow.map { preferences ->
+            ApiKey(preferences[StoreKeys.API_KEY] ?: "")
+        }.catch {
+            throw it
+        }.firstOrNull() ?: ApiKey("")
     }
 
     override suspend fun getLocation(): Location {
-        val currentPreferences = settingsFlow.last().toPreferences()
-        val lat = currentPreferences[StoreKeys.LATITUDE] as Float
-        val long = currentPreferences[StoreKeys.LONGITUDE] as Float
-        return Location(latitude = lat, longitude = long)
+        val lat = settingsFlow.map{ preferences ->
+            preferences[StoreKeys.LATITUDE]
+        }.catch {
+            throw it
+        }.firstOrNull() ?: 0.0f
+        val long = settingsFlow.map{ preferences ->
+            preferences[StoreKeys.LONGITUDE]
+        }.catch {
+            throw it
+        }.firstOrNull() ?: 0.0f
+        return Location(lat, long)
     }
 
     override suspend fun setApiKey(apiKey: ApiKey) {

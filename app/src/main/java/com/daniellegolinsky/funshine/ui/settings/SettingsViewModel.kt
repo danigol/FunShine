@@ -21,12 +21,12 @@ class SettingsViewModel @Inject constructor(val settingsRepo: SettingsRepo): Vie
 
     init {
         viewModelScope.launch {
-            refreshSettings()
+            updateViewStateFromDataStore()
         }
     }
 
-    suspend fun refreshSettings() {
-        var apiKey = settingsRepo.getApiKey()
+    suspend fun updateViewStateFromDataStore() {
+        val apiKey = settingsRepo.getApiKey()//ApiKey("A Fake Key Loaded")
         val location = settingsRepo.getLocation()
         _settingsViewState.value = mapSettingsViewState(apiKey, location)
     }
@@ -46,7 +46,6 @@ class SettingsViewModel @Inject constructor(val settingsRepo: SettingsRepo): Vie
 
             viewModelScope.launch {
                 settingsRepo.setLocation(latitude, longitude)
-                refreshSettings()
             }
         }
     }
@@ -59,7 +58,6 @@ class SettingsViewModel @Inject constructor(val settingsRepo: SettingsRepo): Vie
         viewModelScope.launch {
             settingsRepo.setApiKey(viewState.apiKey)
             settingsRepo.setLocation(viewState.latitude, viewState.longitude)
-            refreshSettings()
         }
     }
 
