@@ -72,14 +72,15 @@ fun SettingsScreen(
                 modifier = Modifier.align(alignment = Alignment.Start)
             )
             FsTextField( // TODO Update with local text, then save? Or direct to viewstate?
-                value = "${viewState.value.latitude}, ${viewState.value.longitude}",
-                onValueChange = { },
+                value = viewState.value.latLong,
+                onValueChange = { viewModel.updateViewStateLocation(it) },
                 trailingIcon = @Composable {
                     FsIconButton(
                         buttonIcon = R.drawable.ic_button_precise_location,
                         buttonIconContentDescription = R.string.ic_precise_location_button,
                         modifier = Modifier.height(16.dp)
                     ) {
+                        viewModel.updateViewStateLocation("40.73,-73.99")
                         // TODO Get location from GPS (requires permissions)
                         // TODO Disable/don't show if they haven't granted permissions?
                     }

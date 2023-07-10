@@ -28,6 +28,7 @@ fun FsTextField(
             unfocusedContainerColor = Color.Transparent
         ),
         trailingIcon = trailingIcon,
+        singleLine = true,
         modifier = modifier,
         onValueChange = { onValueChange(it) }
     )

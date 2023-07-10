@@ -13,10 +13,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(val settingsRepo: SettingsRepo): ViewModel() {
+class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRepo) : ViewModel() {
 
-    private val emptyState = SettingsViewState("", 0.0f, 0.0f)
-    private var _settingsViewState: MutableStateFlow<SettingsViewState> = MutableStateFlow(emptyState)
+    private val emptyState = SettingsViewState("", "")
+    private var _settingsViewState: MutableStateFlow<SettingsViewState> =
+        MutableStateFlow(emptyState)
     val settingsViewState: StateFlow<SettingsViewState> = _settingsViewState
 
     init {
@@ -25,28 +26,42 @@ class SettingsViewModel @Inject constructor(val settingsRepo: SettingsRepo): Vie
         }
     }
 
-    suspend fun updateViewStateFromDataStore() {
-        val apiKey = settingsRepo.getApiKey()//ApiKey("A Fake Key Loaded")
+    private suspend fun updateViewStateFromDataStore() {
+        val apiKey = settingsRepo.getApiKey()
         val location = settingsRepo.getLocation()
-        _settingsViewState.value = mapSettingsViewState(apiKey, location)
+        _settingsViewState.value = mapSettingsToViewState(apiKey, location)
     }
 
     fun updateViewStateApiKey(apiKey: String) {
-        _settingsViewState.value = mapSettingsViewState(ApiKey(apiKey), null)
+        _settingsViewState.value = updateViewState(apiKey, null)
     }
 
-    fun updateLocation(locationString: String) {
-        if (locationString.length > locationString.indexOf(",")) {
-            val latString = locationString.substring(0, locationString.indexOf(",")).trim()
-            val longString = locationString
-                .substring(locationString.indexOf(","), locationString.length)
+    fun updateViewStateLocation(location: String) {
+        _settingsViewState.value = updateViewState(null, location)
+    }
+
+    /**
+     * Data is still stored in an ApiKey/Location object format
+     * ViewState is string-based, data storage retains type
+     */
+    private fun generateLocationFromString(locString: String): Location {
+        return if (locString.length > locString.indexOf(",")) {
+            val latString = locString.substring(0, locString.indexOf(",")).trim()
+            val longString = locString
+                .substring(locString.indexOf(","), locString.length)
                 .replace(",", "").trim()
             val latitude = latString.toFloat()
             val longitude = longString.toFloat()
+            Location(latitude = latitude, longitude = longitude)
+        } else {
+            Location(0f, 0f)
+        }
+    }
 
-            viewModelScope.launch {
-                settingsRepo.setLocation(latitude, longitude)
-            }
+    fun updateLocation(locationString: String) {
+        val loc = generateLocationFromString(locationString)
+        viewModelScope.launch {
+            settingsRepo.setLocation(loc.latitude, loc.longitude)
         }
     }
 
@@ -56,34 +71,27 @@ class SettingsViewModel @Inject constructor(val settingsRepo: SettingsRepo): Vie
 
     private fun saveStateToDatastore(viewState: SettingsViewState) {
         viewModelScope.launch {
+            val location = generateLocationFromString(viewState.latLong)
             settingsRepo.setApiKey(viewState.apiKey)
-            settingsRepo.setLocation(viewState.latitude, viewState.longitude)
+            settingsRepo.setLocation(location.latitude, location.longitude)
         }
     }
 
-    private fun mapSettingsViewState(apiKey: ApiKey?, location: Location?): SettingsViewState {
-        val key = if (apiKey == null) {
-            if (_settingsViewState.value.apiKey != null) {
-                ApiKey(_settingsViewState.value.apiKey)
-            } else {
-                ApiKey(emptyState.apiKey)
-            }
-        } else {
-            apiKey
-        }
-        val loc = if (location == null) {
-            if (_settingsViewState.value.latitude != null && _settingsViewState.value.longitude != null) {
-                Location(_settingsViewState.value.latitude, _settingsViewState.value.longitude)
-            } else {
-                Location(emptyState.latitude, emptyState.longitude)
-            }
-        } else {
-            location
-        }
+    /**
+     * Method for updating the view state
+     * A null for either string will simply retain the existing value
+     */
+    private fun updateViewState(apiKey: String?, location: String?): SettingsViewState {
         return SettingsViewState(
-            apiKey = key.key,
-            latitude = loc.latitude,
-            longitude = loc.longitude
+            apiKey ?: _settingsViewState.value.apiKey,
+            location ?: _settingsViewState.value.latLong
+        )
+    }
+
+    private fun mapSettingsToViewState(apiKey: ApiKey, location: Location): SettingsViewState {
+        return SettingsViewState(
+            apiKey = apiKey.key,
+            latLong = "${location.latitude}, ${location.longitude}"
         )
     }
 }
