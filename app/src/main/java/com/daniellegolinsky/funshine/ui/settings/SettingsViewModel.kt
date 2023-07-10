@@ -37,7 +37,12 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
     }
 
     fun updateViewStateLocation(location: String) {
-        _settingsViewState.value = updateViewState(null, location)
+        _settingsViewState.value = updateViewState(null, sanitizeLocationString(location))
+    }
+
+    // Only allow digits, decimals, comma separators, or the negative sign. Will allow spaces
+    private fun sanitizeLocationString(locationString: String): String {
+        return locationString.filter { it.isDigit() || it == '.' || it == ',' || it == '-' || it == ' '}
     }
 
     /**

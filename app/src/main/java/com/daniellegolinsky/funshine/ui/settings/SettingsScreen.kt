@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -80,7 +81,7 @@ fun SettingsScreen(
                         buttonIconContentDescription = R.string.ic_precise_location_button,
                         modifier = Modifier.height(16.dp)
                     ) {
-                        viewModel.updateViewStateLocation("40.73,-73.99")
+                        viewModel.updateViewStateLocation("40.73, -73.99")
                         // TODO Get location from GPS (requires permissions)
                         // TODO Disable/don't show if they haven't granted permissions?
                     }
