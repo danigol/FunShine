@@ -1,6 +1,5 @@
 package com.daniellegolinsky.funshine.datastore
 
-import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.IOException
@@ -8,16 +7,17 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import com.daniellegolinsky.funshine.MainActivity
+import com.daniellegolinsky.funshine.di.ApplicationModule
 import com.daniellegolinsky.funshine.models.ApiKey
 import com.daniellegolinsky.funshine.models.Location
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.last
 import javax.inject.Inject
+import javax.inject.Named
 
-class WeatherSettingsDataStore @Inject constructor(@ApplicationContext private val appContext: Context) : IWeatherSettingsDataStore {
+class WeatherSettingsDataStore @Inject constructor(
+    @Named(ApplicationModule.SETTINGS_DATASTORE) val dataStore: DataStore<Preferences>
+) : IWeatherSettingsDataStore {
 
     private object StoreKeys {
         val API_KEY = stringPreferencesKey("api_key")
@@ -25,11 +25,7 @@ class WeatherSettingsDataStore @Inject constructor(@ApplicationContext private v
         val LONGITUDE = floatPreferencesKey("longitude")
     }
 
-    private val weatherSettingsDataStoreName = "weather_settings"
-    private val Context.dataStore by preferencesDataStore(
-        name = weatherSettingsDataStoreName
-    )
-    private val dataStore = appContext.dataStore
+//    private val dataStore = appContext.dataStore
 
     private val settingsFlow = dataStore.data.catch {
         if (it is IOException) {

@@ -1,5 +1,6 @@
 package com.daniellegolinsky.funshine
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.datastore.preferences.preferencesDataStore
 import com.daniellegolinsky.designsystem.designelements.getBackgroundColor
 import com.daniellegolinsky.funshine.navigation.MainNavHost
 import com.daniellegolinsky.funshine.ui.settings.SettingsViewModel
@@ -20,6 +22,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             Box(modifier = Modifier
                 .fillMaxSize()

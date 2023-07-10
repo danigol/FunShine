@@ -7,7 +7,6 @@ import com.daniellegolinsky.funshine.models.ApiKey
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
