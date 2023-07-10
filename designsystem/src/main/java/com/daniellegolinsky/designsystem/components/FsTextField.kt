@@ -13,7 +13,7 @@ fun FsTextField(
     value: String = "",
     trailingIcon: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
-    onValueChange: () -> Unit = {},
+    onValueChange: (String) -> Unit,
 ) {
     TextField(
         value = value,
@@ -29,12 +29,12 @@ fun FsTextField(
         ),
         trailingIcon = trailingIcon,
         modifier = modifier,
-        onValueChange = { onValueChange() }
+        onValueChange = { onValueChange("") }
     )
 }
 
 @Preview
 @Composable
 fun PreviewFsTextField() {
-    FsTextField(value = "Oh, hey, put some text here!")
+    FsTextField(value = "Oh, hey, put some text here!") { "" }
 }
