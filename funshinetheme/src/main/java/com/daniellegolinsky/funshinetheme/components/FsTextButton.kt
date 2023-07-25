@@ -20,6 +20,11 @@ import com.daniellegolinsky.funshinetheme.designelements.getForegroundItemColor
 import com.daniellegolinsky.funshinetheme.designelements.getTextColor
 import com.daniellegolinsky.funshinetheme.font.getButtonTextStyle
 
+/**
+ * FunShine sees data as projected and controls on the surface of a screen.
+ * Think of it like data is a hologram above the screen, with controls on the screen.
+ * Therefore, this button has no elevation. You can customize it with text.
+ */
 @Composable
 fun FsTextButton(
     buttonText: String,

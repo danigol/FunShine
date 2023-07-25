@@ -19,6 +19,12 @@ import com.daniellegolinsky.funshinetheme.designelements.getShadowBlurRadius
 import com.daniellegolinsky.funshinetheme.designelements.getShadowXOffset
 import com.daniellegolinsky.funshinetheme.designelements.getShadowYOffset
 
+/**
+ * In the FunShine design language, data is "projected" above the screen. Like a physical hologram
+ * It therefore casts a shadow. This allows you to make shadows for your drawables, for any shape
+ * Please provide a content description with `imageResourceContentDescription`,
+ *      make this null if it is not to be read out and purely for decoration only.
+ */
 @Composable
 fun FsIconWithShadow(
     image: Painter,

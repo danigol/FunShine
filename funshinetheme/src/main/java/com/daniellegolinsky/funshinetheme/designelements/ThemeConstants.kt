@@ -12,6 +12,7 @@ object ThemeConstants {
     const val SHADOW_BLUR_RADIUS = 12.0f
 }
 
+// TODO these will eventually be defined differently to define degrees for a cast shadow
 fun getShadowXOffset(): Dp {
     return SHADOW_OFFSET_X_FLOAT.dp
 }

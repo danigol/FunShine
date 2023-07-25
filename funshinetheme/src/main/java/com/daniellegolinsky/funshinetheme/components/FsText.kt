@@ -9,6 +9,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.daniellegolinsky.funshinetheme.designelements.getTextColor
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 
+/**
+ * Text, like data and images, is "projected" above the screen in FunShine.
+ * Isn't that fun?
+ * This will automatically cast a shadow for your text.
+ */
 @Composable
 fun FsText(
     text: String,

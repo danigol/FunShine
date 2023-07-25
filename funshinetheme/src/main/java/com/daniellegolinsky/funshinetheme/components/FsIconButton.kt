@@ -17,6 +17,11 @@ import androidx.compose.ui.unit.dp
 import com.daniellegolinsky.funshinetheme.R
 import com.daniellegolinsky.funshinetheme.designelements.getForegroundItemColor
 
+/**
+ * Button with icon. Buttons in the FunShine design language are "on" the surface, no shadow
+ * Provide null for the buttonIconContentDescription
+ *      if you do not wish it to be read by screen readers. Otherwise, provide this for TalkBack
+ */
 @Composable
 fun FsIconButton(
     buttonIcon: Painter,

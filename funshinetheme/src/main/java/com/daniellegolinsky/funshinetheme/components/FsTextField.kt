@@ -10,6 +10,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import com.daniellegolinsky.funshinetheme.designelements.getTextColor
 
+/**
+ * A text field wrapper that falls in line with the idea that control surfaces are on the surface
+ *      of an object, like frosted glass or the glass of your smart device.
+ */
 @Composable
 fun FsTextField(
     value: String = "",
