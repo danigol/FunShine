@@ -6,31 +6,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.daniellegolinsky.designsystem.components.FsIconButton
-import com.daniellegolinsky.designsystem.R
-import com.daniellegolinsky.designsystem.components.FsText
-import com.daniellegolinsky.designsystem.components.FsTextButton
-import com.daniellegolinsky.designsystem.components.FsTextField
-import com.daniellegolinsky.designsystem.font.getBodyFontStyle
+import com.daniellegolinsky.themeresources.R
+import com.daniellegolinsky.funshinetheme.components.FsText
+import com.daniellegolinsky.funshinetheme.components.FsTextButton
+import com.daniellegolinsky.funshinetheme.components.FsTextField
+import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 import com.daniellegolinsky.funshine.navigation.MainNavHost
-import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
+import com.daniellegolinsky.funshinetheme.components.FsBackButton
+import com.daniellegolinsky.funshinetheme.components.FsLocationButton
 
 @Composable
 fun SettingsScreen(
@@ -47,11 +40,9 @@ fun SettingsScreen(
             .padding(top = 16.dp)
     ) {
         // Faux heading line/appbar (I always found them a bit ugly, but a back arrow is okay?)
-        FsIconButton(
-            buttonIcon = R.drawable.ic_arrow_left_black,
-            buttonIconContentDescription = R.string.ic_settings_button_back,
-            onClick = { navController.navigateUp() }
-        )
+        FsBackButton() {
+            navController.navigateUp()
+        }
         // TODO Do we want to just make an app bar with the title? Or is it obvious with just 2 screens?
         Spacer(modifier = Modifier.height(64.dp))
         // Content
@@ -76,11 +67,7 @@ fun SettingsScreen(
                 value = viewState.value.latLong,
                 onValueChange = { viewModel.updateViewStateLocation(it) },
                 trailingIcon = @Composable {
-                    FsIconButton(
-                        buttonIcon = R.drawable.ic_button_precise_location,
-                        buttonIconContentDescription = R.string.ic_precise_location_button,
-                        modifier = Modifier.height(16.dp)
-                    ) {
+                    FsLocationButton(modifier = Modifier.height(16.dp)) {
                         viewModel.updateViewStateLocation("40.73, -73.99")
                         // TODO Get location from GPS (requires permissions)
                         // TODO Disable/don't show if they haven't granted permissions?
@@ -90,7 +77,7 @@ fun SettingsScreen(
             )
             Spacer(modifier = Modifier.height(64.dp))
             FsTextButton(
-                buttonText = R.string.button_save_settings,
+                buttonText = stringResource(id = R.string.button_save_settings),
                 modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
             ) {
                 viewModel.saveSettings()

@@ -1,10 +1,10 @@
-package com.daniellegolinsky.designsystem.designelements
+package com.daniellegolinsky.funshinetheme.designelements
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.daniellegolinsky.designsystem.designelements.ThemeConstants.SHADOW_BLUR_RADIUS
-import com.daniellegolinsky.designsystem.designelements.ThemeConstants.SHADOW_OFFSET_X_FLOAT
-import com.daniellegolinsky.designsystem.designelements.ThemeConstants.SHADOW_OFFSET_Y_FLOAT
+import com.daniellegolinsky.funshinetheme.designelements.ThemeConstants.SHADOW_BLUR_RADIUS
+import com.daniellegolinsky.funshinetheme.designelements.ThemeConstants.SHADOW_OFFSET_X_FLOAT
+import com.daniellegolinsky.funshinetheme.designelements.ThemeConstants.SHADOW_OFFSET_Y_FLOAT
 
 object ThemeConstants {
     const val SHADOW_OFFSET_X_FLOAT = 40.0f

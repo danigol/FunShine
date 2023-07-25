@@ -1,4 +1,4 @@
-package com.daniellegolinsky.designsystem.components
+package com.daniellegolinsky.funshinetheme.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,35 +9,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.daniellegolinsky.designsystem.R
-import com.daniellegolinsky.designsystem.designelements.getForegroundItemColor
-import com.daniellegolinsky.designsystem.designelements.getShadowAlpha
-import com.daniellegolinsky.designsystem.designelements.getShadowBlurRadius
-import com.daniellegolinsky.designsystem.designelements.getShadowXOffset
-import com.daniellegolinsky.designsystem.designelements.getShadowYOffset
+import com.daniellegolinsky.funshinetheme.R
+import com.daniellegolinsky.funshinetheme.designelements.getForegroundItemColor
+import com.daniellegolinsky.funshinetheme.designelements.getShadowAlpha
+import com.daniellegolinsky.funshinetheme.designelements.getShadowBlurRadius
+import com.daniellegolinsky.funshinetheme.designelements.getShadowXOffset
+import com.daniellegolinsky.funshinetheme.designelements.getShadowYOffset
 
 @Composable
-fun WeatherStatusImage(
-    imageResource: Int,
-    imageResourceContentDescription: Int,
+fun FsIconWithShadow(
+    image: Painter,
+    imageResourceContentDescription: String?,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxWidth()) {
         Icon(
-            painter = painterResource(id = imageResource),
+            painter = image,
             contentDescription = null,
             modifier = Modifier
                 .alpha(alpha = getShadowAlpha())
-                .offset(x = getShadowXOffset(), y = getShadowYOffset())
+                .offset(
+                    x = getShadowXOffset(),
+                    y = getShadowYOffset()
+                ) // TODO This will be an angle and customizable
                 .blur(radius = getShadowBlurRadius())
                 .padding(maxOf(getShadowXOffset(), getShadowYOffset())),
         )
         Icon(
-            painter = painterResource(id = R.drawable.ic_sunny_black),
-            contentDescription = stringResource(imageResourceContentDescription),
+            painter = image,
+            contentDescription = imageResourceContentDescription,
             tint = getForegroundItemColor(),
             modifier = Modifier.padding(maxOf(getShadowXOffset(), getShadowYOffset())),
         )
@@ -47,8 +50,8 @@ fun WeatherStatusImage(
 @Preview
 @Composable
 fun PreviewWeatherStatusImage() {
-    WeatherStatusImage(
-        imageResource = R.drawable.ic_sunny_black,
-        imageResourceContentDescription = R.string.ic_sunny_content_description
+    FsIconWithShadow(
+        image = painterResource(id = R.drawable.ic_circle_black),
+        imageResourceContentDescription = "Circle"
     )
 }

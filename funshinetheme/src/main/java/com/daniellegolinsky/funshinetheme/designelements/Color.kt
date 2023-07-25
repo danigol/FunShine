@@ -1,10 +1,10 @@
-package com.daniellegolinsky.designsystem.designelements
+package com.daniellegolinsky.funshinetheme.designelements
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import com.daniellegolinsky.designsystem.R
+import com.daniellegolinsky.themeresources.R
 
 @Composable
 fun getBackgroundColor(): Color {

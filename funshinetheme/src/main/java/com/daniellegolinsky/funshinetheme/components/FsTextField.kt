@@ -1,4 +1,4 @@
-package com.daniellegolinsky.designsystem.components
+package com.daniellegolinsky.funshinetheme.components
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.TextField
@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
-import com.daniellegolinsky.designsystem.designelements.getTextColor
+import com.daniellegolinsky.funshinetheme.designelements.getTextColor
 
 @Composable
 fun FsTextField(

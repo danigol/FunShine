@@ -1,7 +1,5 @@
-package com.daniellegolinsky.designsystem.components
+package com.daniellegolinsky.funshinetheme.components
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -12,17 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.daniellegolinsky.designsystem.R
-import com.daniellegolinsky.designsystem.designelements.getForegroundItemColor
+import com.daniellegolinsky.funshinetheme.R
+import com.daniellegolinsky.funshinetheme.designelements.getForegroundItemColor
 
 @Composable
 fun FsIconButton(
-    @DrawableRes buttonIcon: Int,
-    @StringRes buttonIconContentDescription: Int,
+    buttonIcon: Painter,
+    buttonIconContentDescription: String?,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
@@ -33,12 +31,14 @@ fun FsIconButton(
             disabledContainerColor = Color.Transparent,
         ),
         contentPadding = PaddingValues(0.dp),
-        modifier = modifier.height(FsButtonDefaults.BUTTON_HEIGHT).padding(0.dp),
+        modifier = modifier
+            .height(FsButtonDefaults.BUTTON_HEIGHT)
+            .padding(0.dp),
         onClick = { onClick() }
     ) {
         Icon(
-            painter = painterResource(id = buttonIcon),
-            contentDescription = stringResource(buttonIconContentDescription),
+            painter = buttonIcon,
+            contentDescription = buttonIconContentDescription,
             tint = getForegroundItemColor(),
             modifier = Modifier.padding(0.dp)
         )
@@ -47,20 +47,20 @@ fun FsIconButton(
 
 @Preview
 @Composable
-fun PreviewFsButtonRefresh() {
+fun PreviewFsButtonCircle() {
     FsIconButton(
-        buttonIcon = R.drawable.ic_refresh_button_black,
-        buttonIconContentDescription = R.string.ic_refresh_button_content_description,
+        buttonIcon = painterResource(id = R.drawable.ic_circle_black),
+        buttonIconContentDescription = "A circle",
         onClick = {}
     )
 }
 
 @Preview
 @Composable
-fun PreviewFsButtonSettings() {
+fun PreviewFsButtonCircleX() {
     FsIconButton(
-        buttonIcon = R.drawable.ic_settings_button_black,
-        buttonIconContentDescription = R.string.ic_settings_button_content_description,
+        buttonIcon = painterResource(id = R.drawable.ic_circle_x_black),
+        buttonIconContentDescription = "A circle with an 'x'",
         onClick = {}
     )
 }
