@@ -14,16 +14,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.daniellegolinsky.designsystem.*
-import com.daniellegolinsky.designsystem.components.FsIconButton
-import com.daniellegolinsky.designsystem.components.FsText
-import com.daniellegolinsky.designsystem.components.WeatherStatusImage
-import com.daniellegolinsky.designsystem.font.getBodyFontStyle
-import com.daniellegolinsky.designsystem.font.getHeadingFontStyle
+import com.daniellegolinsky.themeresources.*
+import com.daniellegolinsky.funshinetheme.components.FsIconButton
+import com.daniellegolinsky.funshinetheme.components.FsText
+import com.daniellegolinsky.funshinetheme.components.FsIconWithShadow
+import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
+import com.daniellegolinsky.funshinetheme.font.getHeadingFontStyle
 import com.daniellegolinsky.funshine.navigation.MainNavHost
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 
@@ -41,9 +43,9 @@ fun WeatherScreen(
             .fillMaxSize()
     ) {
         val context = LocalContext.current
-        WeatherStatusImage(
-            imageResource = R.drawable.ic_sunny_black,
-            imageResourceContentDescription = R.string.ic_sunny_content_description,
+        FsIconWithShadow(
+            image = painterResource(R.drawable.ic_sunny_black),
+            imageResourceContentDescription = stringResource(R.string.ic_sunny_content_description),
         )
         FsText(
             text = "${viewState.temperature}ºF", // TODO Make this a string resource
@@ -62,8 +64,8 @@ fun WeatherScreen(
             modifier = Modifier.fillMaxWidth()
                 ){
             FsIconButton(
-                buttonIcon = R.drawable.ic_settings_button_black,
-                buttonIconContentDescription = R.string.ic_settings_button_content_description,
+                buttonIcon = painterResource(id = R.drawable.ic_settings_button_black),
+                buttonIconContentDescription = stringResource(id = R.string.ic_settings_button_content_description),
                 onClick = {
                     navController.navigate(MainNavHost.SETTINGS)
                 }
@@ -71,8 +73,8 @@ fun WeatherScreen(
             Spacer(modifier = Modifier.width(2.dp))
             // TODO: Refresh will re-load from server. Composable itself will be responsive
             FsIconButton(
-                buttonIcon = R.drawable.ic_refresh_button_black,
-                buttonIconContentDescription = R.string.ic_refresh_button_content_description,
+                buttonIcon = painterResource(id = R.drawable.ic_refresh_button_black),
+                buttonIconContentDescription = stringResource(id = R.string.ic_refresh_button_content_description),
                 onClick = { Toast.makeText(context, "How refreshing!", Toast.LENGTH_SHORT).show() }
             )
         }

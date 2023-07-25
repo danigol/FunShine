@@ -1,9 +1,7 @@
-package com.daniellegolinsky.designsystem.components
+package com.daniellegolinsky.funshinetheme.components
 
 import androidx.compose.material3.Text
 import androidx.compose.ui.text.style.TextAlign
-import com.daniellegolinsky.designsystem.designelements.getTextColor
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,16 +13,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.daniellegolinsky.designsystem.R
-import com.daniellegolinsky.designsystem.designelements.getForegroundItemColor
-import com.daniellegolinsky.designsystem.font.getButtonTextStyle
+import com.daniellegolinsky.funshinetheme.R
+import com.daniellegolinsky.funshinetheme.designelements.getForegroundItemColor
+import com.daniellegolinsky.funshinetheme.designelements.getTextColor
+import com.daniellegolinsky.funshinetheme.font.getButtonTextStyle
 
+/**
+ * FunShine sees data as projected and controls on the surface of a screen.
+ * Think of it like data is a hologram above the screen, with controls on the screen.
+ * Therefore, this button has no elevation. You can customize it with text.
+ */
 @Composable
 fun FsTextButton(
-    @StringRes buttonText: Int,
+    buttonText: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
@@ -47,7 +50,7 @@ fun FsTextButton(
             modifier = Modifier.padding(0.dp)
         )
         Text(
-            text = stringResource(id = buttonText),
+            text = buttonText,
             textAlign = TextAlign.Center,
             color = getTextColor(),
             maxLines = 1,
@@ -67,7 +70,7 @@ fun FsTextButton(
 @Composable
 fun PreviewFsTextButton() {
     FsTextButton(
-        buttonText = R.string.button_save_settings,
+        buttonText = "Save Settings",
         onClick = {}
     )
 }

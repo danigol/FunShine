@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'com.daniellegolinsky.designsystem'
+    namespace 'com.daniellegolinsky.themeresources'
     compileSdk 33
 
     buildFeatures {

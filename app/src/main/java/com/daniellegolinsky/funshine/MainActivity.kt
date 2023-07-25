@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.datastore.preferences.preferencesDataStore
-import com.daniellegolinsky.designsystem.designelements.getBackgroundColor
+import com.daniellegolinsky.funshinetheme.designelements.getBackgroundColor
 import com.daniellegolinsky.funshine.navigation.MainNavHost
 import com.daniellegolinsky.funshine.ui.settings.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
