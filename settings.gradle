@@ -15,4 +15,3 @@ dependencyResolutionManagement {
 rootProject.name = "Funshine"
 include ':app'
 include ':themeresources'
-include ':funshinetheme'
