@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -18,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.daniellegolinsky.themeresources.*
@@ -31,10 +34,12 @@ import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 
 @Composable
 fun WeatherScreen(
-    viewState: WeatherScreenViewState,
+    viewModel: WeatherViewModel,
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
+    val viewState = viewModel.weatherViewState.collectAsState().value
+
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -85,11 +90,12 @@ fun WeatherScreen(
 @Composable
 fun PreviewWeatherScreen() {
     WeatherScreen(
-        WeatherScreenViewState(
-            0,
-            78,
-            "It's going to be nice, all day, forever, just super nice."
-        ),
+//        WeatherScreenViewState(
+//            0,
+//            78,
+//            "It's going to be nice, all day, forever, just super nice."
+//        ),
+        viewModel(),
         rememberNavController()
     )
 }
