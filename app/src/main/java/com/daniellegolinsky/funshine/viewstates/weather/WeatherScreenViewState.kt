@@ -1,7 +1,8 @@
 package com.daniellegolinsky.funshine.viewstates.weather
 
 data class WeatherScreenViewState(
-    val weatherCode: Int,
+    val weatherIconResource: Int,
+    val weatherIconContentDescription: Int,
     val temperature: Int,
     val forecast: String,
 )

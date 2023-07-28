@@ -3,8 +3,11 @@ package com.daniellegolinsky.funshine.ui.weather
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.daniellegolinsky.funshine.R
+import com.daniellegolinsky.themeresources.R.drawable
 import com.daniellegolinsky.funshine.data.WeatherRepo
 import com.daniellegolinsky.funshine.models.WeatherCode
+import com.daniellegolinsky.funshine.models.getIconResource
 import com.daniellegolinsky.funshine.models.getResourceStringForWeatherCode
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +23,11 @@ class WeatherViewModel @Inject constructor(
     private val weatherRepo: WeatherRepo
 ) : ViewModel() {
 
-    private val emptyState = WeatherScreenViewState(0, 72, "Fun in the FunShine")
+    private val emptyState = WeatherScreenViewState(
+        drawable.ic_circle_x_black,
+        R.string.wc_unknown,
+        0,
+        "Fun in the FunShine")
     private var _weatherViewState: MutableStateFlow<WeatherScreenViewState> =
         MutableStateFlow(emptyState)
     val weatherViewState: StateFlow<WeatherScreenViewState> = _weatherViewState
@@ -30,11 +37,11 @@ class WeatherViewModel @Inject constructor(
             val currentWeatherResponse = weatherRepo.getCurrentWeather()
             val tempAsInt = currentWeatherResponse.temperature.toInt()
             val condition = currentWeatherResponse.weatherCode
-            val itsDay = if (currentWeatherResponse.isDay == 1) { "during the day" } else { "at night" } // TODO Resources
             _weatherViewState.value = WeatherScreenViewState(
-                0, // TODO pass on enum so we can extend it
+                condition.getIconResource(currentWeatherResponse.isDay == 1),
+                condition.getResourceStringForWeatherCode(),
                 tempAsInt,
-                "It's ${tempAsInt}ºF and ${getWeatherCodeString(condition)} ${itsDay}."
+                "It's ${tempAsInt}ºF and ${getWeatherCodeString(condition)}."
             )
         }
     }

@@ -30,7 +30,6 @@ import com.daniellegolinsky.funshinetheme.components.FsIconWithShadow
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 import com.daniellegolinsky.funshinetheme.font.getHeadingFontStyle
 import com.daniellegolinsky.funshine.navigation.MainNavHost
-import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 
 @Composable
 fun WeatherScreen(
@@ -49,8 +48,8 @@ fun WeatherScreen(
     ) {
         val context = LocalContext.current
         FsIconWithShadow(
-            image = painterResource(R.drawable.ic_sunny_black),
-            imageResourceContentDescription = stringResource(R.string.ic_sunny_content_description),
+            image = painterResource(viewState.weatherIconResource),
+            imageResourceContentDescription = "${stringResource(R.string.ic_sunny_content_description)} icon", // TODO this should be a resource too
         )
         FsText(
             text = "${viewState.temperature}ºF", // TODO Make this a string resource

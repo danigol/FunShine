@@ -2,6 +2,7 @@ package com.daniellegolinsky.funshine.models
 
 import com.daniellegolinsky.funshine.R
 import com.google.gson.annotations.SerializedName
+import com.daniellegolinsky.themeresources.R.drawable
 
 /**
  * WMO Weather interpretation codes (WW)
@@ -111,5 +112,17 @@ fun WeatherCode.getResourceStringForWeatherCode(): Int {
         WeatherCode.THUNDERSTORM_WITH_LIGHT_HAIL -> R.string.wc_thunderstorm_with_light_hail
         WeatherCode.THUNDERSTORM_WITH_HEAVY_HAIL -> R.string.wc_thunderstorm_with_heavy_hail
         else -> R.string.wc_unknown
+    }
+}
+
+fun WeatherCode.getIconResource(isDay: Boolean = true): Int {
+    return when (this) {
+        WeatherCode.CLEAR -> if (isDay) {
+            drawable.ic_sunny_black
+        } else {
+            drawable.ic_moon_clear_black
+        }
+        WeatherCode.OVERCAST -> com.daniellegolinsky.themeresources.R.drawable.ic_cloudy_black
+        else -> drawable.ic_circle_x_black
     }
 }
