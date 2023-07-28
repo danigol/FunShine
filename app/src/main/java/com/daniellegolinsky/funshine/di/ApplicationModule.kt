@@ -33,6 +33,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ApplicationModule {
     // Named dependencies
+    const val APPLICATION_CONTEXT = "APPLICATION_CONTEXT"
     const val IO_DISPATCHER = "IO_DISPATCHER"
     const val DATABASE_SCOPE = "DATABASE_SCOPE"
     const val SETTINGS_DATASTORE = "SETTINGS_DATASTORE"

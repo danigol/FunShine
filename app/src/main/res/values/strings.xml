@@ -1,3 +1,33 @@
 <resources>
     <string name="app_name">Funshine</string>
+
+    <!-- Weather Codes -->
+    <string name="wc_clear">clear</string>
+    <string name="wc_mostly_clear">mostly clear</string>
+    <string name="wc_partly_cloudy">partly cloudy</string>
+    <string name="wc_overcast">cloudy</string>
+    <string name="wc_fog">foggy</string>
+    <string name="wc_freezing_fog">freezing fog</string>
+    <string name="wc_light_drizzle">faint drizzle</string>
+    <string name="wc_drizzle">drizzle</string>
+    <string name="wc_heavy_drizzle">heavy drizzle</string>
+    <string name="wc_light_freezing_drizzle">light freezing drizzle</string>
+    <string name="wc_freezing_drizzle">freezing drizzle</string>
+    <string name="wc_light_rain">light rain</string>
+    <string name="wc_rain">rain</string>
+    <string name="wc_heavy_rain">heavy rain</string>
+    <string name="wc_light_freezing_rain">light freezing rain</string>
+    <string name="wc_freezing_rain">freezing rain</string>
+    <string name="wc_light_snow">light snow</string>
+    <string name="wc_snow">snow</string>
+    <string name="wc_heavy_snow">heavy snow</string>
+    <string name="wc_light_rain_showers">light rain showers</string>
+    <string name="wc_rain_showers">rain showers</string>
+    <string name="wc_violent_rain_showers">heavy rain showers</string>
+    <string name="wc_light_snow_showers">light snow showers</string>
+    <string name="wc_snow_showers">snow showers</string>
+    <string name="wc_thunderstorm">thunderstorm</string>
+    <string name="wc_thunderstorm_with_light_hail">heavy thunderstorm with light hail</string>
+    <string name="wc_thunderstorm_with_heavy_hail">heavy thunderstorm with heavy hail</string>
+    <string name="wc_unknown">unknown weather condition</string>
 </resources>

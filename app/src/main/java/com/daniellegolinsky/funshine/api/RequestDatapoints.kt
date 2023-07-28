@@ -7,27 +7,31 @@ import java.util.SimpleTimeZone
  * https://api.open-meteo.com/v1/forecast?latitude=43.73&longitude=-73.99&hourly=temperature_2m,precipitation_probability,weathercode,cloudcover&daily=weathercode,temperature_2m_max,temperature_2m_min&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=America%2FNew_York
  */
 
-data class RequestDatapoints(
-    val current: String = "current_weather",
-    val hourly: String = "hourly",
-    val daily: String = "daily",
-    val lat: String = "latitude",
-    val long: String = "longitude",
-    val temperature: String = "temperature_2m",
-    val tempMax: String = "${temperature}_max",
-    val tempMin: String = "${temperature}_min",
-    val precip_prob: String = "precipitation_probability",
-    val weatherCode: String = "weathercode",
-    val cloudCover: String = "cloudcover",
-    val tempUnit: String = "temperature_unit",
-    val f: String = "fahrenheit",
-    val c: String = "celsius",
-    val windspeedUnit: String = "windspeed_unit",
-    val mph: String = "mph",
-    val kph: String = "kph",
-    val precipitationUnit: String = "precipitation_unit",
-    val inch: String = "inch",
-    val cm: String = "centimeter",
-    val timeZone: String = "timezone",
-    val usNyc: String = "America New_York", // TODO: This seems like a problem, might be better to assume local time zone from location and get UTC and subtract
-)
+class RequestDatapoints() {
+    companion object {
+        const val FORECAST: String = "v1/forecast"
+        const val CURRENT: String = "current_weather"
+        const val HOURLY: String = "hourly"
+        const val DAILY: String = "daily"
+        const val LAT: String = "latitude"
+        const val LONG: String = "longitude"
+        const val TEMPERATURE: String = "temperature_2m"
+        const val TEMP_MAX: String = "${TEMPERATURE}_max"
+        const val TEMP_MIN: String = "${TEMPERATURE}_min"
+        const val PRECIP_PROB: String = "precipitation_probability"
+        const val WEATHER_CODE: String = "weathercode"
+        const val CLOUD_COVRE: String = "cloudcover"
+        const val TEMP_UNIT: String = "temperature_unit"
+        const val F: String = "fahrenheit"
+        const val C: String = "celsius"
+        const val WINDSPEED_UNIT: String = "windspeed_unit"
+        const val MPH: String = "mph"
+        const val KPH: String = "kph"
+        const val PRECIPITATION_UNIT: String = "precipitation_unit"
+        const val INCH: String = "inch"
+        const val CM: String = "centimeter"
+        const val TIME_ZONE: String = "timezone"
+        const val US_NYC: String =
+            "America New_York" // TODO: This seems like a problem, might be better to assume local time zone from location and get UTC and subtract
+    }
+}
