@@ -122,6 +122,16 @@ fun WeatherCode.getIconResource(isDay: Boolean = true): Int {
         } else {
             drawable.ic_moon_clear_black
         }
+        WeatherCode.MOSTLY_CLEAR -> if (isDay) {
+            drawable.ic_partly_sunny_black
+        } else {
+            drawable.ic_partly_moony_black
+        }
+        WeatherCode.PARTLY_CLOUDY -> if (isDay) {
+            drawable.ic_partly_cloudy_black
+        } else {
+            drawable.ic_partly_cloudy_night_black
+        }
 
         WeatherCode.OVERCAST -> drawable.ic_cloudy_black
 
@@ -135,9 +145,23 @@ fun WeatherCode.getIconResource(isDay: Boolean = true): Int {
         WeatherCode.DRIZZLE,
         WeatherCode.HEAVY_DRIZZLE -> drawable.ic_rain_black
 
+        WeatherCode.LIGHT_SNOW,
+        WeatherCode.SNOW,
+        WeatherCode.HEAVY_SNOW,
+        WeatherCode.LIGHT_SNOW_SHOWERS,
+        WeatherCode.SNOW_SHOWERS -> drawable.ic_snowing_black
+        
         WeatherCode.THUNDERSTORM,
         WeatherCode.THUNDERSTORM_WITH_LIGHT_HAIL,
         WeatherCode.THUNDERSTORM_WITH_HEAVY_HAIL -> drawable.ic_lightning_black // TODO, I mean, add more...
+
+        WeatherCode.FOG,
+        WeatherCode.FREEZING_FOG -> drawable.ic_fog_black
+
+        WeatherCode.LIGHT_FREEZING_DRIZZLE,
+        WeatherCode.FREEZING_DRIZZLE,
+        WeatherCode.LIGHT_FREEZING_RAIN,
+        WeatherCode.FREEZING_RAIN -> drawable.ic_freezing_rain // TODO Differentiate better
 
         else -> drawable.ic_circle_x_black
     }
