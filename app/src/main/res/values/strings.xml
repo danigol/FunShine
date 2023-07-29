@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Funshine</string>
 
+    <!-- Status and stuff -->
+    <string name="loading">Loading...</string>
+
     <!-- Weather Codes -->
     <string name="wc_clear">clear</string>
     <string name="wc_mostly_clear">mostly clear</string>

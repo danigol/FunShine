@@ -51,12 +51,14 @@ fun WeatherScreen(
             image = painterResource(viewState.weatherIconResource),
             imageResourceContentDescription = "${stringResource(R.string.ic_sunny_content_description)} icon", // TODO this should be a resource too
         )
-        FsText(
-            text = "${viewState.temperature}ºF", // TODO Make this a string resource
-            textStyle = getHeadingFontStyle(),
-            maxLines = 1
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        if (viewState.temperature != null) {
+            FsText(
+                text = "${viewState.temperature}ºF", // TODO Make this a string resource OH, and Cª
+                textStyle = getHeadingFontStyle(),
+                maxLines = 1
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
         FsText(
             text = viewState.forecast,
             textStyle = getBodyFontStyle(),
@@ -79,7 +81,7 @@ fun WeatherScreen(
             FsIconButton(
                 buttonIcon = painterResource(id = R.drawable.ic_refresh_button_black),
                 buttonIconContentDescription = stringResource(id = R.string.ic_refresh_button_content_description),
-                onClick = { Toast.makeText(context, "How refreshing!", Toast.LENGTH_SHORT).show() }
+                onClick = { viewModel.getCurrentWeather() }
             )
         }
     }
