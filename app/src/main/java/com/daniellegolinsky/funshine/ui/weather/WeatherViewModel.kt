@@ -8,6 +8,7 @@ import com.daniellegolinsky.funshine.data.SettingsRepo
 import com.daniellegolinsky.themeresources.R.drawable
 import com.daniellegolinsky.funshine.data.WeatherRepo
 import com.daniellegolinsky.funshine.models.WeatherCode
+import com.daniellegolinsky.funshine.models.api.CurrentWeatherResponse
 import com.daniellegolinsky.funshine.models.getIconResource
 import com.daniellegolinsky.funshine.models.getResourceStringForWeatherCode
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
@@ -49,9 +50,19 @@ class WeatherViewModel @Inject constructor(
                 condition.getIconResource(currentWeatherResponse.isDay == 1),
                 condition.getResourceStringForWeatherCode(),
                 tempAsInt,
-                "It's ${tempAsInt}ºF and ${getWeatherCodeString(condition)}."
+                getForecastString(currentWeatherResponse)
             )
         }
+    }
+
+    private fun getForecastString(wr: CurrentWeatherResponse): String {
+        return "${getWeatherCodeString(wr.weatherCode)} ${context.getString(R.string.currently)}." +
+                "\n${context.getString(R.string.windspeed)} ${wr.windSpeed}${getWindspeedUnit()}."
+    }
+
+    private fun getWindspeedUnit(): String {
+        // TODO Will replace with settings repo
+        return context.getString(R.string.mph)
     }
 
     private fun getWeatherCodeString(wc: WeatherCode): String {

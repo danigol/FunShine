@@ -4,33 +4,45 @@
     <!-- Status and stuff -->
     <string name="loading">Loading...</string>
 
+    <!-- Weather Condition String -->
+    <string name="windspeed">Windspeed:</string>
+    <string name="mph">mph</string>
+    <string name="kph">kph</string>
+    <string name="currently">currently</string>
+
+    <!--      ***      -->
     <!-- Weather Codes -->
-    <string name="wc_clear">clear</string>
-    <string name="wc_mostly_clear">mostly clear</string>
-    <string name="wc_partly_cloudy">partly cloudy</string>
-    <string name="wc_overcast">cloudy</string>
-    <string name="wc_fog">foggy</string>
-    <string name="wc_freezing_fog">freezing fog</string>
-    <string name="wc_light_drizzle">faint drizzle</string>
-    <string name="wc_drizzle">drizzle</string>
-    <string name="wc_heavy_drizzle">heavy drizzle</string>
-    <string name="wc_light_freezing_drizzle">light freezing drizzle</string>
-    <string name="wc_freezing_drizzle">freezing drizzle</string>
-    <string name="wc_light_rain">light rain</string>
-    <string name="wc_rain">rain</string>
-    <string name="wc_heavy_rain">heavy rain</string>
-    <string name="wc_light_freezing_rain">light freezing rain</string>
-    <string name="wc_freezing_rain">freezing rain</string>
-    <string name="wc_light_snow">light snow</string>
-    <string name="wc_snow">snow</string>
-    <string name="wc_heavy_snow">heavy snow</string>
-    <string name="wc_light_rain_showers">light rain showers</string>
-    <string name="wc_rain_showers">rain showers</string>
-    <string name="wc_violent_rain_showers">heavy rain showers</string>
-    <string name="wc_light_snow_showers">light snow showers</string>
-    <string name="wc_snow_showers">snow showers</string>
-    <string name="wc_thunderstorm">thunderstorm</string>
-    <string name="wc_thunderstorm_with_light_hail">heavy thunderstorm with light hail</string>
-    <string name="wc_thunderstorm_with_heavy_hail">heavy thunderstorm with heavy hail</string>
+    <!-- It's <adjective>... -->
+    <string name="wc_clear">It\'s clear</string>
+    <string name="wc_mostly_clear">It\'s mostly clear</string>
+    <string name="wc_partly_cloudy">It\'s partly cloudy</string>
+    <string name="wc_overcast">It\'s cloudy</string>
+    <string name="wc_fog">It\'s foggy</string>
+    <!-- It's <verb> -->
+    <string name="wc_light_drizzle">It\'s drizzling faintly</string>
+    <string name="wc_drizzle">It\'s drizzling</string>
+    <string name="wc_heavy_drizzle">It\'s drizzling heavily</string>
+    <string name="wc_light_rain">It\'s raining lightly</string>
+    <string name="wc_rain">It\'s raining</string>
+    <string name="wc_heavy_rain">It\'s raining heavily</string>
+    <string name="wc_light_snow">It\'s snowing lightly</string>
+    <string name="wc_snow">It\'s snowing</string>
+    <string name="wc_heavy_snow">It\'s snowing heavily</string>
+    <!-- There is... -->
+    <string name="wc_freezing_fog">There is freezing fog</string>
+    <string name="wc_light_freezing_drizzle">There is light freezing drizzle</string>
+    <string name="wc_freezing_drizzle">There is freezing drizzle</string>
+    <string name="wc_light_freezing_rain">There is light freezing rain</string>
+    <string name="wc_freezing_rain">There is freezing rain</string>
+    <string name="wc_thunderstorm">There is a thunderstorm</string>
+    <string name="wc_thunderstorm_with_light_hail">There is a severe thunderstorm with light hail</string>
+    <string name="wc_thunderstorm_with_heavy_hail">There is a severe thunderstorm with heavy hail</string>
+    <!-- There are -->
+    <string name="wc_light_rain_showers">There are light rain showers</string>
+    <string name="wc_rain_showers">There are rain showers</string>
+    <string name="wc_violent_rain_showers">There are heavy rain showers</string>
+    <string name="wc_light_snow_showers">There are light snow showers</string>
+    <string name="wc_snow_showers">There are snow showers</string>
+
     <string name="wc_unknown">unknown weather condition</string>
 </resources>

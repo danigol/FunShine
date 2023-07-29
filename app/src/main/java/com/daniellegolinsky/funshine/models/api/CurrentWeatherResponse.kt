@@ -12,4 +12,7 @@ data class CurrentWeatherResponse(
 
     @SerializedName("is_day")
     val isDay: Int,
+
+    @SerializedName("windspeed")
+    val windSpeed: Float,
 )
