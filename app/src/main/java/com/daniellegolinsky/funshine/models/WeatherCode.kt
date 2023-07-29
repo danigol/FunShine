@@ -150,7 +150,7 @@ fun WeatherCode.getIconResource(isDay: Boolean = true): Int {
         WeatherCode.HEAVY_SNOW,
         WeatherCode.LIGHT_SNOW_SHOWERS,
         WeatherCode.SNOW_SHOWERS -> drawable.ic_snowing_black
-        
+
         WeatherCode.THUNDERSTORM,
         WeatherCode.THUNDERSTORM_WITH_LIGHT_HAIL,
         WeatherCode.THUNDERSTORM_WITH_HEAVY_HAIL -> drawable.ic_lightning_black // TODO, I mean, add more...
