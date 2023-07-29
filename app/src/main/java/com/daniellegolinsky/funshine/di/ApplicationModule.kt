@@ -7,7 +7,9 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.daniellegolinsky.funshine.api.OpenMeteoWeatherService
 import com.daniellegolinsky.funshine.datastore.WeatherSettingsDataStore
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,6 +20,12 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
+import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -25,9 +33,30 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ApplicationModule {
     // Named dependencies
+    const val APPLICATION_CONTEXT = "APPLICATION_CONTEXT"
     const val IO_DISPATCHER = "IO_DISPATCHER"
     const val DATABASE_SCOPE = "DATABASE_SCOPE"
     const val SETTINGS_DATASTORE = "SETTINGS_DATASTORE"
+    const val OPEN_METEO_WEATHER_SERVICE = "OPEN_METEO"
+
+    @Provides
+    @Singleton
+    @Named(OPEN_METEO_WEATHER_SERVICE)
+    internal fun providesOpenMeteoWeatherService(): OpenMeteoWeatherService {
+        val gson = GsonBuilder().setLenient().create()
+        val loggingInterceptor = HttpLoggingInterceptor() // TODO Set logging for debug builds only
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+        val httpClient = OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .readTimeout(10, TimeUnit.SECONDS)
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.open-meteo.com/")
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(httpClient.build())
+            .build()
+        return retrofit.create(OpenMeteoWeatherService::class.java)
+    }
 
     @Provides
     @Singleton
