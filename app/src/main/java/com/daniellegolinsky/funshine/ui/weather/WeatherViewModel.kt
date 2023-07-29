@@ -49,7 +49,7 @@ class WeatherViewModel @Inject constructor(
             _weatherViewState.value = WeatherScreenViewState(
                 condition.getIconResource(currentWeatherResponse.isDay == 1),
                 condition.getResourceStringForWeatherCode(),
-                tempAsInt,
+                tempAsInt, // TODO We may want to format this string here, from settings
                 getForecastString(currentWeatherResponse)
             )
         }

@@ -122,7 +122,23 @@ fun WeatherCode.getIconResource(isDay: Boolean = true): Int {
         } else {
             drawable.ic_moon_clear_black
         }
-        WeatherCode.OVERCAST -> com.daniellegolinsky.themeresources.R.drawable.ic_cloudy_black
+
+        WeatherCode.OVERCAST -> drawable.ic_cloudy_black
+
+        WeatherCode.RAIN,
+        WeatherCode.LIGHT_RAIN,
+        WeatherCode.HEAVY_RAIN,
+        WeatherCode.LIGHT_RAIN_SHOWERS,
+        WeatherCode.RAIN_SHOWERS,
+        WeatherCode.VIOLENT_RAIN_SHOWERS,
+        WeatherCode.LIGHT_DRIZZLE,
+        WeatherCode.DRIZZLE,
+        WeatherCode.HEAVY_DRIZZLE -> drawable.ic_rain_black
+
+        WeatherCode.THUNDERSTORM,
+        WeatherCode.THUNDERSTORM_WITH_LIGHT_HAIL,
+        WeatherCode.THUNDERSTORM_WITH_HEAVY_HAIL -> drawable.ic_lightning_black // TODO, I mean, add more...
+
         else -> drawable.ic_circle_x_black
     }
 }
