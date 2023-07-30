@@ -61,7 +61,7 @@ class WeatherViewModel @Inject constructor(
         val precipChance = dailyWeatherResponse.precipitationProbabilityMax[0]
         val precipAmount: Double = dailyWeatherResponse.precipitationSum[0]
 
-        var weatherString = "${getWeatherCodeString(currentWeatherResponse.weatherCode)} ${context.getString(R.string.currently)}." +
+        var weatherString = "${getWeatherCodeString(currentWeatherResponse.weatherCode)} ${context.getString(R.string.currently)}.\n" + // Extra space
                 "\n${context.getString(R.string.windspeed)} ${currentWeatherResponse.windSpeed}${getWindspeedUnit()}" +
                 "\n${context.getString(R.string.min_temp)} ${tempMinAsInt}ºF" +
                 "\n${context.getString(R.string.max_temp)} ${tempMaxAsInt}ºF" +

@@ -1,13 +1,21 @@
 package com.daniellegolinsky.funshine.ui.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -22,16 +30,43 @@ import com.daniellegolinsky.funshinetheme.components.FsTextButton
 import com.daniellegolinsky.funshinetheme.components.FsTextField
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 import com.daniellegolinsky.funshine.navigation.MainNavHost
+import com.daniellegolinsky.funshine.ui.info.LocationPermissionInfoDialog
 import com.daniellegolinsky.funshinetheme.components.FsBackButton
 import com.daniellegolinsky.funshinetheme.components.FsLocationButton
+import com.daniellegolinsky.funshinetheme.designelements.getBackgroundColor
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     navController: NavController,
+    showDialog: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     var viewState = viewModel.settingsViewState.collectAsState()
+    val showFirstLaunchDialog = remember { mutableStateOf(showDialog) }
+
+    if (showFirstLaunchDialog.value) {
+        AlertDialog(onDismissRequest = { showFirstLaunchDialog.value = false } ) {
+            Surface(
+                shape = MaterialTheme.shapes.large,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.background(getBackgroundColor()).padding(horizontal = 8.dp, vertical = 16.dp)
+                ) {
+                    LocationPermissionInfoDialog()
+                    FsTextButton(
+                        buttonText = "Sounds good!"
+                    ) {
+                        showFirstLaunchDialog.value = false
+                    }
+                }
+            }
+        }
+    }
+
     // TODO TODOs all around!
     Column(
         horizontalAlignment = Alignment.Start,
