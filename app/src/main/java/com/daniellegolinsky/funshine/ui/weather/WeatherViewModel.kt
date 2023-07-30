@@ -4,22 +4,18 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.R
-import com.daniellegolinsky.funshine.data.SettingsRepo
 import com.daniellegolinsky.themeresources.R.drawable
 import com.daniellegolinsky.funshine.data.WeatherRepo
 import com.daniellegolinsky.funshine.models.WeatherCode
-import com.daniellegolinsky.funshine.models.api.CurrentWeatherResponse
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
 import com.daniellegolinsky.funshine.models.getIconResource
 import com.daniellegolinsky.funshine.models.getResourceStringForWeatherCode
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,11 +34,10 @@ class WeatherViewModel @Inject constructor(
         MutableStateFlow(emptyState)
     val weatherViewState: StateFlow<WeatherScreenViewState> = _weatherViewState
 
-    fun getCurrentWeather() {
-        // Show a loading screen
-        if (_weatherViewState.value != emptyState) {
-            _weatherViewState.value = emptyState
-        }
+    fun loading() {
+        _weatherViewState.value = emptyState
+    }
+    fun loadForecast() {
         viewModelScope.launch {
             val weatherResponse = weatherRepo.getWeather()
             val currentWeatherResponse = weatherResponse.currentWeather
