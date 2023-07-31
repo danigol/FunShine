@@ -19,6 +19,7 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
         latLong = "",
         hasSeenLocationWarning = true,
         hasBeenPromptedForLocationPermission = false,
+        isLoadingLocation = false,
     )
     private var _settingsViewState: MutableStateFlow<SettingsViewState> =
         MutableStateFlow(emptyState)
@@ -93,6 +94,15 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
         saveStateToDatastore(this._settingsViewState.value)
     }
 
+    fun setIsLoadingLocation(isLoading: Boolean) {
+        _settingsViewState.value = updateViewState(
+            location = null,
+            hasSeenLocationWarning = null,
+            hasBeenPromptedForLocationPermission = null,
+            isLoading
+        )
+    }
+
     private fun saveStateToDatastore(viewState: SettingsViewState) {
         viewModelScope.launch {
             val location = generateLocationFromString(viewState.latLong)
@@ -112,13 +122,15 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
         location: String?,
         hasSeenLocationWarning: Boolean?,
         hasBeenPromptedForLocationPermission: Boolean?,
+        isLoadingLocation: Boolean? = null,
     ): SettingsViewState {
         return SettingsViewState(
             latLong = location ?: _settingsViewState.value.latLong,
             hasSeenLocationWarning = hasSeenLocationWarning
                 ?: _settingsViewState.value.hasSeenLocationWarning,
             hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission
-                ?: _settingsViewState.value.hasBeenPromptedForLocationPermission
+                ?: _settingsViewState.value.hasBeenPromptedForLocationPermission,
+            isLoadingLocation = isLoadingLocation ?: false
         )
     }
 

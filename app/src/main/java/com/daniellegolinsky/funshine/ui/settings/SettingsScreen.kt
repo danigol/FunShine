@@ -21,6 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,7 @@ import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 import com.daniellegolinsky.funshine.navigation.MainNavHost
 import com.daniellegolinsky.funshine.ui.info.LocationPermissionInfoDialog
 import com.daniellegolinsky.funshinetheme.components.FsBackButton
+import com.daniellegolinsky.funshinetheme.components.FsIconButton
 import com.daniellegolinsky.funshinetheme.components.FsLocationButton
 import com.daniellegolinsky.funshinetheme.designelements.getBackgroundColor
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -116,32 +118,40 @@ fun SettingsScreen(
                 value = viewState.value.latLong,
                 onValueChange = { viewModel.setViewStateLocation(it) },
                 trailingIcon = @Composable {
-                    FsLocationButton(modifier = Modifier.height(16.dp)) {
-                        viewModel.setViewStateLocation("0.00,0.00") // TODO Make a real loading state
-                        // TODO, and, let's see how much of this we can get out of the composable?
-                        if (locationPermissionState.status.isGranted) {
-                            // TODO Definitely don't like this here
-                            scope.launch(Dispatchers.IO) { // TODO no, no no no no no no nooooooo no.
-                                locationClient.getCurrentLocation(
-                                    Priority.PRIORITY_HIGH_ACCURACY,
-                                    CancellationTokenSource().token,
-                                ).addOnCompleteListener {// TODO yeah, don't like this here
-                                    val locationResult = it.result
-                                    val latitude = locationResult.latitude.toBigDecimal()
-                                        .setScale(3, RoundingMode.UP).toFloat()
-                                    val longitude = locationResult.longitude.toBigDecimal()
-                                        .setScale(3, RoundingMode.UP).toFloat()
-                                    viewModel.setViewStateLocation("${latitude},${longitude}")
+                    if (viewState.value.isLoadingLocation) {
+                        FsIconButton(
+                            buttonIcon = painterResource(R.drawable.ic_loading_black),
+                            buttonIconContentDescription = stringResource(id = com.daniellegolinsky.funshine.R.string.loading)) {}
+                    } else {
+                        FsLocationButton(modifier = Modifier.height(16.dp)) {
+                            viewModel.setViewStateLocation("0.00,0.00") // TODO Make a real loading state
+                            // TODO, and, let's see how much of this we can get out of the composable?
+                            if (locationPermissionState.status.isGranted) {
+                                viewModel.setIsLoadingLocation(true)
+                                // TODO Definitely don't like this here
+                                scope.launch(Dispatchers.IO) { // TODO no, no no no no no no nooooooo no.
+                                    locationClient.getCurrentLocation(
+                                        Priority.PRIORITY_HIGH_ACCURACY,
+                                        CancellationTokenSource().token,
+                                    ).addOnCompleteListener {// TODO yeah, don't like this here
+                                        val locationResult = it.result
+                                        val latitude = locationResult.latitude.toBigDecimal()
+                                            .setScale(3, RoundingMode.UP).toFloat()
+                                        val longitude = locationResult.longitude.toBigDecimal()
+                                            .setScale(3, RoundingMode.UP).toFloat()
+                                        viewModel.setViewStateLocation("${latitude},${longitude}")
+                                        viewModel.setIsLoadingLocation(false)
+                                    }
                                 }
-                            }
-                        } else {
-                            // If we've already prompted them, remind them we need the permission
-                            if (viewState.value.hasBeenPromptedForLocationPermission) {
-                                viewModel.setViewStateHasSeenLocationWarning(false)
                             } else {
-                                // TODO Request location afterwards
-                                locationPermissionState.launchPermissionRequest()
-                                viewModel.setViewStateHasBeenPromptedForLocationPermission(true)
+                                // If we've already prompted them, remind them we need the permission
+                                if (viewState.value.hasBeenPromptedForLocationPermission) {
+                                    viewModel.setViewStateHasSeenLocationWarning(false)
+                                } else {
+                                    // TODO Request location afterwards
+                                    locationPermissionState.launchPermissionRequest()
+                                    viewModel.setViewStateHasBeenPromptedForLocationPermission(true)
+                                }
                             }
                         }
                     }

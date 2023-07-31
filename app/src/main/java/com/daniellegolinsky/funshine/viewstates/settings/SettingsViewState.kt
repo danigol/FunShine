@@ -4,4 +4,5 @@ data class SettingsViewState(
     val latLong: String,
     val hasSeenLocationWarning: Boolean,
     val hasBeenPromptedForLocationPermission: Boolean,
+    val isLoadingLocation: Boolean = false,
 )
