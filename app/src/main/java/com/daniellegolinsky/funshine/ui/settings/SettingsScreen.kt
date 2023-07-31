@@ -1,5 +1,8 @@
 package com.daniellegolinsky.funshine.ui.settings
 
+import android.annotation.SuppressLint
+import android.location.LocationManager
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -7,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -16,8 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,8 +38,19 @@ import com.daniellegolinsky.funshine.ui.info.LocationPermissionInfoDialog
 import com.daniellegolinsky.funshinetheme.components.FsBackButton
 import com.daniellegolinsky.funshinetheme.components.FsLocationButton
 import com.daniellegolinsky.funshinetheme.designelements.getBackgroundColor
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.invoke
+import kotlinx.coroutines.launch
+import java.math.RoundingMode
 
-@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("MissingPermission")
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
@@ -45,8 +60,16 @@ fun SettingsScreen(
 ) {
     var viewState = viewModel.settingsViewState.collectAsState()
     val showFirstLaunchDialog = remember { mutableStateOf(showDialog) }
+    val locationPermissionState = rememberPermissionState(
+        permission = android.Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+    val localContext = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val locationClient = remember {
+        LocationServices.getFusedLocationProviderClient(localContext)
+    }
 
-    if (showFirstLaunchDialog.value) {
+    if (locationPermissionState.status.isGranted && showFirstLaunchDialog.value) {
         AlertDialog(onDismissRequest = { showFirstLaunchDialog.value = false } ) {
             Surface(
                 shape = MaterialTheme.shapes.large,
@@ -54,7 +77,9 @@ fun SettingsScreen(
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.background(getBackgroundColor()).padding(horizontal = 8.dp, vertical = 16.dp)
+                    modifier = Modifier
+                        .background(getBackgroundColor())
+                        .padding(horizontal = 8.dp, vertical = 16.dp)
                 ) {
                     LocationPermissionInfoDialog()
                     FsTextButton(
@@ -103,9 +128,23 @@ fun SettingsScreen(
                 onValueChange = { viewModel.updateViewStateLocation(it) },
                 trailingIcon = @Composable {
                     FsLocationButton(modifier = Modifier.height(16.dp)) {
-                        viewModel.updateViewStateLocation("40.73, -73.99")
-                        // TODO Get location from GPS (requires permissions)
-                        // TODO Disable/don't show if they haven't granted permissions?
+                        viewModel.updateViewStateLocation("0.00,0.00") // TODO Make a real loading state
+                        if (locationPermissionState.status.isGranted) {
+                            // TODO Definitely don't like this here
+                            scope.launch(Dispatchers.IO) {
+                                val result = locationClient.getCurrentLocation(
+                                    Priority.PRIORITY_HIGH_ACCURACY,
+                                    CancellationTokenSource().token,
+                                ).addOnCompleteListener {// TODO yeah, don't like this here
+                                    val locationResult = it.result
+                                    val latitude = locationResult.latitude.toBigDecimal().setScale(3, RoundingMode.UP).toFloat()
+                                    val longitude = locationResult.longitude.toBigDecimal().setScale(3, RoundingMode.UP).toFloat()
+                                    viewModel.updateViewStateLocation("${latitude},${longitude}")
+                                }
+                            }
+                        } else {
+                            locationPermissionState.launchPermissionRequest()
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
