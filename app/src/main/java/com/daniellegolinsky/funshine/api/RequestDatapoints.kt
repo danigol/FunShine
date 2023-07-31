@@ -17,6 +17,8 @@ class RequestDatapoints() {
         const val FORECAST_DAYS: String = "forecast_days"
         const val LAT: String = "latitude"
         const val LONG: String = "longitude"
+        const val LAT_PARAM: String = "latitude_parameter"
+        const val LONG_PARAM: String = "longitude_parameter"
         const val TEMPERATURE: String = "temperature_2m"
         const val TEMP_MAX: String = "${TEMPERATURE}_max"
         const val TEMP_MIN: String = "${TEMPERATURE}_min"

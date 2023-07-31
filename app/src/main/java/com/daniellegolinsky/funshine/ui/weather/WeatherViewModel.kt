@@ -7,26 +7,24 @@ import com.daniellegolinsky.funshine.R
 import com.daniellegolinsky.funshine.data.SettingsRepo
 import com.daniellegolinsky.themeresources.R.drawable
 import com.daniellegolinsky.funshine.data.WeatherRepo
+import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.WeatherCode
-import com.daniellegolinsky.funshine.models.api.CurrentWeatherResponse
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
 import com.daniellegolinsky.funshine.models.getIconResource
 import com.daniellegolinsky.funshine.models.getResourceStringForWeatherCode
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val weatherRepo: WeatherRepo,
-//    private val settingsRepo: SettingsRepo, TODO: F/C, in/cm, etc
+    private val settingsRepo: SettingsRepo,
 ) : ViewModel() {
 
     private val emptyState = WeatherScreenViewState(
@@ -38,13 +36,16 @@ class WeatherViewModel @Inject constructor(
         MutableStateFlow(emptyState)
     val weatherViewState: StateFlow<WeatherScreenViewState> = _weatherViewState
 
-    fun getCurrentWeather() {
-        // Show a loading screen
-        if (_weatherViewState.value != emptyState) {
-            _weatherViewState.value = emptyState
-        }
+    suspend fun getLocation(): Location {
+        return settingsRepo.getLocation()
+    }
+
+    fun loading() {
+        _weatherViewState.value = emptyState
+    }
+    fun loadForecast() {
         viewModelScope.launch {
-            val weatherResponse = weatherRepo.getWeather()
+            val weatherResponse = weatherRepo.getWeather(getLocation())
             val currentWeatherResponse = weatherResponse.currentWeather
             val tempAsInt = currentWeatherResponse.temperature.toInt()
             val condition = currentWeatherResponse.weatherCode
@@ -66,7 +67,7 @@ class WeatherViewModel @Inject constructor(
         val precipChance = dailyWeatherResponse.precipitationProbabilityMax[0]
         val precipAmount: Double = dailyWeatherResponse.precipitationSum[0]
 
-        var weatherString = "${getWeatherCodeString(currentWeatherResponse.weatherCode)} ${context.getString(R.string.currently)}." +
+        var weatherString = "${getWeatherCodeString(currentWeatherResponse.weatherCode)} ${context.getString(R.string.currently)}.\n" + // Extra space
                 "\n${context.getString(R.string.windspeed)} ${currentWeatherResponse.windSpeed}${getWindspeedUnit()}" +
                 "\n${context.getString(R.string.min_temp)} ${tempMinAsInt}ºF" +
                 "\n${context.getString(R.string.max_temp)} ${tempMaxAsInt}ºF" +

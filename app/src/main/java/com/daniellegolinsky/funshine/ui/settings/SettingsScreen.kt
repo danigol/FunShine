@@ -1,15 +1,25 @@
 package com.daniellegolinsky.funshine.ui.settings
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -22,16 +32,65 @@ import com.daniellegolinsky.funshinetheme.components.FsTextButton
 import com.daniellegolinsky.funshinetheme.components.FsTextField
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 import com.daniellegolinsky.funshine.navigation.MainNavHost
+import com.daniellegolinsky.funshine.ui.info.LocationPermissionInfoDialog
 import com.daniellegolinsky.funshinetheme.components.FsBackButton
+import com.daniellegolinsky.funshinetheme.components.FsIconButton
 import com.daniellegolinsky.funshinetheme.components.FsLocationButton
+import com.daniellegolinsky.funshinetheme.designelements.getBackgroundColor
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.launch
+import java.math.RoundingMode
 
+@SuppressLint("MissingPermission")
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    var viewState = viewModel.settingsViewState.collectAsState()
+    val viewState = viewModel.settingsViewState.collectAsState()
+    val hasSeenLocationWarning = viewState.value.hasSeenLocationWarning
+    val locationPermissionState = rememberPermissionState(
+        permission = android.Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+    val localContext = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val locationClient = remember {
+        LocationServices.getFusedLocationProviderClient(localContext)
+    }
+
+    // Only show the warning if they haven't seen it and we don't have permission
+    if (!hasSeenLocationWarning && !locationPermissionState.status.isGranted) {
+        AlertDialog(onDismissRequest = {
+            dismissLocationWarning(viewModel = viewModel)
+        } ) {
+            Surface(
+                shape = MaterialTheme.shapes.large,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .background(getBackgroundColor())
+                        .padding(horizontal = 8.dp, vertical = 16.dp)
+                ) {
+                    LocationPermissionInfoDialog()
+                    FsTextButton(
+                        buttonText = "Sounds good!"
+                    ) {
+                        dismissLocationWarning(viewModel = viewModel)
+                    }
+                }
+            }
+        }
+    }
+
     // TODO TODOs all around!
     Column(
         horizontalAlignment = Alignment.Start,
@@ -48,29 +107,50 @@ fun SettingsScreen(
         // Content
         Column(modifier = Modifier.padding(start = 32.dp, end = 32.dp)) {
             FsText(
-                text = "API Key: ",
-                textStyle = getBodyFontStyle(),
-                modifier = Modifier.align(alignment = Alignment.Start)
-            )
-            FsTextField(
-                value = viewState.value.apiKey,
-                onValueChange = { viewModel.updateViewStateApiKey(it) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            FsText(
                 text = "Latitude, Longitude: ",
                 textStyle = getBodyFontStyle(),
                 modifier = Modifier.align(alignment = Alignment.Start)
             )
             FsTextField( // TODO Update with local text, then save? Or direct to viewstate?
                 value = viewState.value.latLong,
-                onValueChange = { viewModel.updateViewStateLocation(it) },
+                onValueChange = { viewModel.setViewStateLocation(it) },
                 trailingIcon = @Composable {
-                    FsLocationButton(modifier = Modifier.height(16.dp)) {
-                        viewModel.updateViewStateLocation("40.73, -73.99")
-                        // TODO Get location from GPS (requires permissions)
-                        // TODO Disable/don't show if they haven't granted permissions?
+                    if (viewState.value.isLoadingLocation) {
+                        FsIconButton(
+                            buttonIcon = painterResource(R.drawable.ic_loading_black),
+                            buttonIconContentDescription = stringResource(id = com.daniellegolinsky.funshine.R.string.loading)) {}
+                    } else {
+                        FsLocationButton(modifier = Modifier.height(16.dp)) {
+                            viewModel.setViewStateLocation("0.00,0.00") // TODO Make a real loading state
+                            // TODO, and, let's see how much of this we can get out of the composable?
+                            if (locationPermissionState.status.isGranted) {
+                                viewModel.setIsLoadingLocation(true)
+                                // TODO Definitely don't like this here
+                                scope.launch(viewModel.getIoDispatcher()) { // TODO no, no no no no no no nooooooo no.
+                                    locationClient.getCurrentLocation(
+                                        Priority.PRIORITY_HIGH_ACCURACY,
+                                        CancellationTokenSource().token,
+                                    ).addOnCompleteListener {// TODO yeah, don't like this here
+                                        val locationResult = it.result
+                                        val latitude = locationResult.latitude.toBigDecimal()
+                                            .setScale(3, RoundingMode.UP).toFloat()
+                                        val longitude = locationResult.longitude.toBigDecimal()
+                                            .setScale(3, RoundingMode.UP).toFloat()
+                                        viewModel.setViewStateLocation("${latitude},${longitude}")
+                                        viewModel.setIsLoadingLocation(false)
+                                    }
+                                }
+                            } else {
+                                // If we've already prompted them, remind them we need the permission
+                                if (viewState.value.hasBeenPromptedForLocationPermission) {
+                                    viewModel.setViewStateHasSeenLocationWarning(false)
+                                } else {
+                                    // TODO Request location afterwards
+                                    locationPermissionState.launchPermissionRequest()
+                                    viewModel.setViewStateHasBeenPromptedForLocationPermission(true)
+                                }
+                            }
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -100,6 +180,10 @@ fun PreviewSettingsScreen() {
 //            longitude = -73.99f,
 //        ),
         viewModel(),
-        rememberNavController()
-    )
+        rememberNavController()    )
+}
+
+private fun dismissLocationWarning(viewModel: SettingsViewModel) {
+    viewModel.setViewStateHasSeenLocationWarning(true)
+    viewModel.saveSettings()
 }

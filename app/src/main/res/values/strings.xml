@@ -4,6 +4,12 @@
     <!-- Status and stuff -->
     <string name="loading">Loading...</string>
 
+    <!-- Settings Screen -->
+    <string name="welcome_to_funshine">Welcome to FunShine!</string>
+    <string name="location_button_introduction">On the settings screen, you\'ll see a little button like this:</string>
+    <string name="location_explanation">It\'ll request your approximate location.\nYou can just input latitude and longitude if you don\'t want to use location permissions, and you can enable them in your system Settings Permissions Manager.\nFunShine does not collect your location.\nOpen-Meteo does use your location to deliver weather conditions, and you can find their terms privacy policy here:</string>
+    <string name="open_meteo_terms_link">https://open-meteo.com/en/terms</string>
+
     <!-- Weather Condition String -->
     <string name="max_temp">Max daily temp:</string>
     <string name="min_temp">Min daily temp:</string>

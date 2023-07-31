@@ -3,19 +3,31 @@ package com.daniellegolinsky.funshine.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.data.SettingsRepo
-import com.daniellegolinsky.funshine.models.ApiKey
+import com.daniellegolinsky.funshine.di.ApplicationModule
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
+import kotlin.math.absoluteValue
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRepo) : ViewModel() {
+class SettingsViewModel @Inject constructor(
+    private val settingsRepo: SettingsRepo, @Named(
+        ApplicationModule.IO_DISPATCHER
+    ) private val ioDispatcher: CoroutineDispatcher
+) : ViewModel() {
 
-    private val emptyState = SettingsViewState("", "")
+    private val emptyState = SettingsViewState(
+        latLong = "",
+        hasSeenLocationWarning = true,
+        hasBeenPromptedForLocationPermission = false,
+        isLoadingLocation = false,
+    )
     private var _settingsViewState: MutableStateFlow<SettingsViewState> =
         MutableStateFlow(emptyState)
     val settingsViewState: StateFlow<SettingsViewState> = _settingsViewState
@@ -27,22 +39,48 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
     }
 
     private suspend fun updateViewStateFromDataStore() {
-        val apiKey = settingsRepo.getApiKey()
         val location = settingsRepo.getLocation()
-        _settingsViewState.value = mapSettingsToViewState(apiKey, location)
+        val hasSeenLocationWarning = settingsRepo.getHasSeenLocationWarning()
+        val hasBeenPromptedForLocationPermission =
+            settingsRepo.getHasBeenPromptedForLocationPermission()
+        _settingsViewState.value = mapSettingsToViewState(
+            location,
+            hasSeenLocationWarning,
+            hasBeenPromptedForLocationPermission
+        )
     }
 
-    fun updateViewStateApiKey(apiKey: String) {
-        _settingsViewState.value = updateViewState(apiKey, null)
+    fun setViewStateLocation(location: String) {
+        _settingsViewState.value = updateViewState(sanitizeLocationString(location), null, null)
     }
 
-    fun updateViewStateLocation(location: String) {
-        _settingsViewState.value = updateViewState(null, sanitizeLocationString(location))
+    fun setViewStateHasSeenLocationWarning(hasSeenLocationWarning: Boolean) {
+        _settingsViewState.value = updateViewState(null, hasSeenLocationWarning, null)
+    }
+
+    fun setViewStateHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean) {
+        _settingsViewState.value = updateViewState(
+            location = null,
+            hasSeenLocationWarning = null,
+            hasBeenPromptedForLocationPermission = hasBeenPrompted
+        )
+    }
+
+    fun getIoDispatcher(): CoroutineDispatcher {
+        return ioDispatcher
     }
 
     // Only allow digits, decimals, comma separators, or the negative sign. Will allow spaces
     private fun sanitizeLocationString(locationString: String): String {
-        return locationString.filter { it.isDigit() || it == '.' || it == ',' || it == '-' || it == ' '}
+        return locationString.filter { it.isDigit() || it == '.' || it == ',' || it == '-' || it == ' ' }
+    }
+
+    /**
+     * Verify the given location actually is a location, within the valid lat/long ranges
+     * That means a latitude between -90 and 90, and a longitude between -180 and 180
+     */
+    private fun isValidLocation(location: Location): Boolean {
+        return location.latitude.absoluteValue <= 90 && location.longitude.absoluteValue <= 180
     }
 
     /**
@@ -63,22 +101,27 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
         }
     }
 
-    fun updateLocation(locationString: String) {
-        val loc = generateLocationFromString(locationString)
-        viewModelScope.launch {
-            settingsRepo.setLocation(loc.latitude, loc.longitude)
-        }
-    }
-
     fun saveSettings() {
         saveStateToDatastore(this._settingsViewState.value)
+    }
+
+    fun setIsLoadingLocation(isLoading: Boolean) {
+        _settingsViewState.value = updateViewState(
+            location = null,
+            hasSeenLocationWarning = null,
+            hasBeenPromptedForLocationPermission = null,
+            isLoading
+        )
     }
 
     private fun saveStateToDatastore(viewState: SettingsViewState) {
         viewModelScope.launch {
             val location = generateLocationFromString(viewState.latLong)
-            settingsRepo.setApiKey(viewState.apiKey)
-            settingsRepo.setLocation(location.latitude, location.longitude)
+            if (isValidLocation(location)) {
+                settingsRepo.setLocation(location.latitude, location.longitude)
+            }
+            settingsRepo.setHasSeenLocationWarning(viewState.hasSeenLocationWarning)
+            settingsRepo.setHasBeenPromptedForLocationPermission(viewState.hasBeenPromptedForLocationPermission)
         }
     }
 
@@ -86,17 +129,31 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
      * Method for updating the view state
      * A null for either string will simply retain the existing value
      */
-    private fun updateViewState(apiKey: String?, location: String?): SettingsViewState {
+    private fun updateViewState(
+        location: String?,
+        hasSeenLocationWarning: Boolean?,
+        hasBeenPromptedForLocationPermission: Boolean?,
+        isLoadingLocation: Boolean? = null,
+    ): SettingsViewState {
         return SettingsViewState(
-            apiKey ?: _settingsViewState.value.apiKey,
-            location ?: _settingsViewState.value.latLong
+            latLong = location ?: _settingsViewState.value.latLong,
+            hasSeenLocationWarning = hasSeenLocationWarning
+                ?: _settingsViewState.value.hasSeenLocationWarning,
+            hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission
+                ?: _settingsViewState.value.hasBeenPromptedForLocationPermission,
+            isLoadingLocation = isLoadingLocation ?: false
         )
     }
 
-    private fun mapSettingsToViewState(apiKey: ApiKey, location: Location): SettingsViewState {
+    private fun mapSettingsToViewState(
+        location: Location,
+        hasSeenLocationWarning: Boolean,
+        hasBeenPromptedForLocationPermission: Boolean,
+    ): SettingsViewState {
         return SettingsViewState(
-            apiKey = apiKey.key,
-            latLong = "${location.latitude}, ${location.longitude}"
+            latLong = "${location.latitude}, ${location.longitude}",
+            hasSeenLocationWarning = hasSeenLocationWarning,
+            hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission
         )
     }
 }

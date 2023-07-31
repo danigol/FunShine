@@ -11,8 +11,6 @@ import com.daniellegolinsky.funshine.ui.settings.SettingsScreen
 import com.daniellegolinsky.funshine.ui.settings.SettingsViewModel
 import com.daniellegolinsky.funshine.ui.weather.WeatherScreen
 import com.daniellegolinsky.funshine.ui.weather.WeatherViewModel
-import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
-import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 
 @Composable
 fun MainNavHost(destination: String) {
@@ -21,7 +19,7 @@ fun MainNavHost(destination: String) {
     NavHost(navController = navController, startDestination = destination) {
         composable(WEATHER) {
             val weatherViewModel = hiltViewModel<WeatherViewModel>()
-            weatherViewModel.getCurrentWeather()
+            weatherViewModel.loadForecast()
             WeatherScreen(
 //                viewState = WeatherScreenViewState( // TODO, obviously no
 //                    weatherCode = 0,
