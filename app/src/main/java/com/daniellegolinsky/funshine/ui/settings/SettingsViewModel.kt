@@ -3,17 +3,24 @@ package com.daniellegolinsky.funshine.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.data.SettingsRepo
+import com.daniellegolinsky.funshine.di.ApplicationModule
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 import kotlin.math.absoluteValue
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRepo) : ViewModel() {
+class SettingsViewModel @Inject constructor(
+    private val settingsRepo: SettingsRepo, @Named(
+        ApplicationModule.IO_DISPATCHER
+    ) private val ioDispatcher: CoroutineDispatcher
+) : ViewModel() {
 
     private val emptyState = SettingsViewState(
         latLong = "",
@@ -57,6 +64,10 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
             hasSeenLocationWarning = null,
             hasBeenPromptedForLocationPermission = hasBeenPrompted
         )
+    }
+
+    fun getIoDispatcher(): CoroutineDispatcher {
+        return ioDispatcher
     }
 
     // Only allow digits, decimals, comma separators, or the negative sign. Will allow spaces

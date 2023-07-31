@@ -12,10 +12,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -45,7 +43,6 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.math.RoundingMode
 
@@ -129,7 +126,7 @@ fun SettingsScreen(
                             if (locationPermissionState.status.isGranted) {
                                 viewModel.setIsLoadingLocation(true)
                                 // TODO Definitely don't like this here
-                                scope.launch(Dispatchers.IO) { // TODO no, no no no no no no nooooooo no.
+                                scope.launch(viewModel.getIoDispatcher()) { // TODO no, no no no no no no nooooooo no.
                                     locationClient.getCurrentLocation(
                                         Priority.PRIORITY_HIGH_ACCURACY,
                                         CancellationTokenSource().token,
