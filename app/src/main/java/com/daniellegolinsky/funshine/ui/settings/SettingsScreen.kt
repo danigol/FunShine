@@ -12,6 +12,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -117,6 +118,7 @@ fun SettingsScreen(
                 trailingIcon = @Composable {
                     FsLocationButton(modifier = Modifier.height(16.dp)) {
                         viewModel.setViewStateLocation("0.00,0.00") // TODO Make a real loading state
+                        // TODO, and, let's see how much of this we can get out of the composable?
                         if (locationPermissionState.status.isGranted) {
                             // TODO Definitely don't like this here
                             scope.launch(Dispatchers.IO) { // TODO no, no no no no no no nooooooo no.
@@ -125,13 +127,22 @@ fun SettingsScreen(
                                     CancellationTokenSource().token,
                                 ).addOnCompleteListener {// TODO yeah, don't like this here
                                     val locationResult = it.result
-                                    val latitude = locationResult.latitude.toBigDecimal().setScale(3, RoundingMode.UP).toFloat()
-                                    val longitude = locationResult.longitude.toBigDecimal().setScale(3, RoundingMode.UP).toFloat()
+                                    val latitude = locationResult.latitude.toBigDecimal()
+                                        .setScale(3, RoundingMode.UP).toFloat()
+                                    val longitude = locationResult.longitude.toBigDecimal()
+                                        .setScale(3, RoundingMode.UP).toFloat()
                                     viewModel.setViewStateLocation("${latitude},${longitude}")
                                 }
                             }
                         } else {
-                            locationPermissionState.launchPermissionRequest() // TODO Request location afterwards
+                            // If we've already prompted them, remind them we need the permission
+                            if (viewState.value.hasBeenPromptedForLocationPermission) {
+                                viewModel.setViewStateHasSeenLocationWarning(false)
+                            } else {
+                                // TODO Request location afterwards
+                                locationPermissionState.launchPermissionRequest()
+                                viewModel.setViewStateHasBeenPromptedForLocationPermission(true)
+                            }
                         }
                     }
                 },

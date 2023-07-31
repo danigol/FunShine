@@ -17,7 +17,8 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
 
     private val emptyState = SettingsViewState(
         latLong = "",
-        hasSeenLocationWarning = true
+        hasSeenLocationWarning = true,
+        hasBeenPromptedForLocationPermission = false,
     )
     private var _settingsViewState: MutableStateFlow<SettingsViewState> =
         MutableStateFlow(emptyState)
@@ -32,20 +33,34 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
     private suspend fun updateViewStateFromDataStore() {
         val location = settingsRepo.getLocation()
         val hasSeenLocationWarning = settingsRepo.getHasSeenLocationWarning()
-        _settingsViewState.value = mapSettingsToViewState(location, hasSeenLocationWarning)
+        val hasBeenPromptedForLocationPermission =
+            settingsRepo.getHasBeenPromptedForLocationPermission()
+        _settingsViewState.value = mapSettingsToViewState(
+            location,
+            hasSeenLocationWarning,
+            hasBeenPromptedForLocationPermission
+        )
     }
 
     fun setViewStateLocation(location: String) {
-        _settingsViewState.value = updateViewState(sanitizeLocationString(location), null)
+        _settingsViewState.value = updateViewState(sanitizeLocationString(location), null, null)
     }
 
     fun setViewStateHasSeenLocationWarning(hasSeenLocationWarning: Boolean) {
-        _settingsViewState.value = updateViewState(null, hasSeenLocationWarning)
+        _settingsViewState.value = updateViewState(null, hasSeenLocationWarning, null)
+    }
+
+    fun setViewStateHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean) {
+        _settingsViewState.value = updateViewState(
+            location = null,
+            hasSeenLocationWarning = null,
+            hasBeenPromptedForLocationPermission = hasBeenPrompted
+        )
     }
 
     // Only allow digits, decimals, comma separators, or the negative sign. Will allow spaces
     private fun sanitizeLocationString(locationString: String): String {
-        return locationString.filter { it.isDigit() || it == '.' || it == ',' || it == '-' || it == ' '}
+        return locationString.filter { it.isDigit() || it == '.' || it == ',' || it == '-' || it == ' ' }
     }
 
     /**
@@ -74,13 +89,6 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
         }
     }
 
-    fun updateLocation(locationString: String) {
-        val loc = generateLocationFromString(locationString)
-        viewModelScope.launch {
-            settingsRepo.setLocation(loc.latitude, loc.longitude)
-        }
-    }
-
     fun saveSettings() {
         saveStateToDatastore(this._settingsViewState.value)
     }
@@ -92,6 +100,7 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
                 settingsRepo.setLocation(location.latitude, location.longitude)
             }
             settingsRepo.setHasSeenLocationWarning(viewState.hasSeenLocationWarning)
+            settingsRepo.setHasBeenPromptedForLocationPermission(viewState.hasBeenPromptedForLocationPermission)
         }
     }
 
@@ -99,17 +108,29 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
      * Method for updating the view state
      * A null for either string will simply retain the existing value
      */
-    private fun updateViewState(location: String?, hasSeenLocationWarning: Boolean?): SettingsViewState {
+    private fun updateViewState(
+        location: String?,
+        hasSeenLocationWarning: Boolean?,
+        hasBeenPromptedForLocationPermission: Boolean?,
+    ): SettingsViewState {
         return SettingsViewState(
             latLong = location ?: _settingsViewState.value.latLong,
-            hasSeenLocationWarning = hasSeenLocationWarning ?: _settingsViewState.value.hasSeenLocationWarning
+            hasSeenLocationWarning = hasSeenLocationWarning
+                ?: _settingsViewState.value.hasSeenLocationWarning,
+            hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission
+                ?: _settingsViewState.value.hasBeenPromptedForLocationPermission
         )
     }
 
-    private fun mapSettingsToViewState(location: Location, hasSeenLocationWarning: Boolean): SettingsViewState {
+    private fun mapSettingsToViewState(
+        location: Location,
+        hasSeenLocationWarning: Boolean,
+        hasBeenPromptedForLocationPermission: Boolean,
+    ): SettingsViewState {
         return SettingsViewState(
             latLong = "${location.latitude}, ${location.longitude}",
-            hasSeenLocationWarning = hasSeenLocationWarning
+            hasSeenLocationWarning = hasSeenLocationWarning,
+            hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission
         )
     }
 }

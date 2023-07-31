@@ -21,4 +21,11 @@ class SettingsRepo @Inject constructor(
     suspend fun getHasSeenLocationWarning(): Boolean {
         return dataStore.getHasSeenLocationWarning()
     }
+
+    suspend fun setHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean) {
+        dataStore.setHasBeenPromptedForLocationPermission(hasBeenPrompted)
+    }
+    suspend fun getHasBeenPromptedForLocationPermission(): Boolean {
+        return dataStore.getHasBeenPromptedForLocationPermission()
+    }
 }

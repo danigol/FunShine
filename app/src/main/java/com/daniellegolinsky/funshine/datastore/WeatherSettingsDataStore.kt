@@ -24,6 +24,7 @@ class WeatherSettingsDataStore @Inject constructor(
         val LATITUDE = floatPreferencesKey("latitude")
         val LONGITUDE = floatPreferencesKey("longitude")
         val HAS_SEEN_LOCATION_WARNING = booleanPreferencesKey("hasSeenLocationWarning")
+        val HAS_BEEN_PROMPTED_FOR_LOCATION = booleanPreferencesKey("hasBeenPromptedForLocation")
     }
 
     private val settingsFlow = dataStore.data.catch {
@@ -64,6 +65,18 @@ class WeatherSettingsDataStore @Inject constructor(
     override suspend fun setHasSeenLocationWarning(hasSeen: Boolean) {
         dataStore.edit { preferences ->
             preferences[StoreKeys.HAS_SEEN_LOCATION_WARNING] = hasSeen
+        }
+    }
+
+    override suspend fun getHasBeenPromptedForLocationPermission(): Boolean {
+        return settingsFlow.map { preferences ->
+            preferences[StoreKeys.HAS_BEEN_PROMPTED_FOR_LOCATION] ?: false
+        }.firstOrNull() ?: false
+    }
+
+    override suspend fun setHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[StoreKeys.HAS_BEEN_PROMPTED_FOR_LOCATION] = hasBeenPrompted
         }
     }
 
