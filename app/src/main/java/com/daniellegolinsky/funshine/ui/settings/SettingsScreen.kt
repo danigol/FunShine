@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -54,7 +55,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
     val viewState = viewModel.settingsViewState.collectAsState()
-    val shouldShowLocationWarning = viewState.value.hasSeenLocationWarning
+    val hasSeenLocationWarning = viewState.value.hasSeenLocationWarning
     val locationPermissionState = rememberPermissionState(
         permission = android.Manifest.permission.ACCESS_COARSE_LOCATION
     )
@@ -64,8 +65,11 @@ fun SettingsScreen(
         LocationServices.getFusedLocationProviderClient(localContext)
     }
 
-    if (!locationPermissionState.status.isGranted && !shouldShowLocationWarning) {
-        AlertDialog(onDismissRequest = { viewModel.updateViewStateHasSeenLocationWarning(true) } ) {
+    // Only show the warning if they haven't seen it and we don't have permission
+    if (!hasSeenLocationWarning && !locationPermissionState.status.isGranted) {
+        AlertDialog(onDismissRequest = {
+            dismissLocationWarning(viewModel = viewModel)
+        } ) {
             Surface(
                 shape = MaterialTheme.shapes.large,
                 modifier = Modifier.fillMaxWidth()
@@ -80,7 +84,7 @@ fun SettingsScreen(
                     FsTextButton(
                         buttonText = "Sounds good!"
                     ) {
-                        viewModel.updateViewStateHasSeenLocationWarning(true)
+                        dismissLocationWarning(viewModel = viewModel)
                     }
                 }
             }
@@ -109,10 +113,10 @@ fun SettingsScreen(
             )
             FsTextField( // TODO Update with local text, then save? Or direct to viewstate?
                 value = viewState.value.latLong,
-                onValueChange = { viewModel.updateViewStateLocation(it) },
+                onValueChange = { viewModel.setViewStateLocation(it) },
                 trailingIcon = @Composable {
                     FsLocationButton(modifier = Modifier.height(16.dp)) {
-                        viewModel.updateViewStateLocation("0.00,0.00") // TODO Make a real loading state
+                        viewModel.setViewStateLocation("0.00,0.00") // TODO Make a real loading state
                         if (locationPermissionState.status.isGranted) {
                             // TODO Definitely don't like this here
                             scope.launch(Dispatchers.IO) { // TODO no, no no no no no no nooooooo no.
@@ -123,7 +127,7 @@ fun SettingsScreen(
                                     val locationResult = it.result
                                     val latitude = locationResult.latitude.toBigDecimal().setScale(3, RoundingMode.UP).toFloat()
                                     val longitude = locationResult.longitude.toBigDecimal().setScale(3, RoundingMode.UP).toFloat()
-                                    viewModel.updateViewStateLocation("${latitude},${longitude}")
+                                    viewModel.setViewStateLocation("${latitude},${longitude}")
                                 }
                             }
                         } else {
@@ -159,4 +163,9 @@ fun PreviewSettingsScreen() {
 //        ),
         viewModel(),
         rememberNavController()    )
+}
+
+private fun dismissLocationWarning(viewModel: SettingsViewModel) {
+    viewModel.setViewStateHasSeenLocationWarning(true)
+    viewModel.saveSettings()
 }

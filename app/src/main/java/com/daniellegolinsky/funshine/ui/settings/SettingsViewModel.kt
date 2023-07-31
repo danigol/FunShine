@@ -10,13 +10,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.absoluteValue
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRepo) : ViewModel() {
 
     private val emptyState = SettingsViewState(
         latLong = "",
-        hasSeenLocationWarning = false
+        hasSeenLocationWarning = true
     )
     private var _settingsViewState: MutableStateFlow<SettingsViewState> =
         MutableStateFlow(emptyState)
@@ -34,17 +35,25 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
         _settingsViewState.value = mapSettingsToViewState(location, hasSeenLocationWarning)
     }
 
-    fun updateViewStateLocation(location: String) {
+    fun setViewStateLocation(location: String) {
         _settingsViewState.value = updateViewState(sanitizeLocationString(location), null)
     }
 
-    fun updateViewStateHasSeenLocationWarning(hasSeenLocationWarning: Boolean) {
+    fun setViewStateHasSeenLocationWarning(hasSeenLocationWarning: Boolean) {
         _settingsViewState.value = updateViewState(null, hasSeenLocationWarning)
     }
 
     // Only allow digits, decimals, comma separators, or the negative sign. Will allow spaces
     private fun sanitizeLocationString(locationString: String): String {
         return locationString.filter { it.isDigit() || it == '.' || it == ',' || it == '-' || it == ' '}
+    }
+
+    /**
+     * Verify the given location actually is a location, within the valid lat/long ranges
+     * That means a latitude between -90 and 90, and a longitude between -180 and 180
+     */
+    private fun isValidLocation(location: Location): Boolean {
+        return location.latitude.absoluteValue <= 90 && location.longitude.absoluteValue <= 180
     }
 
     /**
@@ -79,7 +88,9 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
     private fun saveStateToDatastore(viewState: SettingsViewState) {
         viewModelScope.launch {
             val location = generateLocationFromString(viewState.latLong)
-            settingsRepo.setLocation(location.latitude, location.longitude)
+            if (isValidLocation(location)) {
+                settingsRepo.setLocation(location.latitude, location.longitude)
+            }
             settingsRepo.setHasSeenLocationWarning(viewState.hasSeenLocationWarning)
         }
     }
