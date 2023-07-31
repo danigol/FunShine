@@ -1,8 +1,6 @@
 package com.daniellegolinsky.funshine.ui.settings
 
 import android.annotation.SuppressLint
-import android.location.LocationManager
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -45,7 +42,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 import java.math.RoundingMode
 
@@ -55,11 +51,10 @@ import java.math.RoundingMode
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     navController: NavController,
-    showDialog: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    var viewState = viewModel.settingsViewState.collectAsState()
-    val showFirstLaunchDialog = remember { mutableStateOf(showDialog) }
+    val viewState = viewModel.settingsViewState.collectAsState()
+    val shouldShowLocationWarning = viewState.value.hasSeenLocationWarning
     val locationPermissionState = rememberPermissionState(
         permission = android.Manifest.permission.ACCESS_COARSE_LOCATION
     )
@@ -69,8 +64,8 @@ fun SettingsScreen(
         LocationServices.getFusedLocationProviderClient(localContext)
     }
 
-    if (locationPermissionState.status.isGranted && showFirstLaunchDialog.value) {
-        AlertDialog(onDismissRequest = { showFirstLaunchDialog.value = false } ) {
+    if (!locationPermissionState.status.isGranted && !shouldShowLocationWarning) {
+        AlertDialog(onDismissRequest = { viewModel.updateViewStateHasSeenLocationWarning(true) } ) {
             Surface(
                 shape = MaterialTheme.shapes.large,
                 modifier = Modifier.fillMaxWidth()
@@ -85,7 +80,7 @@ fun SettingsScreen(
                     FsTextButton(
                         buttonText = "Sounds good!"
                     ) {
-                        showFirstLaunchDialog.value = false
+                        viewModel.updateViewStateHasSeenLocationWarning(true)
                     }
                 }
             }
@@ -108,17 +103,6 @@ fun SettingsScreen(
         // Content
         Column(modifier = Modifier.padding(start = 32.dp, end = 32.dp)) {
             FsText(
-                text = "API Key: ",
-                textStyle = getBodyFontStyle(),
-                modifier = Modifier.align(alignment = Alignment.Start)
-            )
-            FsTextField(
-                value = viewState.value.apiKey,
-                onValueChange = { viewModel.updateViewStateApiKey(it) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            FsText(
                 text = "Latitude, Longitude: ",
                 textStyle = getBodyFontStyle(),
                 modifier = Modifier.align(alignment = Alignment.Start)
@@ -131,8 +115,8 @@ fun SettingsScreen(
                         viewModel.updateViewStateLocation("0.00,0.00") // TODO Make a real loading state
                         if (locationPermissionState.status.isGranted) {
                             // TODO Definitely don't like this here
-                            scope.launch(Dispatchers.IO) {
-                                val result = locationClient.getCurrentLocation(
+                            scope.launch(Dispatchers.IO) { // TODO no, no no no no no no nooooooo no.
+                                locationClient.getCurrentLocation(
                                     Priority.PRIORITY_HIGH_ACCURACY,
                                     CancellationTokenSource().token,
                                 ).addOnCompleteListener {// TODO yeah, don't like this here
@@ -143,7 +127,7 @@ fun SettingsScreen(
                                 }
                             }
                         } else {
-                            locationPermissionState.launchPermissionRequest()
+                            locationPermissionState.launchPermissionRequest() // TODO Request location afterwards
                         }
                     }
                 },
@@ -174,6 +158,5 @@ fun PreviewSettingsScreen() {
 //            longitude = -73.99f,
 //        ),
         viewModel(),
-        rememberNavController()
-    )
+        rememberNavController()    )
 }

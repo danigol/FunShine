@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.R
+import com.daniellegolinsky.funshine.data.SettingsRepo
 import com.daniellegolinsky.themeresources.R.drawable
 import com.daniellegolinsky.funshine.data.WeatherRepo
+import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.WeatherCode
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
 import com.daniellegolinsky.funshine.models.getIconResource
@@ -22,7 +24,7 @@ import javax.inject.Inject
 class WeatherViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val weatherRepo: WeatherRepo,
-//    private val settingsRepo: SettingsRepo, TODO: F/C, in/cm, etc
+    private val settingsRepo: SettingsRepo,
 ) : ViewModel() {
 
     private val emptyState = WeatherScreenViewState(
@@ -34,12 +36,16 @@ class WeatherViewModel @Inject constructor(
         MutableStateFlow(emptyState)
     val weatherViewState: StateFlow<WeatherScreenViewState> = _weatherViewState
 
+    suspend fun getLocation(): Location {
+        return settingsRepo.getLocation()
+    }
+
     fun loading() {
         _weatherViewState.value = emptyState
     }
     fun loadForecast() {
         viewModelScope.launch {
-            val weatherResponse = weatherRepo.getWeather()
+            val weatherResponse = weatherRepo.getWeather(getLocation())
             val currentWeatherResponse = weatherResponse.currentWeather
             val tempAsInt = currentWeatherResponse.temperature.toInt()
             val condition = currentWeatherResponse.weatherCode

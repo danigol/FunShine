@@ -3,7 +3,6 @@ package com.daniellegolinsky.funshine.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.data.SettingsRepo
-import com.daniellegolinsky.funshine.models.ApiKey
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +14,10 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRepo) : ViewModel() {
 
-    private val emptyState = SettingsViewState("", "")
+    private val emptyState = SettingsViewState(
+        latLong = "",
+        hasSeenLocationWarning = false
+    )
     private var _settingsViewState: MutableStateFlow<SettingsViewState> =
         MutableStateFlow(emptyState)
     val settingsViewState: StateFlow<SettingsViewState> = _settingsViewState
@@ -27,17 +29,17 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
     }
 
     private suspend fun updateViewStateFromDataStore() {
-        val apiKey = settingsRepo.getApiKey()
         val location = settingsRepo.getLocation()
-        _settingsViewState.value = mapSettingsToViewState(apiKey, location)
-    }
-
-    fun updateViewStateApiKey(apiKey: String) {
-        _settingsViewState.value = updateViewState(apiKey, null)
+        val hasSeenLocationWarning = settingsRepo.getHasSeenLocationWarning()
+        _settingsViewState.value = mapSettingsToViewState(location, hasSeenLocationWarning)
     }
 
     fun updateViewStateLocation(location: String) {
-        _settingsViewState.value = updateViewState(null, sanitizeLocationString(location))
+        _settingsViewState.value = updateViewState(sanitizeLocationString(location), null)
+    }
+
+    fun updateViewStateHasSeenLocationWarning(hasSeenLocationWarning: Boolean) {
+        _settingsViewState.value = updateViewState(null, hasSeenLocationWarning)
     }
 
     // Only allow digits, decimals, comma separators, or the negative sign. Will allow spaces
@@ -77,8 +79,8 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
     private fun saveStateToDatastore(viewState: SettingsViewState) {
         viewModelScope.launch {
             val location = generateLocationFromString(viewState.latLong)
-            settingsRepo.setApiKey(viewState.apiKey)
             settingsRepo.setLocation(location.latitude, location.longitude)
+            settingsRepo.setHasSeenLocationWarning(viewState.hasSeenLocationWarning)
         }
     }
 
@@ -86,17 +88,17 @@ class SettingsViewModel @Inject constructor(private val settingsRepo: SettingsRe
      * Method for updating the view state
      * A null for either string will simply retain the existing value
      */
-    private fun updateViewState(apiKey: String?, location: String?): SettingsViewState {
+    private fun updateViewState(location: String?, hasSeenLocationWarning: Boolean?): SettingsViewState {
         return SettingsViewState(
-            apiKey ?: _settingsViewState.value.apiKey,
-            location ?: _settingsViewState.value.latLong
+            latLong = location ?: _settingsViewState.value.latLong,
+            hasSeenLocationWarning = hasSeenLocationWarning ?: _settingsViewState.value.hasSeenLocationWarning
         )
     }
 
-    private fun mapSettingsToViewState(apiKey: ApiKey, location: Location): SettingsViewState {
+    private fun mapSettingsToViewState(location: Location, hasSeenLocationWarning: Boolean): SettingsViewState {
         return SettingsViewState(
-            apiKey = apiKey.key,
-            latLong = "${location.latitude}, ${location.longitude}"
+            latLong = "${location.latitude}, ${location.longitude}",
+            hasSeenLocationWarning = hasSeenLocationWarning
         )
     }
 }
