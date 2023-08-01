@@ -183,7 +183,7 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.width(4.dp))
                 Switch(
                     checked = viewState.value.isMph,
-                    onCheckedChange = { viewModel.setIsMph(viewState.value.isMph) }
+                    onCheckedChange = { viewModel.setIsMph(!viewState.value.isMph) }
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("MPH")

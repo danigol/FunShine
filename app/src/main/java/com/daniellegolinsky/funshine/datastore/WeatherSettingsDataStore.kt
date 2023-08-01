@@ -101,7 +101,7 @@ class WeatherSettingsDataStore @Inject constructor(
     override suspend fun setTemperatureUnit(isF: Boolean) {
         dataStore.edit { preferences ->
             preferences[StoreKeys.TEMPERATURE_UNIT] =
-                if (isF) TemperatureUnit.FAHRENHEIT.name else TemperatureUnit.CELSIUS.name
+                if (isF) TemperatureUnit.FAHRENHEIT.toString() else TemperatureUnit.CELSIUS.toString()
         }
     }
 
@@ -118,7 +118,7 @@ class WeatherSettingsDataStore @Inject constructor(
     override suspend fun setLengthUnit(isInch: Boolean) {
         dataStore.edit { preferences ->
             preferences[StoreKeys.LENGTH_UNIT] =
-                if (isInch) LengthUnit.INCH.name else LengthUnit.CENTIMETER.name
+                if (isInch) LengthUnit.INCH.toString() else LengthUnit.CENTIMETER.toString()
         }
     }
 
@@ -135,7 +135,7 @@ class WeatherSettingsDataStore @Inject constructor(
     override suspend fun setSpeedUnit(isMph: Boolean) {
         dataStore.edit { preferences ->
             preferences[StoreKeys.SPEED_UNIT] =
-                if (isMph) SpeedUnit.MPH.name else SpeedUnit.KPH.name
+                if (isMph) SpeedUnit.MPH.toString() else SpeedUnit.KPH.toString()
         }
     }
 }
