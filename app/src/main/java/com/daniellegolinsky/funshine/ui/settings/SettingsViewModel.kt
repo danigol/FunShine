@@ -55,6 +55,10 @@ class SettingsViewModel @Inject constructor(
             hasSeenLocationWarning,
             hasBeenPromptedForLocationPermission
         )
+        // TODO Build this into the above mapping method
+        updateViewStateSpeedUnit()
+        updateViewStateTemperatureUnit()
+        updateViewStateLengthUnit()
     }
 
     fun setViewStateLocation(location: String) {
@@ -104,15 +108,30 @@ class SettingsViewModel @Inject constructor(
         _settingsViewState.value = updateViewState(isInch = isInch)
     }
     fun updateViewStateLengthUnit() {
-        TODO()
+        viewModelScope.launch {
+            val lengthUnit = settingsRepo.getLengthUnit()
+            _settingsViewState.value = updateViewState(
+                isInch = when (lengthUnit) {
+                    LengthUnit.CENTIMETER -> false
+                    else -> true
+                }
+            )
+        }
     }
 
     fun setIsFahrenheit(isF: Boolean) {
         _settingsViewState.value = updateViewState(isFahrenheit = isF)
     }
-    fun updateViewStateTemperatureUnit() { // Gets from datastore to set in viewstate
-        // TODO Could be private and change name to fetchIsFahrenheit?
-        TODO()
+    fun updateViewStateTemperatureUnit() {
+        viewModelScope.launch {
+            val temperatureUnit = settingsRepo.getTemperatureUnit()
+            _settingsViewState.value = updateViewState(
+                isFahrenheit = when (temperatureUnit) {
+                    TemperatureUnit.CELSIUS -> false
+                    else -> true
+                }
+            )
+        }
     }
 
     /**
