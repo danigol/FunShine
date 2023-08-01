@@ -163,6 +163,7 @@ fun SettingsScreen(
             )
             Spacer(modifier = Modifier.height(12.dp))
             // ** Unit Options ** //
+            // TODO This looks pretty bad, but will look better centered with the custom FsTwoOptionSwitch I'll be making
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
@@ -171,16 +172,20 @@ fun SettingsScreen(
                 // TODO Make this a FsTwoOptionSwitch
                 // TODO Once we've made an option switch, we can space these more evenly
                 Text("MM") // TODO Nooooo
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 Switch(
                     checked = viewState.value.isInch,
                     onCheckedChange = { viewModel.setIsInch(!viewState.value.isInch) }
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 Text("IN")
-
-                Spacer(modifier = Modifier.width(40.dp)) // TODO Don't like constants here
-
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(1.0f)
+            ) {
                 Text("KMH")
                 Spacer(modifier = Modifier.width(4.dp))
                 Switch(
@@ -190,7 +195,7 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("MPH")
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
