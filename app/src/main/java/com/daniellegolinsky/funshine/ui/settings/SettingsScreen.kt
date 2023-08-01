@@ -166,9 +166,11 @@ fun SettingsScreen(
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(1.0f)
             ) {
-                Text("CM") // TODO Make this a FsTwoOptionSwitch
+                // TODO Make this a FsTwoOptionSwitch
+                // TODO Once we've made an option switch, we can space these more evenly
+                Text("CM")
                 Spacer(modifier = Modifier.width(4.dp))
                 Switch(
                     checked = viewState.value.isInch,
@@ -177,7 +179,7 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("IN")
 
-                Spacer(modifier = Modifier.width(40.dp)) // TODO Make flexible
+                Spacer(modifier = Modifier.width(40.dp)) // TODO Don't like constants here
 
                 Text("KPH")
                 Spacer(modifier = Modifier.width(4.dp))

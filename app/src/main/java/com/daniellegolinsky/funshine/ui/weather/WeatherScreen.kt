@@ -49,7 +49,7 @@ fun WeatherScreen(
         )
         if (viewState.temperature != null) {
             FsText(
-                text = "${viewState.temperature}ºF", // TODO Make this a string resource OH, and Cª
+                text = "${viewState.temperature}${viewState.temperatureUnit}",
                 textStyle = getHeadingFontStyle(),
                 maxLines = 1
             )

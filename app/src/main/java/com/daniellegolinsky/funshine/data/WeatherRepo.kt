@@ -3,6 +3,7 @@ package com.daniellegolinsky.funshine.data
 import com.daniellegolinsky.funshine.api.OpenMeteoWeatherService
 import com.daniellegolinsky.funshine.di.ApplicationModule
 import com.daniellegolinsky.funshine.models.Location
+import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
 import javax.inject.Inject
 import javax.inject.Named
@@ -12,7 +13,14 @@ class WeatherRepo @Inject constructor(
 ) {
 
     // TODO Caching
-    suspend fun getWeather(location: Location): WeatherResponse {
-        return weatherService.getCurrentWeather(location.latitude, location.longitude)
+    suspend fun getWeather(
+        location: Location,
+        tempUnit: TemperatureUnit,
+    ): WeatherResponse {
+        return weatherService.getCurrentWeather(
+            latitude = location.latitude,
+            longitude = location.longitude,
+            tempUnit = tempUnit.toString()
+        )
     }
 }
