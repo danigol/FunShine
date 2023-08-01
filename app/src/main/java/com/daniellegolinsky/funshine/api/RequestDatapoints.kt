@@ -30,7 +30,7 @@ class RequestDatapoints() {
         const val C: String = "celsius"
         const val WINDSPEED_UNIT: String = "windspeed_unit"
         const val MPH: String = "mph"
-        const val KPH: String = "kph"
+        const val KMH: String = "kmh"
         const val PRECIPITATION_UNIT: String = "precipitation_unit"
         const val INCH: String = "inch"
         const val MM: String = "mm"

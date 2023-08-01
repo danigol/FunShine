@@ -8,7 +8,7 @@ import com.daniellegolinsky.funshine.api.RequestDatapoints
 // But I do like going fast.
 enum class SpeedUnit(private val unit: String) {
     MPH(RequestDatapoints.MPH),
-    KPH(RequestDatapoints.KPH);
+    KMH(RequestDatapoints.KMH);
 
     override fun toString(): String {
         return unit

@@ -127,7 +127,7 @@ class WeatherSettingsDataStore @Inject constructor(
             preferences[StoreKeys.SPEED_UNIT] ?: ""
         }.firstOrNull() ?: ""
         return when (speedUnitAsString) {
-            RequestDatapoints.KPH -> SpeedUnit.KPH
+            RequestDatapoints.KMH -> SpeedUnit.KMH
             else -> SpeedUnit.MPH
         }
     }
@@ -135,7 +135,7 @@ class WeatherSettingsDataStore @Inject constructor(
     override suspend fun setSpeedUnit(isMph: Boolean) {
         dataStore.edit { preferences ->
             preferences[StoreKeys.SPEED_UNIT] =
-                if (isMph) SpeedUnit.MPH.toString() else SpeedUnit.KPH.toString()
+                if (isMph) SpeedUnit.MPH.toString() else SpeedUnit.KMH.toString()
         }
     }
 }

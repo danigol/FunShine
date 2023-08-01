@@ -181,7 +181,7 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.width(40.dp)) // TODO Don't like constants here
 
-                Text("KPH")
+                Text("KMH")
                 Spacer(modifier = Modifier.width(4.dp))
                 Switch(
                     checked = viewState.value.isMph,

@@ -86,7 +86,7 @@ class SettingsViewModel @Inject constructor(
 
     private suspend fun getIsMphFromDataStore(): Boolean {
         return when (settingsRepo.getSpeedUnit()) {
-            SpeedUnit.KPH -> false
+            SpeedUnit.KMH -> false
             else -> true
         }
     }
@@ -126,7 +126,7 @@ class SettingsViewModel @Inject constructor(
     private fun getSpeedUnitFromViewState(): SpeedUnit {
         return when (_settingsViewState.value.isMph) {
             true -> SpeedUnit.MPH
-            else -> SpeedUnit.KPH
+            else -> SpeedUnit.KMH
         }
     }
 
