@@ -110,7 +110,7 @@ class WeatherSettingsDataStore @Inject constructor(
             preferences[StoreKeys.LENGTH_UNIT] ?: ""
         }.firstOrNull() ?: ""
         return when (lengthUnitAsString) {
-            RequestDatapoints.CM -> LengthUnit.CENTIMETER
+            RequestDatapoints.MM -> LengthUnit.MILLIMETER
             else -> LengthUnit.INCH
         }
     }
@@ -118,7 +118,7 @@ class WeatherSettingsDataStore @Inject constructor(
     override suspend fun setLengthUnit(isInch: Boolean) {
         dataStore.edit { preferences ->
             preferences[StoreKeys.LENGTH_UNIT] =
-                if (isInch) LengthUnit.INCH.toString() else LengthUnit.CENTIMETER.toString()
+                if (isInch) LengthUnit.INCH.toString() else LengthUnit.MILLIMETER.toString()
         }
     }
 

@@ -170,7 +170,7 @@ fun SettingsScreen(
             ) {
                 // TODO Make this a FsTwoOptionSwitch
                 // TODO Once we've made an option switch, we can space these more evenly
-                Text("CM")
+                Text("MM") // TODO Nooooo
                 Spacer(modifier = Modifier.width(4.dp))
                 Switch(
                     checked = viewState.value.isInch,

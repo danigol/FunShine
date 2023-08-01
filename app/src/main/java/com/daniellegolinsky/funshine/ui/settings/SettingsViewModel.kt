@@ -97,7 +97,7 @@ class SettingsViewModel @Inject constructor(
 
     private suspend fun getIsInchFromDataStore(): Boolean {
         return when (settingsRepo.getLengthUnit()) {
-            LengthUnit.CENTIMETER -> false
+            LengthUnit.MILLIMETER -> false
             else -> true
         }
     }
@@ -133,7 +133,7 @@ class SettingsViewModel @Inject constructor(
     private fun getLengthUnitFromViewState(): LengthUnit {
         return when (_settingsViewState.value.isInch) {
             true -> LengthUnit.INCH
-            else -> LengthUnit.CENTIMETER
+            else -> LengthUnit.MILLIMETER
         }
     }
 

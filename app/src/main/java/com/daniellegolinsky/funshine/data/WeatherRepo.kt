@@ -2,7 +2,9 @@ package com.daniellegolinsky.funshine.data
 
 import com.daniellegolinsky.funshine.api.OpenMeteoWeatherService
 import com.daniellegolinsky.funshine.di.ApplicationModule
+import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
+import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
 import javax.inject.Inject
@@ -16,11 +18,15 @@ class WeatherRepo @Inject constructor(
     suspend fun getWeather(
         location: Location,
         tempUnit: TemperatureUnit,
+        speedUnit: SpeedUnit,
+        lengthUnit: LengthUnit,
     ): WeatherResponse {
         return weatherService.getCurrentWeather(
             latitude = location.latitude,
             longitude = location.longitude,
-            tempUnit = tempUnit.toString()
+            tempUnit = tempUnit.toString(),
+            speedUnit = speedUnit.toString(),
+            lengthUnit = lengthUnit.toString(),
         )
     }
 }

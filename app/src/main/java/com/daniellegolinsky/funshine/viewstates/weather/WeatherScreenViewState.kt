@@ -6,5 +6,7 @@ data class WeatherScreenViewState(
     val weatherIconContentDescription: Int,
     val temperature: Int?,
     val temperatureUnit: String?,
+    val windspeedUnit: String?,
+    val precipitationAmountUnit: String?,
     val forecast: String,
 )

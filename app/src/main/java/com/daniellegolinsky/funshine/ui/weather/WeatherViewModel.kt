@@ -7,7 +7,9 @@ import com.daniellegolinsky.funshine.R
 import com.daniellegolinsky.funshine.data.SettingsRepo
 import com.daniellegolinsky.themeresources.R.drawable
 import com.daniellegolinsky.funshine.data.WeatherRepo
+import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
+import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.WeatherCode
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
@@ -33,6 +35,8 @@ class WeatherViewModel @Inject constructor(
         weatherIconContentDescription = R.string.wc_unknown,
         temperature = null,
         temperatureUnit = null,
+        windspeedUnit= null,
+        precipitationAmountUnit = null,
         forecast = context.getString(R.string.loading)
     )
     private var _weatherViewState: MutableStateFlow<WeatherScreenViewState> =
@@ -48,8 +52,27 @@ class WeatherViewModel @Inject constructor(
 
     private suspend fun getTemperatureUnitInitial(): String {
         return when(getTemperatureUnit()) {
-            TemperatureUnit.CELSIUS -> "ºC"
+            TemperatureUnit.CELSIUS -> "ºC" // TODO Resources!
             else -> "ºF"
+        }
+    }
+
+    private suspend fun getSpeedUnit(): SpeedUnit {
+        return settingsRepo.getSpeedUnit()
+    }
+    private suspend fun getLengthUnit(): LengthUnit {
+        return settingsRepo.getLengthUnit()
+    }
+    private suspend fun getLengthUnitString(precipitation: Double): String {
+        val lengthUnit = getLengthUnit()
+        return if (precipitation == 1.00) {
+            lengthUnit.toString()
+        } else {
+            if (lengthUnit == LengthUnit.INCH) { // TODO Make this a resource too
+                lengthUnit.toString() + "es"
+            } else {
+                lengthUnit.toString() + "s"
+            }
         }
     }
 
@@ -60,24 +83,40 @@ class WeatherViewModel @Inject constructor(
         viewModelScope.launch {
             val weatherResponse = weatherRepo.getWeather(
                 location = getLocation(),
-                tempUnit = getTemperatureUnit()
+                tempUnit = getTemperatureUnit(),
+                speedUnit = getSpeedUnit(),
+                lengthUnit = getLengthUnit(),
             )
             val currentWeatherResponse = weatherResponse.currentWeather
             val tempAsInt = currentWeatherResponse.temperature.toInt()
             val tempUnitString = getTemperatureUnitInitial()
+            val speedUnitString = getSpeedUnit().toString()
             val condition = currentWeatherResponse.weatherCode
+            val precipitationString = getLengthUnitString(weatherResponse.dailyWeatherResponse.precipitationSum[0])
 
             _weatherViewState.value = WeatherScreenViewState(
                 weatherIconResource = condition.getIconResource(currentWeatherResponse.isDay == 1),
                 weatherIconContentDescription = condition.getResourceStringForWeatherCode(),
                 temperature = tempAsInt,
                 temperatureUnit = tempUnitString,
-                forecast = getForecastString(weatherResponse, tempUnitString)
+                windspeedUnit = speedUnitString,
+                precipitationAmountUnit = precipitationString,
+                forecast = getForecastString(
+                    wr = weatherResponse,
+                    tempUnitString = tempUnitString,
+                    windspeedUnitString = speedUnitString,
+                    lengthUnitString = precipitationString,
+                )
             )
         }
     }
 
-    private fun getForecastString(wr: WeatherResponse, tempUnitString: String,): String {
+    private fun getForecastString(
+        wr: WeatherResponse,
+        tempUnitString: String,
+        windspeedUnitString: String,
+        lengthUnitString: String,
+    ): String {
         val dailyWeatherResponse = wr.dailyWeatherResponse
         val currentWeatherResponse = wr.currentWeather
         val tempMaxAsInt = dailyWeatherResponse.maxTemp[0].toInt()
@@ -87,19 +126,14 @@ class WeatherViewModel @Inject constructor(
 
         // TODO Add all units
         var weatherString = "${getWeatherCodeString(currentWeatherResponse.weatherCode)} ${context.getString(R.string.currently)}.\n" + // Extra space
-                "\n${context.getString(R.string.windspeed)} ${currentWeatherResponse.windSpeed}${getWindspeedUnit()}" +
+                "\n${context.getString(R.string.windspeed)} ${currentWeatherResponse.windSpeed}${windspeedUnitString}" +
                 "\n${context.getString(R.string.min_temp)} ${tempMinAsInt}${tempUnitString}" +
                 "\n${context.getString(R.string.max_temp)} ${tempMaxAsInt}${tempUnitString}" +
                 "\n${context.getString(R.string.precip_chance)} ${precipChance}%"
         if (precipChance > 0 && precipAmount > 0.010) {
-            weatherString += "\n${context.getString(R.string.precip_max)} ${precipAmount}in"
+            weatherString += "\n${context.getString(R.string.precip_max)} ${precipAmount}${lengthUnitString}"
         }
         return weatherString
-    }
-
-    private fun getWindspeedUnit(): String {
-        // TODO Will replace with settings repo
-        return context.getString(R.string.mph)
     }
 
     private fun getWeatherCodeString(wc: WeatherCode): String {
