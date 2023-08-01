@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.data.SettingsRepo
 import com.daniellegolinsky.funshine.di.ApplicationModule
+import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
+import com.daniellegolinsky.funshine.models.SpeedUnit
+import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -38,6 +41,10 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Load data from data store to display on the view
+     * Updates the view state flow and any views observing state
+     */
     private suspend fun updateViewStateFromDataStore() {
         val location = settingsRepo.getLocation()
         val hasSeenLocationWarning = settingsRepo.getHasSeenLocationWarning()
@@ -64,6 +71,77 @@ class SettingsViewModel @Inject constructor(
             hasSeenLocationWarning = null,
             hasBeenPromptedForLocationPermission = hasBeenPrompted
         )
+    }
+
+    fun setIsLoadingLocation(isLoading: Boolean) {
+        _settingsViewState.value = updateViewState(
+            location = null,
+            hasSeenLocationWarning = null,
+            hasBeenPromptedForLocationPermission = null,
+            isLoading
+        )
+    }
+
+    /*
+     * Units are stored as enums, but we'll need booleans for the viewstate switches
+     */
+    fun setIsMph(isMph: Boolean) {
+        _settingsViewState.value = updateViewState(isMph = isMph)
+    }
+    private fun updateViewStateSpeedUnit() {
+        viewModelScope.launch {
+            val speedUnit = settingsRepo.getSpeedUnit()
+            _settingsViewState.value = updateViewState(
+                isMph = when (speedUnit) {
+                    SpeedUnit.KPH -> false
+                    else -> true
+                }
+            )
+        }
+    }
+
+    fun setIsInch(isInch: Boolean) {
+        _settingsViewState.value = updateViewState(isInch = isInch)
+    }
+    fun updateViewStateLengthUnit() {
+        TODO()
+    }
+
+    fun setIsFahrenheit(isF: Boolean) {
+        _settingsViewState.value = updateViewState(isFahrenheit = isF)
+    }
+    fun updateViewStateTemperatureUnit() { // Gets from datastore to set in viewstate
+        // TODO Could be private and change name to fetchIsFahrenheit?
+        TODO()
+    }
+
+    /**
+     * Get the temperature unit for the stored viewstate boolean
+     */
+    private fun getTempUnitFromViewState(): TemperatureUnit {
+        return when(_settingsViewState.value.isFahrenheit) {
+            true -> TemperatureUnit.FAHRENHEIT
+            else -> TemperatureUnit.CELSIUS
+        }
+    }
+
+    private fun getSpeedUnitFromViewState(): SpeedUnit {
+        return when(_settingsViewState.value.isMph) {
+            true -> SpeedUnit.MPH
+            else -> SpeedUnit.KPH
+        }
+    }
+
+    private fun getLengthUnitFromViewState(): LengthUnit {
+        return when(_settingsViewState.value.isInch) {
+            true -> LengthUnit.INCH
+            else -> LengthUnit.CENTIMETER
+        }
+    }
+
+
+    fun saveSettings() {
+        saveStateToDatastore(this._settingsViewState.value)
     }
 
     fun getIoDispatcher(): CoroutineDispatcher {
@@ -101,20 +179,8 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun saveSettings() {
-        saveStateToDatastore(this._settingsViewState.value)
-    }
-
-    fun setIsLoadingLocation(isLoading: Boolean) {
-        _settingsViewState.value = updateViewState(
-            location = null,
-            hasSeenLocationWarning = null,
-            hasBeenPromptedForLocationPermission = null,
-            isLoading
-        )
-    }
-
     private fun saveStateToDatastore(viewState: SettingsViewState) {
+        // TODO Update with units
         viewModelScope.launch {
             val location = generateLocationFromString(viewState.latLong)
             if (isValidLocation(location)) {
@@ -122,6 +188,9 @@ class SettingsViewModel @Inject constructor(
             }
             settingsRepo.setHasSeenLocationWarning(viewState.hasSeenLocationWarning)
             settingsRepo.setHasBeenPromptedForLocationPermission(viewState.hasBeenPromptedForLocationPermission)
+            settingsRepo.setTemperatureUnit(viewState.isFahrenheit)
+            settingsRepo.setLengthUnit(viewState.isInch)
+            settingsRepo.setSpeedUnit(viewState.isMph)
         }
     }
 
@@ -130,10 +199,13 @@ class SettingsViewModel @Inject constructor(
      * A null for either string will simply retain the existing value
      */
     private fun updateViewState(
-        location: String?,
-        hasSeenLocationWarning: Boolean?,
-        hasBeenPromptedForLocationPermission: Boolean?,
+        location: String? = null,
+        hasSeenLocationWarning: Boolean? = null,
+        hasBeenPromptedForLocationPermission: Boolean? = null,
         isLoadingLocation: Boolean? = null,
+        isFahrenheit: Boolean? = null,
+        isMph: Boolean? = null,
+        isInch: Boolean? = true,
     ): SettingsViewState {
         return SettingsViewState(
             latLong = location ?: _settingsViewState.value.latLong,
@@ -141,7 +213,10 @@ class SettingsViewModel @Inject constructor(
                 ?: _settingsViewState.value.hasSeenLocationWarning,
             hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission
                 ?: _settingsViewState.value.hasBeenPromptedForLocationPermission,
-            isLoadingLocation = isLoadingLocation ?: false
+            isLoadingLocation = isLoadingLocation ?: false,
+            isFahrenheit = isFahrenheit ?: _settingsViewState.value.isFahrenheit,
+            isMph = isMph ?: _settingsViewState.value.isMph,
+            isInch = isInch ?: _settingsViewState.value.isInch,
         )
     }
 
@@ -150,6 +225,7 @@ class SettingsViewModel @Inject constructor(
         hasSeenLocationWarning: Boolean,
         hasBeenPromptedForLocationPermission: Boolean,
     ): SettingsViewState {
+        // TODO Update with units, call update method instead of returning directly
         return SettingsViewState(
             latLong = "${location.latitude}, ${location.longitude}",
             hasSeenLocationWarning = hasSeenLocationWarning,

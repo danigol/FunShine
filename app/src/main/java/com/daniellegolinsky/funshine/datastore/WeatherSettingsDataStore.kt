@@ -7,8 +7,13 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import com.daniellegolinsky.funshine.api.RequestDatapoints
 import com.daniellegolinsky.funshine.di.ApplicationModule
+import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
+import com.daniellegolinsky.funshine.models.SpeedUnit
+import com.daniellegolinsky.funshine.models.TemperatureUnit
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -20,11 +25,14 @@ class WeatherSettingsDataStore @Inject constructor(
 ) : IWeatherSettingsDataStore {
 
     private object StoreKeys {
-//        val API_KEY = stringPreferencesKey("api_key") // Don't remove, user may still have it in datastore
+        //        val API_KEY = stringPreferencesKey("api_key") // Don't remove, user may still have it in datastore
         val LATITUDE = floatPreferencesKey("latitude")
         val LONGITUDE = floatPreferencesKey("longitude")
         val HAS_SEEN_LOCATION_WARNING = booleanPreferencesKey("hasSeenLocationWarning")
         val HAS_BEEN_PROMPTED_FOR_LOCATION = booleanPreferencesKey("hasBeenPromptedForLocation")
+        val TEMPERATURE_UNIT = stringPreferencesKey("temperatureUnit")
+        val LENGTH_UNIT = stringPreferencesKey("lengthUnit")
+        val SPEED_UNIT = stringPreferencesKey("speedUnit")
     }
 
     private val settingsFlow = dataStore.data.catch {
@@ -36,12 +44,12 @@ class WeatherSettingsDataStore @Inject constructor(
     }
 
     override suspend fun getLocation(): Location {
-        val lat = settingsFlow.map{ preferences ->
+        val lat = settingsFlow.map { preferences ->
             preferences[StoreKeys.LATITUDE]
         }.catch {
             throw it
         }.firstOrNull() ?: 0.0f
-        val long = settingsFlow.map{ preferences ->
+        val long = settingsFlow.map { preferences ->
             preferences[StoreKeys.LONGITUDE]
         }.catch {
             throw it
@@ -80,4 +88,54 @@ class WeatherSettingsDataStore @Inject constructor(
         }
     }
 
+    override suspend fun getTemperatureUnit(): TemperatureUnit {
+        val tempUnitAsString = settingsFlow.map { preferences ->
+            preferences[StoreKeys.TEMPERATURE_UNIT] ?: ""
+        }.firstOrNull() ?: ""
+        return when (tempUnitAsString) {
+            RequestDatapoints.C -> TemperatureUnit.CELSIUS
+            else -> TemperatureUnit.FAHRENHEIT
+        }
+    }
+
+    override suspend fun setTemperatureUnit(isF: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[StoreKeys.TEMPERATURE_UNIT] =
+                if (isF) TemperatureUnit.FAHRENHEIT.name else TemperatureUnit.CELSIUS.name
+        }
+    }
+
+    override suspend fun getLengthUnit(): LengthUnit {
+        val lengthUnitAsString = settingsFlow.map { preferences ->
+            preferences[StoreKeys.LENGTH_UNIT] ?: ""
+        }.firstOrNull() ?: ""
+        return when (lengthUnitAsString) {
+            RequestDatapoints.CM -> LengthUnit.CENTIMETER
+            else -> LengthUnit.INCH
+        }
+    }
+
+    override suspend fun setLengthUnit(isInch: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[StoreKeys.LENGTH_UNIT] =
+                if (isInch) LengthUnit.INCH.name else LengthUnit.CENTIMETER.name
+        }
+    }
+
+    override suspend fun getSpeedUnit(): SpeedUnit {
+        val speedUnitAsString = settingsFlow.map { preferences ->
+            preferences[StoreKeys.SPEED_UNIT] ?: ""
+        }.firstOrNull() ?: ""
+        return when (speedUnitAsString) {
+            RequestDatapoints.KPH -> SpeedUnit.KPH
+            else -> SpeedUnit.MPH
+        }
+    }
+
+    override suspend fun setSpeedUnit(isMph: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[StoreKeys.SPEED_UNIT] =
+                if (isMph) SpeedUnit.MPH.name else SpeedUnit.KPH.name
+        }
+    }
 }

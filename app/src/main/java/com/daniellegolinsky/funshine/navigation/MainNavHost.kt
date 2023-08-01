@@ -21,11 +21,6 @@ fun MainNavHost(destination: String) {
             val weatherViewModel = hiltViewModel<WeatherViewModel>()
             weatherViewModel.loadForecast()
             WeatherScreen(
-//                viewState = WeatherScreenViewState( // TODO, obviously no
-//                    weatherCode = 0,
-//                    temperature = 74,
-//                    forecast = "Clear throughout the day\nHigh: 82ºF\nLow: 70ºF\nChance of rain: 0%"
-//                ),
                 weatherViewModel,
                 navController
             )
@@ -33,11 +28,6 @@ fun MainNavHost(destination: String) {
         composable(SETTINGS) {
             val settingsViewModel = hiltViewModel<SettingsViewModel>()
             SettingsScreen(
-//                viewState = SettingsViewState(
-//                    apiKey = "8675309",
-//                    latitude = 40.73f,
-//                    longitude = -73.99f,
-//                ),
                 settingsViewModel,
                 navController
             )

@@ -26,7 +26,7 @@ class RequestDatapoints() {
         const val PRECIP_SUM: String = "precipitation_sum"
         const val PRECIP_PROB_MAX: String = "precipitation_probability_max"
         const val WEATHER_CODE: String = "weathercode"
-        const val CLOUD_COVRE: String = "cloudcover"
+        const val CLOUD_COVER: String = "cloudcover"
         const val TEMP_UNIT: String = "temperature_unit"
         const val F: String = "fahrenheit"
         const val C: String = "celsius"
