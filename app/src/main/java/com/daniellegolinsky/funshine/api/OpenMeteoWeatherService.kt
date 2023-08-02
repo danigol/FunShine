@@ -23,6 +23,7 @@ import com.daniellegolinsky.funshine.api.RequestDatapoints.Companion.TIME_ZONE
 import com.daniellegolinsky.funshine.api.RequestDatapoints.Companion.US_NYC
 import com.daniellegolinsky.funshine.api.RequestDatapoints.Companion.WEATHER_CODE
 import com.daniellegolinsky.funshine.api.RequestDatapoints.Companion.WINDSPEED_UNIT
+import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -33,6 +34,12 @@ interface OpenMeteoWeatherService {
     // https://api.open-meteo.com/v1/forecast?latitude=40.73&longitude=-73.99&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=America%2FNew_York
     // https://api.open-meteo.com/v1/forecast?latitude=43.73&longitude=-73.99&hourly=temperature_2m,precipitation_probability,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=America%2FNew_York&forecast_days=1
     // https://api.open-meteo.com/v1/forecast?latitude=43.73&longitude=-73.99&hourly=temperature_2m,precipitation_probability,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=America%2FNew_York&forecast_days=1
-    @GET("$FORECAST?$HOURLY=$TEMPERATURE,$PRECIP_PROB,$WEATHER_CODE&$DAILY=$WEATHER_CODE,$TEMP_MAX,$TEMP_MIN,$PRECIP_PROB_MAX,$PRECIP_SUM&$CURRENT=true&$TEMP_UNIT=$F&$WINDSPEED_UNIT=$MPH&$PRECIPITATION_UNIT=$INCH&$TIME_ZONE=$US_NYC")
-    suspend fun getCurrentWeather(@Query(LAT)latitude: Float, @Query(LONG) longitude: Float): WeatherResponse
-} // TODO Should put ALL of these in as query params...
+    @GET("$FORECAST?$HOURLY=$TEMPERATURE,$PRECIP_PROB,$WEATHER_CODE&$DAILY=$WEATHER_CODE,$TEMP_MAX,$TEMP_MIN,$PRECIP_PROB_MAX,$PRECIP_SUM&$CURRENT=true&$TIME_ZONE=$US_NYC")
+    suspend fun getCurrentWeather(
+        @Query(LAT)latitude: Float,
+        @Query(LONG) longitude: Float,
+        @Query(TEMP_UNIT) tempUnit: String,
+        @Query(WINDSPEED_UNIT) speedUnit: String,
+        @Query(PRECIPITATION_UNIT) lengthUnit: String,
+    ): WeatherResponse // TODO Wrap in a response object so we can do error checking
+}

@@ -2,16 +2,22 @@ package com.daniellegolinsky.funshine.ui.settings
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
@@ -155,6 +161,56 @@ fun SettingsScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
+            Spacer(modifier = Modifier.height(12.dp))
+            // ** Unit Options ** //
+            // TODO This looks pretty bad, but will look better centered with the custom FsTwoOptionSwitch I'll be making
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(1.0f)
+            ) {
+                // TODO Make this a FsTwoOptionSwitch
+                // TODO Once we've made an option switch, we can space these more evenly
+                Text("MM") // TODO Nooooo
+                Spacer(modifier = Modifier.width(8.dp))
+                Switch(
+                    checked = viewState.value.isInch,
+                    onCheckedChange = { viewModel.setIsInch(!viewState.value.isInch) }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("IN")
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(1.0f)
+            ) {
+                Text("KMH")
+                Spacer(modifier = Modifier.width(4.dp))
+                Switch(
+                    checked = viewState.value.isMph,
+                    onCheckedChange = { viewModel.setIsMph(!viewState.value.isMph) }
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("MPH")
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Cº")
+                Spacer(modifier = Modifier.width(4.dp))
+                Switch(
+                    checked = viewState.value.isFahrenheit,
+                    onCheckedChange = { viewModel.setIsFahrenheit(!viewState.value.isFahrenheit) }
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Fº")
+            }
+            // ** End Unit Options ** //
             Spacer(modifier = Modifier.height(64.dp))
             FsTextButton(
                 buttonText = stringResource(id = R.string.button_save_settings),

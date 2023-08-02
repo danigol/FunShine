@@ -1,7 +1,9 @@
 package com.daniellegolinsky.funshine.datastore
 
-import com.daniellegolinsky.funshine.models.ApiKey
+import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
+import com.daniellegolinsky.funshine.models.SpeedUnit
+import com.daniellegolinsky.funshine.models.TemperatureUnit
 
 interface IWeatherSettingsDataStore {
     suspend fun getLocation(): Location
@@ -10,4 +12,10 @@ interface IWeatherSettingsDataStore {
     suspend fun setHasSeenLocationWarning(hasSeen: Boolean)
     suspend fun getHasBeenPromptedForLocationPermission(): Boolean
     suspend fun setHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean)
+    suspend fun getTemperatureUnit(): TemperatureUnit
+    suspend fun setTemperatureUnit(isF: Boolean)
+    suspend fun getLengthUnit(): LengthUnit
+    suspend fun setLengthUnit(isInch: Boolean)
+    suspend fun getSpeedUnit(): SpeedUnit
+    suspend fun setSpeedUnit(isMph: Boolean)
 }

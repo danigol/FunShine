@@ -5,4 +5,7 @@ data class SettingsViewState(
     val hasSeenLocationWarning: Boolean,
     val hasBeenPromptedForLocationPermission: Boolean,
     val isLoadingLocation: Boolean = false,
+    val isFahrenheit: Boolean = true,
+    val isMph: Boolean = true,
+    val isInch: Boolean = true,
 )

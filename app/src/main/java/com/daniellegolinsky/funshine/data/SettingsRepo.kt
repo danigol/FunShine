@@ -1,7 +1,10 @@
 package com.daniellegolinsky.funshine.data
 
 import com.daniellegolinsky.funshine.datastore.WeatherSettingsDataStore
+import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
+import com.daniellegolinsky.funshine.models.SpeedUnit
+import com.daniellegolinsky.funshine.models.TemperatureUnit
 import javax.inject.Inject
 
 class SettingsRepo @Inject constructor(
@@ -27,5 +30,26 @@ class SettingsRepo @Inject constructor(
     }
     suspend fun getHasBeenPromptedForLocationPermission(): Boolean {
         return dataStore.getHasBeenPromptedForLocationPermission()
+    }
+
+    suspend fun setTemperatureUnit(isF: Boolean) {
+        dataStore.setTemperatureUnit(isF)
+    }
+    suspend fun getTemperatureUnit(): TemperatureUnit {
+        return dataStore.getTemperatureUnit()
+    }
+
+    suspend fun setLengthUnit(isIn: Boolean) {
+        dataStore.setLengthUnit(isIn)
+    }
+    suspend fun getLengthUnit(): LengthUnit {
+        return dataStore.getLengthUnit()
+    }
+
+    suspend fun setSpeedUnit(isMph: Boolean) {
+        dataStore.setSpeedUnit(isMph)
+    }
+    suspend fun getSpeedUnit(): SpeedUnit {
+        return dataStore.getSpeedUnit()
     }
 }
