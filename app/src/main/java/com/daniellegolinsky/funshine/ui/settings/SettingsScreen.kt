@@ -4,13 +4,14 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.daniellegolinsky.funshine.R.string
 import com.daniellegolinsky.themeresources.R
 import com.daniellegolinsky.funshinetheme.components.FsText
 import com.daniellegolinsky.funshinetheme.components.FsTextButton
@@ -42,6 +44,7 @@ import com.daniellegolinsky.funshine.ui.info.LocationPermissionInfoDialog
 import com.daniellegolinsky.funshinetheme.components.FsBackButton
 import com.daniellegolinsky.funshinetheme.components.FsIconButton
 import com.daniellegolinsky.funshinetheme.components.FsLocationButton
+import com.daniellegolinsky.funshinetheme.components.FsTwoStateSwitch
 import com.daniellegolinsky.funshinetheme.designelements.getBackgroundColor
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -124,7 +127,7 @@ fun SettingsScreen(
                     if (viewState.value.isLoadingLocation) {
                         FsIconButton(
                             buttonIcon = painterResource(R.drawable.ic_loading_black),
-                            buttonIconContentDescription = stringResource(id = com.daniellegolinsky.funshine.R.string.loading)) {}
+                            buttonIconContentDescription = stringResource(id = string.loading)) {}
                     } else {
                         FsLocationButton(modifier = Modifier.height(16.dp)) {
                             viewModel.setViewStateLocation("0.00,0.00") // TODO Make a real loading state
@@ -161,54 +164,36 @@ fun SettingsScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             // ** Unit Options ** //
-            // TODO This looks pretty bad, but will look better centered with the custom FsTwoOptionSwitch I'll be making
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(1.0f)
-            ) {
-                // TODO Make this a FsTwoOptionSwitch
-                // TODO Once we've made an option switch, we can space these more evenly
-                Text("MM") // TODO Nooooo
-                Spacer(modifier = Modifier.width(8.dp))
-                Switch(
-                    checked = viewState.value.isInch,
-                    onCheckedChange = { viewModel.setIsInch(!viewState.value.isInch) }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("IN")
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(1.0f)
-            ) {
-                Text("KMH")
-                Spacer(modifier = Modifier.width(4.dp))
-                Switch(
-                    checked = viewState.value.isMph,
-                    onCheckedChange = { viewModel.setIsMph(!viewState.value.isMph) }
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("MPH")
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Cº")
-                Spacer(modifier = Modifier.width(4.dp))
-                Switch(
-                    checked = viewState.value.isFahrenheit,
-                    onCheckedChange = { viewModel.setIsFahrenheit(!viewState.value.isFahrenheit) }
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Fº")
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 128.dp),
+                contentPadding = PaddingValues(12.dp)
+            ){
+                item {
+                    FsTwoStateSwitch(
+                        optionOneString = stringResource(id = string.option_c),
+                        optionTwoString = stringResource(id = string.option_f),
+                        optionTwoSelected = viewState.value.isFahrenheit,
+                        onOptionChanged = { viewModel.setIsFahrenheit(!viewState.value.isFahrenheit) },
+                    )
+                }
+                item {
+                    FsTwoStateSwitch(
+                        optionOneString = stringResource(id = string.option_mm),
+                        optionTwoString = stringResource(id = string.option_in),
+                        optionTwoSelected = viewState.value.isInch,
+                        onOptionChanged = { viewModel.setIsInch(!viewState.value.isInch) },
+                    )
+                }
+                item {
+                    FsTwoStateSwitch(
+                        optionOneString = stringResource(id = string.option_kmh),
+                        optionTwoString = stringResource(id = string.option_mph),
+                        optionTwoSelected = viewState.value.isMph,
+                        onOptionChanged = { viewModel.setIsMph(!viewState.value.isMph) },
+                    )
+                }
             }
             // ** End Unit Options ** //
             Spacer(modifier = Modifier.height(64.dp))

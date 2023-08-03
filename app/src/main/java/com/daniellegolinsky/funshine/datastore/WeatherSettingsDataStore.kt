@@ -39,7 +39,7 @@ class WeatherSettingsDataStore @Inject constructor(
         if (it is IOException) {
             Log.e("DATASTORE", "Error retrieving settings datastore.", it)
         } else {
-            throw it // YEET
+            throw it
         }
     }
 
