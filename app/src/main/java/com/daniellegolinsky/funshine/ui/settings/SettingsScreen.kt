@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -162,46 +165,36 @@ fun SettingsScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             // ** Unit Options ** //
-            // TODO This looks pretty bad, but will look better centered with the custom FsTwoOptionSwitch I'll be making
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(1.0f)
-            ) {
-                FsTwoStateSwitch(
-                    optionOneString = "MM",
-                    optionTwoString = "IN", // TODO
-                    optionTwoSelected = viewState.value.isInch,
-                    onOptionChanged = { viewModel.setIsInch(!viewState.value.isInch) },
-                )
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(1.0f)
-            ) {
-                FsTwoStateSwitch(
-                    optionOneString = "KMH",
-                    optionTwoString = "MPH", // TODO
-                    optionTwoSelected = viewState.value.isMph,
-                    onOptionChanged = { viewModel.setIsMph(!viewState.value.isMph) },
-                )
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                FsTwoStateSwitch(
-                    optionOneString = "ºC",
-                    optionTwoString = "ºF", // TODO
-                    optionTwoSelected = viewState.value.isFahrenheit,
-                    onOptionChanged = { viewModel.setIsFahrenheit(!viewState.value.isFahrenheit) },
-                )
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 128.dp),
+                contentPadding = PaddingValues(12.dp)
+            ){
+                item {
+                    FsTwoStateSwitch(
+                        optionOneString = "ºC",
+                        optionTwoString = "ºF", // TODO
+                        optionTwoSelected = viewState.value.isFahrenheit,
+                        onOptionChanged = { viewModel.setIsFahrenheit(!viewState.value.isFahrenheit) },
+                    )
+                }
+                item {
+                    FsTwoStateSwitch(
+                        optionOneString = "MM",
+                        optionTwoString = "IN", // TODO
+                        optionTwoSelected = viewState.value.isInch,
+                        onOptionChanged = { viewModel.setIsInch(!viewState.value.isInch) },
+                    )
+                }
+                item {
+                    FsTwoStateSwitch(
+                        optionOneString = "KMH",
+                        optionTwoString = "MPH", // TODO
+                        optionTwoSelected = viewState.value.isMph,
+                        onOptionChanged = { viewModel.setIsMph(!viewState.value.isMph) },
+                    )
+                }
             }
             // ** End Unit Options ** //
             Spacer(modifier = Modifier.height(64.dp))
