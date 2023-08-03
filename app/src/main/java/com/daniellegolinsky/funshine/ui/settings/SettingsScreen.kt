@@ -2,25 +2,19 @@ package com.daniellegolinsky.funshine.ui.settings
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
@@ -35,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.daniellegolinsky.funshine.R.string
 import com.daniellegolinsky.themeresources.R
 import com.daniellegolinsky.funshinetheme.components.FsText
 import com.daniellegolinsky.funshinetheme.components.FsTextButton
@@ -128,7 +123,7 @@ fun SettingsScreen(
                     if (viewState.value.isLoadingLocation) {
                         FsIconButton(
                             buttonIcon = painterResource(R.drawable.ic_loading_black),
-                            buttonIconContentDescription = stringResource(id = com.daniellegolinsky.funshine.R.string.loading)) {}
+                            buttonIconContentDescription = stringResource(id = string.loading)) {}
                     } else {
                         FsLocationButton(modifier = Modifier.height(16.dp)) {
                             viewModel.setViewStateLocation("0.00,0.00") // TODO Make a real loading state
@@ -173,24 +168,24 @@ fun SettingsScreen(
             ){
                 item {
                     FsTwoStateSwitch(
-                        optionOneString = "ºC",
-                        optionTwoString = "ºF", // TODO
+                        optionOneString = stringResource(id = string.option_c),
+                        optionTwoString = stringResource(id = string.option_f),
                         optionTwoSelected = viewState.value.isFahrenheit,
                         onOptionChanged = { viewModel.setIsFahrenheit(!viewState.value.isFahrenheit) },
                     )
                 }
                 item {
                     FsTwoStateSwitch(
-                        optionOneString = "MM",
-                        optionTwoString = "IN", // TODO
+                        optionOneString = stringResource(id = string.option_mm),
+                        optionTwoString = stringResource(id = string.option_in),
                         optionTwoSelected = viewState.value.isInch,
                         onOptionChanged = { viewModel.setIsInch(!viewState.value.isInch) },
                     )
                 }
                 item {
                     FsTwoStateSwitch(
-                        optionOneString = "KMH",
-                        optionTwoString = "MPH", // TODO
+                        optionOneString = stringResource(id = string.option_kmh),
+                        optionTwoString = stringResource(id = string.option_mph),
                         optionTwoSelected = viewState.value.isMph,
                         onOptionChanged = { viewModel.setIsMph(!viewState.value.isMph) },
                     )
