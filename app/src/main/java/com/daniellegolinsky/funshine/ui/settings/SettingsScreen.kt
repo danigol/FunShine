@@ -42,6 +42,7 @@ import com.daniellegolinsky.funshine.ui.info.LocationPermissionInfoDialog
 import com.daniellegolinsky.funshinetheme.components.FsBackButton
 import com.daniellegolinsky.funshinetheme.components.FsIconButton
 import com.daniellegolinsky.funshinetheme.components.FsLocationButton
+import com.daniellegolinsky.funshinetheme.components.FsTwoStateSwitch
 import com.daniellegolinsky.funshinetheme.designelements.getBackgroundColor
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -169,16 +170,12 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(1.0f)
             ) {
-                // TODO Make this a FsTwoOptionSwitch
-                // TODO Once we've made an option switch, we can space these more evenly
-                Text("MM") // TODO Nooooo
-                Spacer(modifier = Modifier.width(8.dp))
-                Switch(
-                    checked = viewState.value.isInch,
-                    onCheckedChange = { viewModel.setIsInch(!viewState.value.isInch) }
+                FsTwoStateSwitch(
+                    optionOneString = "MM",
+                    optionTwoString = "IN", // TODO
+                    optionTwoSelected = viewState.value.isInch,
+                    onOptionChanged = { viewModel.setIsInch(!viewState.value.isInch) },
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("IN")
             }
             Spacer(modifier = Modifier.height(12.dp))
             Row(
@@ -186,14 +183,12 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(1.0f)
             ) {
-                Text("KMH")
-                Spacer(modifier = Modifier.width(4.dp))
-                Switch(
-                    checked = viewState.value.isMph,
-                    onCheckedChange = { viewModel.setIsMph(!viewState.value.isMph) }
+                FsTwoStateSwitch(
+                    optionOneString = "KMH",
+                    optionTwoString = "MPH", // TODO
+                    optionTwoSelected = viewState.value.isMph,
+                    onOptionChanged = { viewModel.setIsMph(!viewState.value.isMph) },
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("MPH")
             }
             Spacer(modifier = Modifier.height(12.dp))
             Row(
@@ -201,14 +196,12 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Cº")
-                Spacer(modifier = Modifier.width(4.dp))
-                Switch(
-                    checked = viewState.value.isFahrenheit,
-                    onCheckedChange = { viewModel.setIsFahrenheit(!viewState.value.isFahrenheit) }
+                FsTwoStateSwitch(
+                    optionOneString = "ºC",
+                    optionTwoString = "ºF", // TODO
+                    optionTwoSelected = viewState.value.isFahrenheit,
+                    onOptionChanged = { viewModel.setIsFahrenheit(!viewState.value.isFahrenheit) },
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Fº")
             }
             // ** End Unit Options ** //
             Spacer(modifier = Modifier.height(64.dp))
