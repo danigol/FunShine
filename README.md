@@ -6,6 +6,6 @@ Creative theme makes informative elements pop off screen, while controls sit on 
 
 Makes use of the [FunShine design library here](https://github.com/danigol/FunShineDesignLibrary/).
 
-![Screenshot of night and day modes of FunShine](exportedIcons/screenshots/dayAndNightFunShine.jpg)
+![Screenshot of night and day modes of FunShine](exportedIcons/screenshots/funshineCompactScreenshots.jpg)
 
 
