@@ -1,6 +1,7 @@
 package com.daniellegolinsky.funshine.ui.weather
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.R
@@ -21,6 +22,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -65,8 +68,8 @@ class WeatherViewModel @Inject constructor(
     }
     private suspend fun getLengthUnitString(precipitation: Double): String {
         val lengthUnit = getLengthUnit()
-        return if (precipitation == 1.00) {
-            lengthUnit.toString()
+        return if (lengthUnit == LengthUnit.MILLIMETER || precipitation == 1.00) {
+          lengthUnit.toString()
         } else {
             if (lengthUnit == LengthUnit.INCH) { // TODO Make this a resource too
                 lengthUnit.toString() + "es"
@@ -123,10 +126,23 @@ class WeatherViewModel @Inject constructor(
         val tempMinAsInt = dailyWeatherResponse.minTemp[0].toInt()
         val precipChance = dailyWeatherResponse.precipitationProbabilityMax[0]
         val precipAmount: Double = dailyWeatherResponse.precipitationSum[0]
+        val hourlyWeatherResponse = wr.hourlyWeatherResponse
 
-        // TODO Add all units
-        var weatherString = "${getWeatherCodeString(currentWeatherResponse.weatherCode)} ${context.getString(R.string.currently)}.\n" + // Extra space
-                "\n${context.getString(R.string.windspeed)} ${currentWeatherResponse.windSpeed}${windspeedUnitString}" +
+        val humidityString: String? = try {
+            val humidityListSize = hourlyWeatherResponse.humidityList.size
+            val humidity = hourlyWeatherResponse.humidityList[getCurrentHourIndex(humidityListSize)]
+            "\n${context.getString(R.string.humidity)} ${humidity}%"
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+
+        var weatherString = "${getWeatherCodeString(currentWeatherResponse.weatherCode)} ${context.getString(R.string.currently)}.\n" // Adds an extra space
+
+        humidityString?.let {
+            weatherString += it
+        }
+        weatherString += "\n${context.getString(R.string.windspeed)} ${currentWeatherResponse.windSpeed}${windspeedUnitString}" +
                 "\n${context.getString(R.string.min_temp)} ${tempMinAsInt}${tempUnitString}" +
                 "\n${context.getString(R.string.max_temp)} ${tempMaxAsInt}${tempUnitString}" +
                 "\n${context.getString(R.string.precip_chance)} ${precipChance}%"
@@ -138,5 +154,26 @@ class WeatherViewModel @Inject constructor(
 
     private fun getWeatherCodeString(wc: WeatherCode): String {
         return context.getString(wc.getResourceStringForWeatherCode())
+    }
+
+    /**
+     * Hourly forecasts store every item in a list of 24 elements.
+     * [0] is always midnight
+     * Therefore, the current time, as an int between 0-23, inclusive, is our time index
+     * This just returns that index. It's made to not return if something is wrong with the input
+     */
+    private fun getCurrentHourIndex(listSize: Int): Int {
+        val formatter = DateTimeFormatter.ofPattern("HH")
+        val currentHour = LocalDateTime.now().format(formatter)
+        var hour = 0
+        try {
+            hour = currentHour.toInt()
+            if (hour < 0 || hour > listSize) {
+                hour = 0
+            }
+        } catch (e: Exception) {
+            Log.e("WeatherViewModel", e?.message ?: "")
+        }
+        return hour
     }
 }
