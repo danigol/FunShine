@@ -58,7 +58,7 @@ fun WeatherScreen(
         FsText(
             text = viewState.forecast,
             textStyle = getBodyFontStyle(),
-            maxLines = 8,
+            maxLines = 11,
         )
         Spacer(modifier = Modifier.weight(1f))
         Row (
@@ -89,11 +89,6 @@ fun WeatherScreen(
 @Composable
 fun PreviewWeatherScreen() {
     WeatherScreen(
-//        WeatherScreenViewState(
-//            0,
-//            78,
-//            "It's going to be nice, all day, forever, just super nice."
-//        ),
         viewModel(),
         rememberNavController()
     )

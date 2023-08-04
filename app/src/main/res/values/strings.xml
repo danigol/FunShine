@@ -19,6 +19,7 @@
     <!-- Weather Condition String -->
     <string name="max_temp">Max daily temp:</string>
     <string name="min_temp">Min daily temp:</string>
+    <string name="humidity">Humidity:</string>
     <string name="windspeed">Current windspeed:</string>
     <string name="precip_chance">Chance of precipitation:</string>
     <string name="precip_max">Precipitation amount:</string>

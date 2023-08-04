@@ -8,6 +8,9 @@ data class WeatherResponse(
     val currentWeather: CurrentWeatherResponse,
 
     @SerializedName("daily")
-    val dailyWeatherResponse: DailyWeatherResponse
+    val dailyWeatherResponse: DailyWeatherResponse,
+
+    @SerializedName("hourly")
+    val hourlyWeatherResponse: HourlyWeatherResponse,
 
 )
