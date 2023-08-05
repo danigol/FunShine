@@ -34,7 +34,7 @@ fun WeatherScreen(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    val viewState = viewModel.weatherViewState.collectAsState().value
+    val viewState = viewModel.weatherViewState.collectAsState().value.viewState
 
     Column(
         verticalArrangement = Arrangement.Top,
