@@ -22,6 +22,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import retrofit2.Response
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -90,27 +91,45 @@ class WeatherViewModel @Inject constructor(
                 speedUnit = getSpeedUnit(),
                 lengthUnit = getLengthUnit(),
             )
-            val currentWeatherResponse = weatherResponse.currentWeather
-            val tempAsInt = currentWeatherResponse.temperature.toInt()
-            val tempUnitString = getTemperatureUnitInitial()
-            val speedUnitString = getSpeedUnit().toString()
-            val condition = currentWeatherResponse.weatherCode
-            val precipitationString = getLengthUnitString(weatherResponse.dailyWeatherResponse.precipitationSum[0])
+            if (weatherResponse.isSuccessful) {
+                weatherResponse.body()?.let { wr ->
+                    val currentWeatherResponse = wr.currentWeather
+                    val tempAsInt = currentWeatherResponse.temperature.toInt()
+                    val tempUnitString = getTemperatureUnitInitial()
+                    val speedUnitString = getSpeedUnit().toString()
+                    val condition = currentWeatherResponse.weatherCode
+                    val precipitationString =
+                        getLengthUnitString(wr.dailyWeatherResponse.precipitationSum[0])
 
-            _weatherViewState.value = WeatherScreenViewState(
-                weatherIconResource = condition.getIconResource(currentWeatherResponse.isDay == 1),
-                weatherIconContentDescription = condition.getResourceStringForWeatherCode(),
-                temperature = tempAsInt,
-                temperatureUnit = tempUnitString,
-                windspeedUnit = speedUnitString,
-                precipitationAmountUnit = precipitationString,
-                forecast = getForecastString(
-                    wr = weatherResponse,
-                    tempUnitString = tempUnitString,
-                    windspeedUnitString = speedUnitString,
-                    lengthUnitString = precipitationString,
+                    _weatherViewState.value = WeatherScreenViewState(
+                        weatherIconResource = condition.getIconResource(currentWeatherResponse.isDay == 1),
+                        weatherIconContentDescription = condition.getResourceStringForWeatherCode(),
+                        temperature = tempAsInt,
+                        temperatureUnit = tempUnitString,
+                        windspeedUnit = speedUnitString,
+                        precipitationAmountUnit = precipitationString,
+                        forecast = getForecastString(
+                            wr = wr,
+                            tempUnitString = tempUnitString,
+                            windspeedUnitString = speedUnitString,
+                            lengthUnitString = precipitationString,
+                        )
+                    )
+                }
+            } else { // Error returned
+                val errorCode = weatherResponse.code()
+                val error = weatherResponse.errorBody()?.toString()
+                // TODO We're going to replace this with legitimate error states
+                //      Three options there:
+                //          1: isError in the viewState
+                //          2: Wrap ViewState<WeatherViewState>.Success/Error/Loading
+                //          3: Sealed classes, unique to each view state (or implementing a ViewState?)
+                //      Either way, won't be throwing an exception
+                throw Exception(
+                    "Error: WeatherViewModel::loadForecast():\n   " +
+                            " Response code: ${errorCode}, error: ${error}."
                 )
-            )
+            }
         }
     }
 
