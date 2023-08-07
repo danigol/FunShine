@@ -68,8 +68,7 @@ class WeatherViewModel @Inject constructor(
                     val tempUnitString = getTemperatureUnitInitial()
                     val speedUnitString = getSpeedUnit().toString()
                     val condition = currentWeatherResponse.weatherCode
-                    val precipitationString =
-                        getLengthUnitString(wr.dailyWeatherResponse.precipitationSum[0])
+                    val precipitationString = getLengthUnitString()
 
                     _weatherViewState.value = ViewState.Success(
                         WeatherScreenViewState(
@@ -196,16 +195,16 @@ class WeatherViewModel @Inject constructor(
         return settingsRepo.getLengthUnit()
     }
 
-    private suspend fun getLengthUnitString(precipitation: Double): String {
+    /**
+     * Millimeters are stored as "mm," which is fine for forecasts
+     * However, inches is "inch," which should be abbreviated.
+     */
+    private suspend fun getLengthUnitString(): String {
         val lengthUnit = getLengthUnit()
-        return if (lengthUnit == LengthUnit.MILLIMETER || precipitation == 1.00) {
+        return if (lengthUnit == LengthUnit.MILLIMETER) {
             lengthUnit.toString()
         } else {
-            if (lengthUnit == LengthUnit.INCH) { // TODO Make this a resource too
-                lengthUnit.toString() + "es"
-            } else {
-                lengthUnit.toString() + "s"
-            }
+            context.getString(R.string.inch_abbreviation)
         }
     }
 }

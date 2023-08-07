@@ -28,6 +28,7 @@
     <string name="mph">mph</string>
     <string name="kph">kph</string>
     <string name="currently">right now</string>
+    <string name="inch_abbreviation">in</string>
 
     <!--      ***      -->
     <!-- Weather Codes -->
