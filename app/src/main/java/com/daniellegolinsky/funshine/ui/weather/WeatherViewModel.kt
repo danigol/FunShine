@@ -33,7 +33,6 @@ class WeatherViewModel @Inject constructor(
     private val weatherRepo: WeatherRepo,
     private val settingsRepo: SettingsRepo,
 ) : ViewModel() {
-
     private val loadingState = WeatherScreenViewState(
         weatherIconResource = drawable.ic_loading_black,
         weatherIconContentDescription = R.string.wc_unknown,
@@ -47,44 +46,11 @@ class WeatherViewModel @Inject constructor(
         MutableStateFlow(ViewState.Loading(loadingState))
     val weatherViewState: StateFlow<ViewState<WeatherScreenViewState>> = _weatherViewState
 
-    private suspend fun getLocation(): Location {
-        return settingsRepo.getLocation()
-    }
-
-    private suspend fun getTemperatureUnit(): TemperatureUnit {
-        return settingsRepo.getTemperatureUnit()
-    }
-
-    private suspend fun getTemperatureUnitInitial(): String {
-        return when (getTemperatureUnit()) {
-            TemperatureUnit.CELSIUS -> "ºC" // TODO Resources!
-            else -> "ºF"
-        }
-    }
-
-    private suspend fun getSpeedUnit(): SpeedUnit {
-        return settingsRepo.getSpeedUnit()
-    }
-
-    private suspend fun getLengthUnit(): LengthUnit {
-        return settingsRepo.getLengthUnit()
-    }
-
-    private suspend fun getLengthUnitString(precipitation: Double): String {
-        val lengthUnit = getLengthUnit()
-        return if (lengthUnit == LengthUnit.MILLIMETER || precipitation == 1.00) {
-            lengthUnit.toString()
-        } else {
-            if (lengthUnit == LengthUnit.INCH) { // TODO Make this a resource too
-                lengthUnit.toString() + "es"
-            } else {
-                lengthUnit.toString() + "s"
-            }
-        }
-    }
-
     fun loading() {
-        _weatherViewState.value = ViewState.Loading(loadingState)
+        // Prevent re-composition of any views using the state
+        if (_weatherViewState.value !is ViewState.Loading) {
+            _weatherViewState.value = ViewState.Loading(loadingState)
+        }
     }
 
     fun loadForecast() {
@@ -205,5 +171,41 @@ class WeatherViewModel @Inject constructor(
             Log.e("WeatherViewModel", e?.message ?: "")
         }
         return hour
+    }
+
+    private suspend fun getLocation(): Location {
+        return settingsRepo.getLocation()
+    }
+
+    private suspend fun getTemperatureUnit(): TemperatureUnit {
+        return settingsRepo.getTemperatureUnit()
+    }
+
+    private suspend fun getTemperatureUnitInitial(): String {
+        return when (getTemperatureUnit()) {
+            TemperatureUnit.CELSIUS -> "ºC" // TODO Resources!
+            else -> "ºF"
+        }
+    }
+
+    private suspend fun getSpeedUnit(): SpeedUnit {
+        return settingsRepo.getSpeedUnit()
+    }
+
+    private suspend fun getLengthUnit(): LengthUnit {
+        return settingsRepo.getLengthUnit()
+    }
+
+    private suspend fun getLengthUnitString(precipitation: Double): String {
+        val lengthUnit = getLengthUnit()
+        return if (lengthUnit == LengthUnit.MILLIMETER || precipitation == 1.00) {
+            lengthUnit.toString()
+        } else {
+            if (lengthUnit == LengthUnit.INCH) { // TODO Make this a resource too
+                lengthUnit.toString() + "es"
+            } else {
+                lengthUnit.toString() + "s"
+            }
+        }
     }
 }
