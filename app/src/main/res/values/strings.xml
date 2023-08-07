@@ -3,6 +3,8 @@
 
     <!-- Status and stuff -->
     <string name="loading">Loading...</string>
+    <string name="error_message">Error: %1$s</string>
+    <string name="error_help">Check your internet connection and contact the developer if you still see this message. </string>
 
     <!-- Settings Screen -->
     <string name="welcome_to_funshine">Welcome to FunShine!</string>
@@ -26,6 +28,7 @@
     <string name="mph">mph</string>
     <string name="kph">kph</string>
     <string name="currently">right now</string>
+    <string name="inch_abbreviation">in</string>
 
     <!--      ***      -->
     <!-- Weather Codes -->

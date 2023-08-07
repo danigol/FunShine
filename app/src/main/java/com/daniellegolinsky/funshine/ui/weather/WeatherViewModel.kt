@@ -16,6 +16,7 @@ import com.daniellegolinsky.funshine.models.WeatherCode
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
 import com.daniellegolinsky.funshine.models.getIconResource
 import com.daniellegolinsky.funshine.models.getResourceStringForWeatherCode
+import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -32,56 +33,26 @@ class WeatherViewModel @Inject constructor(
     private val weatherRepo: WeatherRepo,
     private val settingsRepo: SettingsRepo,
 ) : ViewModel() {
-
-    private val emptyState = WeatherScreenViewState(
+    private val loadingState = WeatherScreenViewState(
         weatherIconResource = drawable.ic_loading_black,
         weatherIconContentDescription = R.string.wc_unknown,
         temperature = null,
         temperatureUnit = null,
-        windspeedUnit= null,
+        windspeedUnit = null,
         precipitationAmountUnit = null,
         forecast = context.getString(R.string.loading)
     )
-    private var _weatherViewState: MutableStateFlow<WeatherScreenViewState> =
-        MutableStateFlow(emptyState)
-    val weatherViewState: StateFlow<WeatherScreenViewState> = _weatherViewState
-
-    private suspend fun getLocation(): Location {
-        return settingsRepo.getLocation()
-    }
-    private suspend fun getTemperatureUnit(): TemperatureUnit {
-        return settingsRepo.getTemperatureUnit()
-    }
-
-    private suspend fun getTemperatureUnitInitial(): String {
-        return when(getTemperatureUnit()) {
-            TemperatureUnit.CELSIUS -> "ºC" // TODO Resources!
-            else -> "ºF"
-        }
-    }
-
-    private suspend fun getSpeedUnit(): SpeedUnit {
-        return settingsRepo.getSpeedUnit()
-    }
-    private suspend fun getLengthUnit(): LengthUnit {
-        return settingsRepo.getLengthUnit()
-    }
-    private suspend fun getLengthUnitString(precipitation: Double): String {
-        val lengthUnit = getLengthUnit()
-        return if (lengthUnit == LengthUnit.MILLIMETER || precipitation == 1.00) {
-          lengthUnit.toString()
-        } else {
-            if (lengthUnit == LengthUnit.INCH) { // TODO Make this a resource too
-                lengthUnit.toString() + "es"
-            } else {
-                lengthUnit.toString() + "s"
-            }
-        }
-    }
+    private var _weatherViewState: MutableStateFlow<ViewState<WeatherScreenViewState>> =
+        MutableStateFlow(ViewState.Loading(loadingState))
+    val weatherViewState: StateFlow<ViewState<WeatherScreenViewState>> = _weatherViewState
 
     fun loading() {
-        _weatherViewState.value = emptyState
+        // Prevent re-composition of any views using the state
+        if (_weatherViewState.value !is ViewState.Loading) {
+            _weatherViewState.value = ViewState.Loading(loadingState)
+        }
     }
+
     fun loadForecast() {
         viewModelScope.launch {
             val weatherResponse = weatherRepo.getWeather(
@@ -90,27 +61,50 @@ class WeatherViewModel @Inject constructor(
                 speedUnit = getSpeedUnit(),
                 lengthUnit = getLengthUnit(),
             )
-            val currentWeatherResponse = weatherResponse.currentWeather
-            val tempAsInt = currentWeatherResponse.temperature.toInt()
-            val tempUnitString = getTemperatureUnitInitial()
-            val speedUnitString = getSpeedUnit().toString()
-            val condition = currentWeatherResponse.weatherCode
-            val precipitationString = getLengthUnitString(weatherResponse.dailyWeatherResponse.precipitationSum[0])
+            if (weatherResponse.isSuccessful) {
+                weatherResponse.body()?.let { wr ->
+                    val currentWeatherResponse = wr.currentWeather
+                    val tempAsInt = currentWeatherResponse.temperature.toInt()
+                    val tempUnitString = getTemperatureUnitInitial()
+                    val speedUnitString = getSpeedUnit().toString()
+                    val condition = currentWeatherResponse.weatherCode
+                    val precipitationString = getLengthUnitString()
 
-            _weatherViewState.value = WeatherScreenViewState(
-                weatherIconResource = condition.getIconResource(currentWeatherResponse.isDay == 1),
-                weatherIconContentDescription = condition.getResourceStringForWeatherCode(),
-                temperature = tempAsInt,
-                temperatureUnit = tempUnitString,
-                windspeedUnit = speedUnitString,
-                precipitationAmountUnit = precipitationString,
-                forecast = getForecastString(
-                    wr = weatherResponse,
-                    tempUnitString = tempUnitString,
-                    windspeedUnitString = speedUnitString,
-                    lengthUnitString = precipitationString,
+                    _weatherViewState.value = ViewState.Success(
+                        WeatherScreenViewState(
+                            weatherIconResource = condition.getIconResource(currentWeatherResponse.isDay == 1),
+                            weatherIconContentDescription = condition.getResourceStringForWeatherCode(),
+                            temperature = tempAsInt,
+                            temperatureUnit = tempUnitString,
+                            windspeedUnit = speedUnitString,
+                            precipitationAmountUnit = precipitationString,
+                            forecast = getForecastString(
+                                wr = wr,
+                                tempUnitString = tempUnitString,
+                                windspeedUnitString = speedUnitString,
+                                lengthUnitString = precipitationString,
+                            )
+                        )
+                    )
+                }
+            } else { // Error returned
+                _weatherViewState.value = ViewState.Error(
+                    WeatherScreenViewState(
+                        weatherIconResource = drawable.ic_circle_x_black,
+                        weatherIconContentDescription = R.string.wc_unknown,
+                        temperature = null,
+                        temperatureUnit = null,
+                        windspeedUnit = null,
+                        precipitationAmountUnit = null,
+                        forecast = "${
+                            context.getString(
+                                R.string.error_message,
+                                "${weatherResponse.code()}"
+                            )
+                        }\n ${context.getString(R.string.error_help)}"
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -137,7 +131,8 @@ class WeatherViewModel @Inject constructor(
             null
         }
 
-        var weatherString = "${getWeatherCodeString(currentWeatherResponse.weatherCode)} ${context.getString(R.string.currently)}.\n" // Adds an extra space
+        var weatherString =
+            "${getWeatherCodeString(currentWeatherResponse.weatherCode)} ${context.getString(R.string.currently)}.\n" // Adds an extra space
 
         humidityString?.let {
             weatherString += it
@@ -175,5 +170,41 @@ class WeatherViewModel @Inject constructor(
             Log.e("WeatherViewModel", e?.message ?: "")
         }
         return hour
+    }
+
+    private suspend fun getLocation(): Location {
+        return settingsRepo.getLocation()
+    }
+
+    private suspend fun getTemperatureUnit(): TemperatureUnit {
+        return settingsRepo.getTemperatureUnit()
+    }
+
+    private suspend fun getTemperatureUnitInitial(): String {
+        return when (getTemperatureUnit()) {
+            TemperatureUnit.CELSIUS -> "ºC" // TODO Resources!
+            else -> "ºF"
+        }
+    }
+
+    private suspend fun getSpeedUnit(): SpeedUnit {
+        return settingsRepo.getSpeedUnit()
+    }
+
+    private suspend fun getLengthUnit(): LengthUnit {
+        return settingsRepo.getLengthUnit()
+    }
+
+    /**
+     * Millimeters are stored as "mm," which is fine for forecasts
+     * However, inches is "inch," which should be abbreviated.
+     */
+    private suspend fun getLengthUnitString(): String {
+        val lengthUnit = getLengthUnit()
+        return if (lengthUnit == LengthUnit.MILLIMETER) {
+            lengthUnit.toString()
+        } else {
+            context.getString(R.string.inch_abbreviation)
+        }
     }
 }

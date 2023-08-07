@@ -7,6 +7,7 @@ import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
+import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -20,7 +21,7 @@ class WeatherRepo @Inject constructor(
         tempUnit: TemperatureUnit,
         speedUnit: SpeedUnit,
         lengthUnit: LengthUnit,
-    ): WeatherResponse {
+    ): Response<WeatherResponse> {
         return weatherService.getCurrentWeather(
             latitude = location.latitude,
             longitude = location.longitude,
