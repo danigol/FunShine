@@ -1,5 +1,8 @@
 package com.daniellegolinsky.funshine.ui.weather
 
+import android.content.Context
+import android.view.accessibility.AccessibilityManager
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,8 +16,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +42,7 @@ fun WeatherScreen(
     modifier: Modifier = Modifier
 ) {
     val viewState = viewModel.weatherViewState.collectAsState().value.viewState
+    val localContext = LocalContext.current
 
     Column(
         verticalArrangement = Arrangement.Top,
@@ -80,6 +86,17 @@ fun WeatherScreen(
                 buttonIcon = painterResource(id = R.drawable.ic_refresh_button_black),
                 buttonIconContentDescription = stringResource(id = R.string.ic_refresh_button_content_description),
                 onClick = {
+                    // Everything loads too fast for feedback on the refresh button tap
+                    // This will read out that it's refreshing with Toast (very high) priority
+                    val accessibilityService =
+                        localContext.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+                    val accessibilityEnabled =
+                        accessibilityService != null && accessibilityService.isEnabled
+                    if (accessibilityEnabled) {
+                        val refreshMessage =
+                            localContext.getString(R.string.refresh_button_updating_message)
+                        Toast.makeText(localContext, refreshMessage, Toast.LENGTH_SHORT).show()
+                    }
                     viewModel.loading()
                     viewModel.loadForecast()
                 }
