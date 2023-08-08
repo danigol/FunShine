@@ -45,7 +45,7 @@ fun WeatherScreen(
     ) {
         FsIconWithShadow(
             image = painterResource(viewState.weatherIconResource),
-            imageResourceContentDescription = "${stringResource(R.string.ic_sunny_content_description)} icon", // TODO this should be a resource too
+            imageResourceContentDescription = stringResource(id = viewState.weatherIconContentDescription),
         )
         if (viewState.temperature != null) {
             FsText(
