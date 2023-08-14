@@ -17,6 +17,7 @@
     <string name="option_kmh">KMH</string>
     <string name="option_in">IN</string>
     <string name="option_mm">MM</string>
+    <string name="settings_heading">Settings</string>
 
     <!-- Weather Condition String -->
     <string name="max_temp">Max daily temp:</string>
@@ -65,4 +66,5 @@
     <string name="wc_snow_showers">There are snow showers</string>
 
     <string name="wc_unknown">unknown weather condition</string>
+    <string name="wc_loading">Loading weather condition</string>
 </resources>

@@ -35,7 +35,7 @@ class WeatherViewModel @Inject constructor(
 ) : ViewModel() {
     private val loadingState = WeatherScreenViewState(
         weatherIconResource = drawable.ic_loading_black,
-        weatherIconContentDescription = R.string.wc_unknown,
+        weatherIconContentDescription = R.string.wc_loading,
         temperature = null,
         temperatureUnit = null,
         windspeedUnit = null,
