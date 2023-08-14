@@ -65,4 +65,5 @@
     <string name="wc_snow_showers">There are snow showers</string>
 
     <string name="wc_unknown">unknown weather condition</string>
+    <string name="wc_loading">Loading weather condition</string>
 </resources>
