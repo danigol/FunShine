@@ -111,7 +111,7 @@ fun SettingsScreen(
             .padding(top = 16.dp)
     ) {
         FsAppBar(
-            headingText = "Settings",
+            headingText = stringResource(string.settings_heading),
             backButtonAction = { navController.navigateUp() }
         )
         Spacer(modifier = Modifier.height(64.dp))

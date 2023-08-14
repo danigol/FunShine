@@ -17,6 +17,7 @@
     <string name="option_kmh">KMH</string>
     <string name="option_in">IN</string>
     <string name="option_mm">MM</string>
+    <string name="settings_heading">Settings</string>
 
     <!-- Weather Condition String -->
     <string name="max_temp">Max daily temp:</string>
