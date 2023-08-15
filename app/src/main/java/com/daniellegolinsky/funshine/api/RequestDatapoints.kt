@@ -36,7 +36,7 @@ class RequestDatapoints() {
         const val INCH: String = "inch"
         const val MM: String = "mm"
         const val TIME_ZONE: String = "timezone"
-        const val US_NYC: String =
-            "America%2FNew_York" // TODO: This seems like a problem, might be better to assume local time zone from location and get UTC and subtract
+        const val AUTO_TZ: String = "auto"
+//        const val US_NYC: String = "America%2FNew_York"
     }
 }
