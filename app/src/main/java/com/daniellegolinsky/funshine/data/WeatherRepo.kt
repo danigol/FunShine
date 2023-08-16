@@ -3,6 +3,7 @@ package com.daniellegolinsky.funshine.data
 import com.daniellegolinsky.funshine.api.OpenMeteoWeatherService
 import com.daniellegolinsky.funshine.di.ApplicationModule
 import com.daniellegolinsky.funshine.models.Forecast
+import com.daniellegolinsky.funshine.models.ForecastTimestamp
 import com.daniellegolinsky.funshine.models.api.ForecastError
 import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
@@ -14,7 +15,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okhttp3.ResponseBody
 import retrofit2.Response
-import java.util.Calendar
+import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -32,7 +33,10 @@ class WeatherRepo @Inject constructor(
         lengthUnit: LengthUnit,
         forceUpdate: Boolean = false,
     ): ResponseOrError<Forecast, ForecastError> {
-        if (forceUpdate || repoCachedWeather == null) {
+        if (forceUpdate
+            || repoCachedWeather == null
+            || repoCachedWeather?.timeCreated != getCurrentForecastTimestamp()
+        ) {
             weatherMutex.withLock {
                 repoCachedWeatherResponse = mapWeatherResponseToForecastOrError(
                     weatherService.getCurrentWeather(
@@ -63,21 +67,23 @@ private fun mapWeatherResponseToForecastOrError(
     )
 }
 
-/**
- * val timeCreated: Long,
-val currentWeather: CurrentWeatherResponse,
-val dailyWeatherResponse: DailyWeatherResponse,
-val hourlyWeatherResponse: HourlyWeatherResponse,
- */
 private fun mapWeatherResponseToForecast(weatherResponse: WeatherResponse?): Forecast? {
     return weatherResponse?.let{
         Forecast(
-            timeCreated = Calendar.getInstance().timeInMillis, // TODO See if we want to make this a different time
+            timeCreated = getCurrentForecastTimestamp(),
             currentWeather = it.currentWeather,
             dailyWeatherResponse = it.dailyWeatherResponse,
             hourlyWeatherResponse = it.hourlyWeatherResponse
         )
     } ?: null
+}
+
+// TODO Make this an extension function?
+private fun getCurrentForecastTimestamp(): ForecastTimestamp {
+    val currentHour = LocalDateTime.now().hour
+    val currentDay = LocalDateTime.now().dayOfMonth
+    val currentYear = LocalDateTime.now().year
+    return ForecastTimestamp(year = currentYear, day = currentDay, hour = currentHour)
 }
 
 private fun mapToForecastError(responseBody: ResponseBody?): ForecastError? {

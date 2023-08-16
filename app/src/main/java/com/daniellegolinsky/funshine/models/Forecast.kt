@@ -9,7 +9,7 @@ import com.daniellegolinsky.funshine.models.api.HourlyWeatherResponse
  * Does not contain HTML codes ore response information, just the data
  */
 data class Forecast(
-    val timeCreated: Long,
+    val timeCreated: ForecastTimestamp,
     val currentWeather: CurrentWeatherResponse,
     val dailyWeatherResponse: DailyWeatherResponse,
     val hourlyWeatherResponse: HourlyWeatherResponse,
