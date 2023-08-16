@@ -44,7 +44,7 @@ class WeatherRepo @Inject constructor(
                     )
                 )
                 // Only cache successful forecast in repoCachedWeather
-                if (repoCachedWeatherResponse?.isError == false) {
+                if (repoCachedWeatherResponse?.isSuccess == true) {
                     repoCachedWeather = repoCachedWeatherResponse!!.data
                 }
             }
@@ -57,7 +57,7 @@ private fun mapWeatherResponseToForecastOrError(
     response: Response<WeatherResponse>
 ): ResponseOrError<Forecast, ForecastError> {
     return ResponseOrError(
-        isError = !response.isSuccessful,
+        isSuccess = response.isSuccessful,
         data = mapWeatherResponseToForecast(response?.body()),
         error = mapToForecastError(response?.errorBody())
     )
