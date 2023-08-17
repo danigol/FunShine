@@ -1,7 +1,9 @@
 package com.daniellegolinsky.funshine.models.api
 
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class HourlyWeatherResponse(
     @SerializedName("time")
     val timeList: List<String>,

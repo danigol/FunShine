@@ -8,11 +8,13 @@ import com.daniellegolinsky.funshine.R
 import com.daniellegolinsky.funshine.data.SettingsRepo
 import com.daniellegolinsky.themeresources.R.drawable
 import com.daniellegolinsky.funshine.data.WeatherRepo
+import com.daniellegolinsky.funshine.models.Forecast
 import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.WeatherCode
+import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
 import com.daniellegolinsky.funshine.models.getIconResource
 import com.daniellegolinsky.funshine.models.getResourceStringForWeatherCode
@@ -56,14 +58,16 @@ class WeatherViewModel @Inject constructor(
     fun loadForecast() {
         viewModelScope.launch {
             val weatherResponse = weatherRepo.getWeather(
-                location = getLocation(),
-                tempUnit = getTemperatureUnit(),
-                speedUnit = getSpeedUnit(),
-                lengthUnit = getLengthUnit(),
+                WeatherRequest(
+                    location = getLocation(),
+                    tempUnit = getTemperatureUnit(),
+                    speedUnit = getSpeedUnit(),
+                    lengthUnit = getLengthUnit(),
+                )
             )
-            if (weatherResponse.isSuccessful) {
-                weatherResponse.body()?.let { wr ->
-                    val currentWeatherResponse = wr.currentWeather
+            if (weatherResponse.isSuccess) {
+                weatherResponse.data?.let { weatherResponseData ->
+                    val currentWeatherResponse = weatherResponseData.currentWeather
                     val tempAsInt = currentWeatherResponse.temperature.toInt()
                     val tempUnitString = getTemperatureUnitInitial()
                     val speedUnitString = getSpeedUnit().toString()
@@ -79,7 +83,7 @@ class WeatherViewModel @Inject constructor(
                             windspeedUnit = speedUnitString,
                             precipitationAmountUnit = precipitationString,
                             forecast = getForecastString(
-                                wr = wr,
+                                forecast = weatherResponseData,
                                 tempUnitString = tempUnitString,
                                 windspeedUnitString = speedUnitString,
                                 lengthUnitString = precipitationString,
@@ -99,7 +103,7 @@ class WeatherViewModel @Inject constructor(
                         forecast = "${
                             context.getString(
                                 R.string.error_message,
-                                "${weatherResponse.code()}"
+                                "${weatherResponse?.error?.errorMessage ?: "unknown"}"
                             )
                         }\n ${context.getString(R.string.error_help)}"
                     )
@@ -109,18 +113,18 @@ class WeatherViewModel @Inject constructor(
     }
 
     private fun getForecastString(
-        wr: WeatherResponse,
+        forecast: Forecast,
         tempUnitString: String,
         windspeedUnitString: String,
         lengthUnitString: String,
     ): String {
-        val dailyWeatherResponse = wr.dailyWeatherResponse
-        val currentWeatherResponse = wr.currentWeather
+        val dailyWeatherResponse = forecast.dailyWeatherResponse
+        val currentWeatherResponse = forecast.currentWeather
         val tempMaxAsInt = dailyWeatherResponse.maxTemp[0].toInt()
         val tempMinAsInt = dailyWeatherResponse.minTemp[0].toInt()
         val precipChance = dailyWeatherResponse.precipitationProbabilityMax[0]
         val precipAmount: Double = dailyWeatherResponse.precipitationSum[0]
-        val hourlyWeatherResponse = wr.hourlyWeatherResponse
+        val hourlyWeatherResponse = forecast.hourlyWeatherResponse
 
         val humidityString: String? = try {
             val humidityListSize = hourlyWeatherResponse.humidityList.size

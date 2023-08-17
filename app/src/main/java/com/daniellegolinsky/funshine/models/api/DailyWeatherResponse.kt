@@ -2,7 +2,9 @@ package com.daniellegolinsky.funshine.models.api
 
 import com.daniellegolinsky.funshine.models.WeatherCode
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class DailyWeatherResponse(
 
     @SerializedName("weathercode")
