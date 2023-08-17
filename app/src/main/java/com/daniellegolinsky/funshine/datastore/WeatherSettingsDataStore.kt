@@ -15,6 +15,7 @@ import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
+import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -38,6 +39,7 @@ class WeatherSettingsDataStore @Inject constructor(
         val LENGTH_UNIT = stringPreferencesKey("lengthUnit")
         val SPEED_UNIT = stringPreferencesKey("speedUnit")
         val FORECAST_KEY = stringPreferencesKey("forecast")
+        val REQUEST_KEY = stringPreferencesKey("request")
     }
 
     private val settingsFlow = dataStore.data.catch {
@@ -163,6 +165,29 @@ class WeatherSettingsDataStore @Inject constructor(
     override suspend fun setLastForecast(forecast: Forecast) {
         dataStore.edit { preferences ->
             preferences[StoreKeys.FORECAST_KEY] = Json.encodeToString(forecast)
+        }
+    }
+
+    override suspend fun getLastRequest(): WeatherRequest? {
+        var lastRequest: WeatherRequest? = null
+        val jsonRequest = settingsFlow.map{ preferences ->
+            preferences[StoreKeys.REQUEST_KEY]
+        }.firstOrNull()
+
+        jsonRequest?.let {
+            try{
+                lastRequest = Json.decodeFromString<WeatherRequest>(it)
+            } catch (jsonException: JSONException) {
+                jsonException.printStackTrace()
+            }
+        }
+
+        return lastRequest
+    }
+
+    override suspend fun setLastRequest(weatherRequest: WeatherRequest) {
+        dataStore.edit { preferences ->
+            preferences[StoreKeys.REQUEST_KEY] = Json.encodeToString(weatherRequest)
         }
     }
 }

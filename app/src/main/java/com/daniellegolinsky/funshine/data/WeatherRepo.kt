@@ -31,6 +31,10 @@ class WeatherRepo @Inject constructor(
     ): ResponseOrError<Forecast, ForecastError> {
         // If any parameters changed with the request, we MUST do a new request
         var alwaysDoRequest = forceUpdate
+        if (repoCachedWeatherRequest == null) {
+            // Try to see if it's in the data store already
+            repoCachedWeatherRequest = settingsRepo.getLastRequest()
+        }
         if (repoCachedWeatherRequest != null && weatherRequest != repoCachedWeatherRequest) {
             alwaysDoRequest = true
         }
@@ -52,8 +56,6 @@ class WeatherRepo @Inject constructor(
                         data = repoCachedWeather,
                         error = null
                     )
-//                    // We always cache successful requests too
-//                    repoCachedWeatherRequest = weatherRequest
                 }
             }
         }
@@ -80,10 +82,6 @@ class WeatherRepo @Inject constructor(
                         forecastToCache = repoCachedWeatherResponse!!.data!!,
                         requestForForecast = weatherRequest
                     )
-//                    repoCachedWeather = repoCachedWeatherResponse!!.data
-//                    settingsRepo.setLastForecast(repoCachedWeather!!)
-//                    // We always cache successful requests too
-//                    repoCachedWeatherRequest = weatherRequest
                 }
             }
         }
@@ -105,7 +103,7 @@ class WeatherRepo @Inject constructor(
         // We wouldn't do this if loading from the data store, as it's the same data
         if (saveToSettings) {
             this.settingsRepo.setLastForecast(this.repoCachedWeather!!)
-            // TODO Will also save request here
+            this.settingsRepo.setLastRequest(this.repoCachedWeatherRequest!!)
         }
     }
 }

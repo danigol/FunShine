@@ -6,6 +6,7 @@ import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
+import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import javax.inject.Inject
 
 class SettingsRepo @Inject constructor(
@@ -59,5 +60,12 @@ class SettingsRepo @Inject constructor(
     }
     suspend fun getLastForecast(): Forecast? {
         return dataStore.getLastForecast()
+    }
+
+    suspend fun setLastRequest(weatherRequest: WeatherRequest) {
+        dataStore.setLastRequest(weatherRequest)
+    }
+    suspend fun getLastRequest(): WeatherRequest? {
+        return dataStore.getLastRequest()
     }
 }
