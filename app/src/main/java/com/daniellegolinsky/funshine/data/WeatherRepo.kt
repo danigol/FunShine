@@ -5,11 +5,7 @@ import com.daniellegolinsky.funshine.di.ApplicationModule
 import com.daniellegolinsky.funshine.models.Forecast
 import com.daniellegolinsky.funshine.models.ForecastTimestamp
 import com.daniellegolinsky.funshine.models.api.ForecastError
-import com.daniellegolinsky.funshine.models.LengthUnit
-import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.ResponseOrError
-import com.daniellegolinsky.funshine.models.SpeedUnit
-import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
 import kotlinx.coroutines.sync.Mutex
@@ -43,14 +39,21 @@ class WeatherRepo @Inject constructor(
             weatherMutex.withLock {
                 repoCachedWeather = settingsRepo.getLastForecast()
                 if (repoCachedWeather != null) {
+                    // A response was cached on disk, but not yet in memory
                     // Only cache successful forecast in repoCachedWeather
+                    cacheSuccessfulForecast(
+                        saveToSettings = false,
+                        forecastToCache = repoCachedWeather!!,
+                        requestForForecast = weatherRequest
+                    )
+                    // Build out the cached return response
                     repoCachedWeatherResponse = ResponseOrError(
                         isSuccess = true,
                         data = repoCachedWeather,
                         error = null
                     )
-                    // We always cache successful requests too
-                    repoCachedWeatherRequest = weatherRequest
+//                    // We always cache successful requests too
+//                    repoCachedWeatherRequest = weatherRequest
                 }
             }
         }
@@ -60,6 +63,7 @@ class WeatherRepo @Inject constructor(
             || repoCachedWeather?.timeCreated != getCurrentForecastTimestamp()
         ) {
             weatherMutex.withLock {
+                // Do the request and cache the response locally
                 repoCachedWeatherResponse = mapWeatherResponseToForecastOrError(
                     weatherService.getCurrentWeather(
                         latitude = weatherRequest.location.latitude,
@@ -71,15 +75,38 @@ class WeatherRepo @Inject constructor(
                 )
                 // Only cache successful forecast in repoCachedWeather
                 if (repoCachedWeatherResponse?.isSuccess == true) {
-                    repoCachedWeather = repoCachedWeatherResponse!!.data
-                    settingsRepo.setLastForecast(repoCachedWeather!!)
-                    // We always cache successful requests too
-                    repoCachedWeatherRequest = weatherRequest
-                    // TODO Update repo here too
+                    cacheSuccessfulForecast(
+                        saveToSettings = true,
+                        forecastToCache = repoCachedWeatherResponse!!.data!!,
+                        requestForForecast = weatherRequest
+                    )
+//                    repoCachedWeather = repoCachedWeatherResponse!!.data
+//                    settingsRepo.setLastForecast(repoCachedWeather!!)
+//                    // We always cache successful requests too
+//                    repoCachedWeatherRequest = weatherRequest
                 }
             }
         }
         return weatherMutex.withLock { repoCachedWeatherResponse!! }
+    }
+
+    private suspend fun cacheSuccessfulForecast(
+        saveToSettings: Boolean,
+        forecastToCache: Forecast,
+        requestForForecast: WeatherRequest,
+    ){
+        // Cache the successful forecast
+        this.repoCachedWeather = forecastToCache
+
+        // Cache the request that generated that data:
+        this.repoCachedWeatherRequest = requestForForecast
+
+        // Save to the settings repo, if requested
+        // We wouldn't do this if loading from the data store, as it's the same data
+        if (saveToSettings) {
+            this.settingsRepo.setLastForecast(this.repoCachedWeather!!)
+            // TODO Will also save request here
+        }
     }
 }
 
