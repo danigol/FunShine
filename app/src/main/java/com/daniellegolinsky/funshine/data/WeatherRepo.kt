@@ -10,6 +10,7 @@ import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.ResponseOrError
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
+import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -20,22 +21,25 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class WeatherRepo @Inject constructor(
-    @Named(ApplicationModule.OPEN_METEO_WEATHER_SERVICE) val weatherService: OpenMeteoWeatherService,
-    val settingsRepo: SettingsRepo, // TODO: The fun bit, now we can also get it from here!
+    @Named(ApplicationModule.OPEN_METEO_WEATHER_SERVICE) private val weatherService: OpenMeteoWeatherService,
+    private val settingsRepo: SettingsRepo, // TODO: The fun bit, now we can also get it from here!
 ) {
     private val weatherMutex = Mutex()
     private var repoCachedWeather: Forecast? = null
     private var repoCachedWeatherResponse: ResponseOrError<Forecast, ForecastError>? = null
+    private var repoCachedWeatherRequest: WeatherRequest? = null
 
     suspend fun getWeather(
-        location: Location,
-        tempUnit: TemperatureUnit,
-        speedUnit: SpeedUnit,
-        lengthUnit: LengthUnit,
+        weatherRequest: WeatherRequest,
         forceUpdate: Boolean = false,
     ): ResponseOrError<Forecast, ForecastError> {
+        // If any parameters changed with the request, we MUST do a new request
+        var alwaysDoRequest = forceUpdate
+        if (repoCachedWeatherRequest != null && weatherRequest != repoCachedWeatherRequest) {
+            alwaysDoRequest = true
+        }
         // Check if there is a stored version of the forecast before testing any cached weather
-        if (!forceUpdate && repoCachedWeather == null) {
+        if (!alwaysDoRequest && repoCachedWeather == null) {
             weatherMutex.withLock {
                 repoCachedWeather = settingsRepo.getLastForecast()
                 if (repoCachedWeather != null) {
@@ -45,28 +49,33 @@ class WeatherRepo @Inject constructor(
                         data = repoCachedWeather,
                         error = null
                     )
+                    // We always cache successful requests too
+                    repoCachedWeatherRequest = weatherRequest
                 }
             }
         }
         // Update cache and datastore if necessary or requested
-        if (forceUpdate
+        if (alwaysDoRequest
             || repoCachedWeather == null
             || repoCachedWeather?.timeCreated != getCurrentForecastTimestamp()
         ) {
             weatherMutex.withLock {
                 repoCachedWeatherResponse = mapWeatherResponseToForecastOrError(
                     weatherService.getCurrentWeather(
-                        latitude = location.latitude,
-                        longitude = location.longitude,
-                        tempUnit = tempUnit.toString(),
-                        speedUnit = speedUnit.toString(),
-                        lengthUnit = lengthUnit.toString(),
+                        latitude = weatherRequest.location.latitude,
+                        longitude = weatherRequest.location.longitude,
+                        tempUnit = weatherRequest.tempUnit.toString(),
+                        speedUnit = weatherRequest.speedUnit.toString(),
+                        lengthUnit = weatherRequest.lengthUnit.toString(),
                     )
                 )
                 // Only cache successful forecast in repoCachedWeather
                 if (repoCachedWeatherResponse?.isSuccess == true) {
                     repoCachedWeather = repoCachedWeatherResponse!!.data
                     settingsRepo.setLastForecast(repoCachedWeather!!)
+                    // We always cache successful requests too
+                    repoCachedWeatherRequest = weatherRequest
+                    // TODO Update repo here too
                 }
             }
         }

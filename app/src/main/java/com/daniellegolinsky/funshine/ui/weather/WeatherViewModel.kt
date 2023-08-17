@@ -14,6 +14,7 @@ import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.WeatherCode
+import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
 import com.daniellegolinsky.funshine.models.getIconResource
 import com.daniellegolinsky.funshine.models.getResourceStringForWeatherCode
@@ -57,10 +58,12 @@ class WeatherViewModel @Inject constructor(
     fun loadForecast() {
         viewModelScope.launch {
             val weatherResponse = weatherRepo.getWeather(
-                location = getLocation(),
-                tempUnit = getTemperatureUnit(),
-                speedUnit = getSpeedUnit(),
-                lengthUnit = getLengthUnit(),
+                WeatherRequest(
+                    location = getLocation(),
+                    tempUnit = getTemperatureUnit(),
+                    speedUnit = getSpeedUnit(),
+                    lengthUnit = getLengthUnit(),
+                )
             )
             if (weatherResponse.isSuccess) {
                 weatherResponse.data?.let { weatherResponseData ->
