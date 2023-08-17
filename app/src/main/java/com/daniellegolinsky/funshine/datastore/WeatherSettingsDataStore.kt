@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.daniellegolinsky.funshine.api.RequestDatapoints
 import com.daniellegolinsky.funshine.di.ApplicationModule
+import com.daniellegolinsky.funshine.models.Forecast
 import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
@@ -17,6 +18,9 @@ import com.daniellegolinsky.funshine.models.TemperatureUnit
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import org.json.JSONException
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -33,6 +37,7 @@ class WeatherSettingsDataStore @Inject constructor(
         val TEMPERATURE_UNIT = stringPreferencesKey("temperatureUnit")
         val LENGTH_UNIT = stringPreferencesKey("lengthUnit")
         val SPEED_UNIT = stringPreferencesKey("speedUnit")
+        val FORECAST_KEY = stringPreferencesKey("forecast")
     }
 
     private val settingsFlow = dataStore.data.catch {
@@ -136,6 +141,28 @@ class WeatherSettingsDataStore @Inject constructor(
         dataStore.edit { preferences ->
             preferences[StoreKeys.SPEED_UNIT] =
                 if (isMph) SpeedUnit.MPH.toString() else SpeedUnit.KMH.toString()
+        }
+    }
+
+    override suspend fun getLastForecast(): Forecast? {
+        var forecast: Forecast? = null
+        val jsonForecast = settingsFlow.map{ preferences ->
+            preferences[StoreKeys.FORECAST_KEY]
+        }.firstOrNull()
+
+        jsonForecast?.let {
+            try{
+                forecast = Json.decodeFromString<Forecast>(it)
+            } catch (jsonException: JSONException) {
+                jsonException.printStackTrace()
+            }
+        }
+
+        return forecast
+    }
+    override suspend fun setLastForecast(forecast: Forecast) {
+        dataStore.edit { preferences ->
+            preferences[StoreKeys.FORECAST_KEY] = Json.encodeToString(forecast)
         }
     }
 }

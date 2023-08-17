@@ -20,7 +20,8 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class WeatherRepo @Inject constructor(
-    @Named(ApplicationModule.OPEN_METEO_WEATHER_SERVICE) val weatherService: OpenMeteoWeatherService
+    @Named(ApplicationModule.OPEN_METEO_WEATHER_SERVICE) val weatherService: OpenMeteoWeatherService,
+    val settingsRepo: SettingsRepo, // TODO: The fun bit, now we can also get it from here!
 ) {
     private val weatherMutex = Mutex()
     private var repoCachedWeather: Forecast? = null
@@ -33,6 +34,21 @@ class WeatherRepo @Inject constructor(
         lengthUnit: LengthUnit,
         forceUpdate: Boolean = false,
     ): ResponseOrError<Forecast, ForecastError> {
+        // Check if there is a stored version of the forecast before testing any cached weather
+        if (!forceUpdate && repoCachedWeather == null) {
+            weatherMutex.withLock {
+                repoCachedWeather = settingsRepo.getLastForecast()
+                if (repoCachedWeather != null) {
+                    // Only cache successful forecast in repoCachedWeather
+                    repoCachedWeatherResponse = ResponseOrError(
+                        isSuccess = true,
+                        data = repoCachedWeather,
+                        error = null
+                    )
+                }
+            }
+        }
+        // Update cache and datastore if necessary or requested
         if (forceUpdate
             || repoCachedWeather == null
             || repoCachedWeather?.timeCreated != getCurrentForecastTimestamp()
@@ -50,6 +66,7 @@ class WeatherRepo @Inject constructor(
                 // Only cache successful forecast in repoCachedWeather
                 if (repoCachedWeatherResponse?.isSuccess == true) {
                     repoCachedWeather = repoCachedWeatherResponse!!.data
+                    settingsRepo.setLastForecast(repoCachedWeather!!)
                 }
             }
         }

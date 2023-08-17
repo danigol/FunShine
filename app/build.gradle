@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
+    id 'org.jetbrains.kotlin.plugin.serialization'
 }
 
 android {
@@ -79,6 +80,9 @@ dependencies {
 
     // Datastore
     implementation "androidx.datastore:datastore-preferences:1.1.0-alpha04"
+
+    // Serialization
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1"
 
     // Hilt (DI)
     implementation "com.google.dagger:hilt-android:2.44"

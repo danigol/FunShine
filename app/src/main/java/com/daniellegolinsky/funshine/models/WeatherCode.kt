@@ -3,6 +3,7 @@ package com.daniellegolinsky.funshine.models
 import com.daniellegolinsky.funshine.R
 import com.google.gson.annotations.SerializedName
 import com.daniellegolinsky.themeresources.R.drawable
+import kotlinx.serialization.Serializable
 
 /**
  * WMO Weather interpretation codes (WW)
@@ -24,7 +25,7 @@ import com.daniellegolinsky.themeresources.R.drawable
  *
  *   Maps ints to enum from response. Will keep int value so we can return a resource string
  */
-
+@Serializable
 enum class WeatherCode(wcode: Int) {
     @SerializedName("0")
     CLEAR(0),
