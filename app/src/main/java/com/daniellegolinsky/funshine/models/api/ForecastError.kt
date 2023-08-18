@@ -10,4 +10,5 @@ data class ForecastError(
     val isError: Boolean,
     @SerializedName("reason")
     val errorMessage: String,
+    val hoursLeft: Int = -1,
 )

@@ -1,6 +1,7 @@
 package com.daniellegolinsky.funshine.datastore
 
 import com.daniellegolinsky.funshine.models.Forecast
+import com.daniellegolinsky.funshine.models.ForecastTimestamp
 import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
@@ -24,4 +25,9 @@ interface IWeatherSettingsDataStore {
     suspend fun setLastForecast(forecast: Forecast)
     suspend fun getLastRequest(): WeatherRequest?
     suspend fun setLastRequest(weatherRequest: WeatherRequest)
+    suspend fun getApiTimestamp(): ForecastTimestamp?
+    suspend fun setNewApiTimestamp(forecastTimestamp: ForecastTimestamp)
+    suspend fun getApiCallCount(): Int
+    suspend fun incrementApiCallCount()
+    suspend fun resetApiCallCount()
 }
