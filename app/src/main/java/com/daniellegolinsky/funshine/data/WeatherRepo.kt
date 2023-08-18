@@ -34,11 +34,11 @@ class WeatherRepo @Inject constructor(
         weatherRequest: WeatherRequest,
         forceUpdate: Boolean = false,
     ): ResponseOrError<Forecast, ForecastError> {
-        // Ensure we have set the API limited
+        // Reset the API limiter if necessary
         weatherMutex.withLock {
-            // If valid, this will reset the API call counter and the timestamp on it
             apiRequestLimiter.resetApiCallCounterAndTimestampIfValid()
         }
+
         // If any parameters changed with the request, we MUST do a new request
         var alwaysDoRequest = forceUpdate
         if (repoCachedWeatherRequest == null) {
@@ -78,16 +78,13 @@ class WeatherRepo @Inject constructor(
             ) {
                 weatherMutex.withLock {
                     // Do the request and cache the response locally
-                    repoCachedWeatherResponse = mapWeatherResponseToForecastOrError(
-                        weatherService.getCurrentWeather(
-                            latitude = weatherRequest.location.latitude,
-                            longitude = weatherRequest.location.longitude,
-                            tempUnit = weatherRequest.tempUnit.toString(),
-                            speedUnit = weatherRequest.speedUnit.toString(),
-                            lengthUnit = weatherRequest.lengthUnit.toString(),
-                        )
+                    repoCachedWeatherResponse = makeApiRequest(
+                        requestLatitude = weatherRequest.location.latitude,
+                        requestLongitude = weatherRequest.location.longitude,
+                        requestTempUnit = weatherRequest.tempUnit.toString(),
+                        requestSpeedUnit = weatherRequest.speedUnit.toString(),
+                        requestLengthUnit = weatherRequest.lengthUnit.toString(),
                     )
-                    apiRequestLimiter.incrementApiCallCounter()
                     // Only cache successful forecast in repoCachedWeather
                     if (repoCachedWeatherResponse?.isSuccess == true) {
                         cacheSuccessfulForecast(
@@ -111,6 +108,30 @@ class WeatherRepo @Inject constructor(
             )
         }
         return weatherMutex.withLock { repoCachedWeatherResponse!! }
+    }
+
+    /**
+     * Makes the API request and increments the API counter
+     */
+    private suspend fun makeApiRequest(
+        requestLatitude: Float,
+        requestLongitude: Float,
+        requestTempUnit: String,
+        requestSpeedUnit: String,
+        requestLengthUnit: String,
+    ): ResponseOrError<Forecast, ForecastError> {
+
+        apiRequestLimiter.incrementApiCallCounter()
+
+        return mapWeatherResponseToForecastOrError(
+            weatherService.getCurrentWeather(
+                latitude = requestLatitude,
+                longitude = requestLongitude,
+                tempUnit = requestTempUnit,
+                speedUnit = requestSpeedUnit,
+                lengthUnit = requestLengthUnit,
+            )
+        )
     }
 
     private suspend fun cacheSuccessfulForecast(
