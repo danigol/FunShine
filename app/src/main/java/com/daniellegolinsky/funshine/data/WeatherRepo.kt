@@ -69,7 +69,7 @@ class WeatherRepo @Inject constructor(
                 }
             }
         }
-        // Update the cache with API data if necessary and able
+
         // Only perform API actions if under the daily limit
         if (apiRequestLimiter.canMakeRequest()) {
             if (alwaysDoRequest
@@ -96,6 +96,7 @@ class WeatherRepo @Inject constructor(
                 }
             }
         } else { // Cannot make API request, too many within a 24 hour period
+            // TODO Consider making this a popup and instead showing cached data
             val hoursLeft = apiRequestLimiter.hoursLeft()
             repoCachedWeatherResponse = ResponseOrError(
                 isSuccess = false,
