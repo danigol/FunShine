@@ -7,10 +7,12 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.daniellegolinsky.funshine.api.RequestDatapoints
 import com.daniellegolinsky.funshine.di.ApplicationModule
 import com.daniellegolinsky.funshine.models.Forecast
+import com.daniellegolinsky.funshine.models.ForecastTimestamp
 import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
@@ -40,6 +42,8 @@ class WeatherSettingsDataStore @Inject constructor(
         val SPEED_UNIT = stringPreferencesKey("speedUnit")
         val FORECAST_KEY = stringPreferencesKey("forecast")
         val REQUEST_KEY = stringPreferencesKey("request")
+        val API_CALL_COUNT = intPreferencesKey("api_call_count")
+        val START_API_TIMESTAMP = stringPreferencesKey("start_api_timestamp")
     }
 
     private val settingsFlow = dataStore.data.catch {
@@ -188,6 +192,49 @@ class WeatherSettingsDataStore @Inject constructor(
     override suspend fun setLastRequest(weatherRequest: WeatherRequest) {
         dataStore.edit { preferences ->
             preferences[StoreKeys.REQUEST_KEY] = Json.encodeToString(weatherRequest)
+        }
+    }
+
+    override suspend fun getApiTimestamp(): ForecastTimestamp? {
+        var forecastTimestamp: ForecastTimestamp? = null
+        val timestampJson = settingsFlow.map{ preferences ->
+            preferences[StoreKeys.START_API_TIMESTAMP]
+        }.firstOrNull()
+        timestampJson?.let {
+            try{
+                forecastTimestamp = Json.decodeFromString<ForecastTimestamp>(it)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+        return forecastTimestamp
+    }
+
+    override suspend fun setNewApiTimestamp(forecastTimestamp: ForecastTimestamp) {
+        dataStore.edit { preferences ->
+            preferences[StoreKeys.START_API_TIMESTAMP] = Json.encodeToString(forecastTimestamp)
+        }
+    }
+
+    override suspend fun getApiCallCount(): Int {
+        return settingsFlow.map { preferences ->
+            preferences[StoreKeys.API_CALL_COUNT]
+        }.firstOrNull() ?: 0
+    }
+
+    override suspend fun incrementApiCallCount() {
+       val incrementCount = getApiCallCount() + 1
+       dataStore.edit { preferences->
+           preferences[StoreKeys.API_CALL_COUNT] = incrementCount
+       }
+    }
+
+    /**
+     * Only resets to 0, increment individually.
+     */
+    override suspend fun resetApiCallCount() {
+        dataStore.edit { preferences->
+            preferences[StoreKeys.API_CALL_COUNT] = 0
         }
     }
 }

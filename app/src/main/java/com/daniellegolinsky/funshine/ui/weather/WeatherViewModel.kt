@@ -9,6 +9,7 @@ import com.daniellegolinsky.funshine.data.SettingsRepo
 import com.daniellegolinsky.themeresources.R.drawable
 import com.daniellegolinsky.funshine.data.WeatherRepo
 import com.daniellegolinsky.funshine.models.Forecast
+import com.daniellegolinsky.funshine.models.ForecastTimestamp
 import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
@@ -92,6 +93,14 @@ class WeatherViewModel @Inject constructor(
                     )
                 }
             } else { // Error returned
+                val errorString = if (weatherResponse?.error?.errorMessage?.startsWith(WeatherRepo.API_REQUEST_ERROR) == true) {
+                    context.getString(
+                        R.string.api_limit_error,
+                        weatherResponse?.error?.hoursLeft ?: ForecastTimestamp.HOURS_IN_DAY
+                    )
+                } else {
+                    weatherResponse?.error?.errorMessage ?: ""
+                }
                 _weatherViewState.value = ViewState.Error(
                     WeatherScreenViewState(
                         weatherIconResource = drawable.ic_circle_x_black,
@@ -103,7 +112,7 @@ class WeatherViewModel @Inject constructor(
                         forecast = "${
                             context.getString(
                                 R.string.error_message,
-                                "${weatherResponse?.error?.errorMessage ?: "unknown"}"
+                                errorString
                             )
                         }\n ${context.getString(R.string.error_help)}"
                     )
