@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -62,6 +63,7 @@ fun AboutScreen(
         FsText(
             text = stringResource(id = R.string.funshine_privacy),
             textStyle = getHeadingFontStyle(),
+            textDecoration = TextDecoration.Underline,
             modifier = Modifier.clickable(role = Role.Button) {
                 uriHandler.openUri(funshinePrivacyLink)
             }
@@ -78,6 +80,7 @@ fun AboutScreen(
         FsText(
             text = stringResource(id = R.string.open_meteo_terms),
             textStyle = getHeadingFontStyle(),
+            textDecoration = TextDecoration.Underline,
             modifier = Modifier.clickable(role = Role.Button) {
                 uriHandler.openUri(openMeteoTermsLink)
             }
