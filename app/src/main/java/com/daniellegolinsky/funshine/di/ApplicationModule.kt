@@ -44,8 +44,9 @@ object ApplicationModule {
     @Named(OPEN_METEO_WEATHER_SERVICE)
     internal fun providesOpenMeteoWeatherService(): OpenMeteoWeatherService {
         val gson = GsonBuilder().setLenient().create()
-        val loggingInterceptor = HttpLoggingInterceptor() // TODO Set logging for debug builds only
-        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+        val loggingInterceptor = HttpLoggingInterceptor()
+//        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY // DEBUG ONLY
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.NONE
         val httpClient = OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .readTimeout(10, TimeUnit.SECONDS)
