@@ -21,7 +21,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -51,10 +50,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
-import kotlinx.coroutines.launch
-import java.math.RoundingMode
 
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
@@ -66,13 +61,14 @@ fun SettingsScreen(
 ) {
     val viewState = viewModel.settingsViewState.collectAsState()
     val hasSeenLocationWarning = viewState.value.hasSeenLocationWarning
-    val locationPermissionState = rememberPermissionState(
-        permission = android.Manifest.permission.ACCESS_COARSE_LOCATION
-    )
     val localContext = LocalContext.current
-    val scope = rememberCoroutineScope()
     val locationClient = remember {
         LocationServices.getFusedLocationProviderClient(localContext)
+    }
+    val locationPermissionState = rememberPermissionState(
+        permission = android.Manifest.permission.ACCESS_COARSE_LOCATION
+    ) { granted ->
+        viewModel.getApproximateLocation(locationGranted = granted, locationClient = locationClient)
     }
 
     // Only show the warning if they haven't seen it and we don't have permission
@@ -130,31 +126,15 @@ fun SettingsScreen(
                             buttonIconContentDescription = stringResource(id = string.loading)) {}
                     } else {
                         FsLocationButton(modifier = Modifier.height(16.dp)) {
-                            viewModel.setViewStateLocation("0.00,0.00") // TODO Make a real loading state
-                            // TODO, and, let's see how much of this we can get out of the composable?
+                            viewModel.setViewStateLocation("0.00,0.00")
                             if (locationPermissionState.status.isGranted) {
-                                viewModel.setIsLoadingLocation(true)
-                                // TODO Definitely don't like this here
-                                scope.launch(viewModel.getIoDispatcher()) { // TODO no, no no no no no no nooooooo no.
-                                    locationClient.getCurrentLocation(
-                                        Priority.PRIORITY_HIGH_ACCURACY,
-                                        CancellationTokenSource().token,
-                                    ).addOnCompleteListener {// TODO yeah, don't like this here
-                                        val locationResult = it.result
-                                        val latitude = locationResult.latitude.toBigDecimal()
-                                            .setScale(3, RoundingMode.UP).toFloat()
-                                        val longitude = locationResult.longitude.toBigDecimal()
-                                            .setScale(3, RoundingMode.UP).toFloat()
-                                        viewModel.setViewStateLocation("${latitude},${longitude}")
-                                        viewModel.setIsLoadingLocation(false)
-                                    }
-                                }
+                                viewModel.getApproximateLocation(locationPermissionState.status.isGranted, locationClient)
                             } else {
                                 // If we've already prompted them, remind them we need the permission
+                                // We will not re-prompt or spam the user, this will tell them to enable it if they want
                                 if (viewState.value.hasBeenPromptedForLocationPermission) {
                                     viewModel.setViewStateHasSeenLocationWarning(false)
                                 } else {
-                                    // TODO Request location afterwards
                                     locationPermissionState.launchPermissionRequest()
                                     viewModel.setViewStateHasBeenPromptedForLocationPermission(true)
                                 }

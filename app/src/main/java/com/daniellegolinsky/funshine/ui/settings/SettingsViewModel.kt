@@ -1,5 +1,6 @@
 package com.daniellegolinsky.funshine.ui.settings
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.data.SettingsRepo
@@ -9,11 +10,18 @@ import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.isGranted
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.math.RoundingMode
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.math.absoluteValue
@@ -144,6 +152,38 @@ class SettingsViewModel @Inject constructor(
 
     fun getIoDispatcher(): CoroutineDispatcher {
         return ioDispatcher
+    }
+
+    @SuppressLint("MissingPermission")
+    fun getApproximateLocation(
+        locationGranted: Boolean,
+        locationClient: FusedLocationProviderClient
+    ) {
+        viewModelScope.launch(ioDispatcher) {
+            if (locationGranted) {
+                try {
+                    setIsLoadingLocation(true)
+
+                    locationClient.getCurrentLocation(
+                        Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+                        CancellationTokenSource().token,
+                    ).addOnCompleteListener {
+                        val locationResult = it.result
+                        val latitude = locationResult.latitude.toBigDecimal()
+                            .setScale(3, RoundingMode.UP).toFloat()
+                        val longitude = locationResult.longitude.toBigDecimal()
+                            .setScale(3, RoundingMode.UP).toFloat()
+                        setViewStateLocation("${latitude},${longitude}")
+                    }
+                } catch(e: Exception) {
+                    // The only way this could be called is bad programmers calling this without permission
+                    // Fortunately, Android will shut that down. This just prevents a crash.
+                    e.printStackTrace()
+                } finally {
+                    setIsLoadingLocation(false)
+                }
+            }
+        }
     }
 
     // Only allow digits, decimals, comma separators, or the negative sign. Will allow spaces
