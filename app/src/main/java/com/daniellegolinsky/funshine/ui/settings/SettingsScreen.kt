@@ -2,9 +2,12 @@ package com.daniellegolinsky.funshine.ui.settings
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,8 +39,10 @@ import com.daniellegolinsky.funshinetheme.components.FsTextButton
 import com.daniellegolinsky.funshinetheme.components.FsTextField
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 import com.daniellegolinsky.funshine.navigation.MainNavHost
+import com.daniellegolinsky.funshine.ui.ScreenConstants
 import com.daniellegolinsky.funshine.ui.info.LocationPermissionInfoDialog
 import com.daniellegolinsky.funshinetheme.components.FsAppBar
+import com.daniellegolinsky.funshinetheme.components.FsForwardButton
 import com.daniellegolinsky.funshinetheme.components.FsIconButton
 import com.daniellegolinsky.funshinetheme.components.FsLocationButton
 import com.daniellegolinsky.funshinetheme.components.FsTwoStateSwitch
@@ -87,7 +92,7 @@ fun SettingsScreen(
                 ) {
                     LocationPermissionInfoDialog()
                     FsTextButton(
-                        buttonText = "Sounds good!"
+                        buttonText = "Sounds good!" // TODO String resource!
                     ) {
                         dismissLocationWarning(viewModel = viewModel)
                     }
@@ -101,7 +106,7 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.Start,
         modifier = modifier
             .fillMaxSize()
-            .padding(top = 16.dp)
+            .padding(top = ScreenConstants.SCREEN_PADDING)
     ) {
         FsAppBar(
             headingText = stringResource(string.settings_heading),
@@ -201,6 +206,17 @@ fun SettingsScreen(
                 // Note: We navigate here, not using back in case of changes
                 //       or the user wants to go back and change a setting quickly
                 navController.navigate(MainNavHost.WEATHER)
+            }
+            Spacer(modifier = Modifier.fillMaxHeight(0.75f))
+            Row(
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                FsForwardButton(
+                    buttonText = stringResource(id = string.settings_about)
+                ) {
+                    navController.navigate(MainNavHost.ABOUT)
+                }
             }
         }
     }

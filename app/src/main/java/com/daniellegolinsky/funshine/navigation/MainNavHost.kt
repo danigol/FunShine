@@ -5,8 +5,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.daniellegolinsky.funshine.navigation.MainNavHost.ABOUT
 import com.daniellegolinsky.funshine.navigation.MainNavHost.SETTINGS
 import com.daniellegolinsky.funshine.navigation.MainNavHost.WEATHER
+import com.daniellegolinsky.funshine.ui.about.AboutScreen
 import com.daniellegolinsky.funshine.ui.settings.SettingsScreen
 import com.daniellegolinsky.funshine.ui.settings.SettingsViewModel
 import com.daniellegolinsky.funshine.ui.weather.WeatherScreen
@@ -32,10 +34,14 @@ fun MainNavHost(destination: String) {
                 navController
             )
         }
+        composable(ABOUT) {
+            AboutScreen(navController = navController)
+        }
     }
 }
 
 object MainNavHost {
     const val WEATHER = "weather"
     const val SETTINGS = "settings"
+    const val ABOUT = "about"
 }
