@@ -99,7 +99,7 @@ class WeatherViewModel @Inject constructor(
                         weatherResponse?.error?.hoursLeft ?: ForecastTimestamp.HOURS_IN_DAY
                     )
                 } else {
-                    weatherResponse?.error?.errorMessage ?: ""
+                    weatherResponse?.error?.errorMessage ?: context.getString(R.string.unknown_error)
                 }
                 _weatherViewState.value = ViewState.Error(
                     WeatherScreenViewState(

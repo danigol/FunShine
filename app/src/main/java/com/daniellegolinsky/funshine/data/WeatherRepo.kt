@@ -124,7 +124,7 @@ class WeatherRepo @Inject constructor(
 
         apiRequestLimiter.incrementApiCallCounter()
 
-        return mapWeatherResponseToForecastOrError(
+        var apiResponse: Response<WeatherResponse>? = try {
             weatherService.getCurrentWeather(
                 latitude = requestLatitude,
                 longitude = requestLongitude,
@@ -132,6 +132,13 @@ class WeatherRepo @Inject constructor(
                 speedUnit = requestSpeedUnit,
                 lengthUnit = requestLengthUnit,
             )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+
+        return mapWeatherResponseToForecastOrError(
+            apiResponse
         )
     }
 
@@ -156,12 +163,12 @@ class WeatherRepo @Inject constructor(
 }
 
 private fun mapWeatherResponseToForecastOrError(
-    response: Response<WeatherResponse>
+    response: Response<WeatherResponse>?
 ): ResponseOrError<Forecast, ForecastError> {
     return ResponseOrError(
-        isSuccess = response.isSuccessful,
-        data = mapWeatherResponseToForecast(response?.body()),
-        error = mapToForecastError(response?.errorBody())
+        isSuccess = response?.isSuccessful ?: false,
+        data = mapWeatherResponseToForecast(response?.body() ?: null),
+        error = mapToForecastError(response?.errorBody() ?: null)
     )
 }
 
