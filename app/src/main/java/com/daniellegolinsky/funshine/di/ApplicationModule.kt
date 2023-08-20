@@ -8,12 +8,12 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.daniellegolinsky.funshine.api.OpenMeteoWeatherService
+import com.daniellegolinsky.funshine.datastore.IWeatherSettingsDataStore
 import com.daniellegolinsky.funshine.datastore.WeatherSettingsDataStore
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
@@ -24,7 +24,6 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
@@ -91,7 +90,7 @@ object ApplicationModule {
 
     @Provides
     @Singleton
-    fun providesWeatherSettingsDataStore(@Named(SETTINGS_DATASTORE) dataStore: DataStore<Preferences>): WeatherSettingsDataStore {
+    fun providesWeatherSettingsDataStore(@Named(SETTINGS_DATASTORE) dataStore: DataStore<Preferences>): IWeatherSettingsDataStore {
         return WeatherSettingsDataStore(dataStore)
     }
 }

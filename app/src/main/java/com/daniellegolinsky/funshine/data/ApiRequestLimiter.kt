@@ -1,12 +1,12 @@
 package com.daniellegolinsky.funshine.data
 
-import com.daniellegolinsky.funshine.datastore.WeatherSettingsDataStore
+import com.daniellegolinsky.funshine.datastore.IWeatherSettingsDataStore
 import com.daniellegolinsky.funshine.models.ForecastTimestamp
 import com.daniellegolinsky.funshine.models.hoursBetween
 import javax.inject.Inject
 
 class ApiRequestLimiter @Inject constructor(
-    private val dataStore: WeatherSettingsDataStore,
+    private val dataStore: IWeatherSettingsDataStore,
 ) : IApiRequestLimiter {
 
     private val maxDailyRequests = 20
