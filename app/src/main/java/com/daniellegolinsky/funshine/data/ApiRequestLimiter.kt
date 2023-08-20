@@ -9,7 +9,9 @@ class ApiRequestLimiter @Inject constructor(
     private val dataStore: IWeatherSettingsDataStore,
 ) : IApiRequestLimiter {
 
-    private val maxDailyRequests = 20
+    companion object{
+        const val MAX_DAILY_REQUESTS = 20
+    }
 
     override suspend fun incrementApiCallCounter() {
         dataStore.incrementApiCallCount()
@@ -33,7 +35,7 @@ class ApiRequestLimiter @Inject constructor(
      */
     override suspend fun canMakeRequest(): Boolean {
         val currentRequestCount = dataStore.getApiCallCount()
-        return currentRequestCount < maxDailyRequests
+        return currentRequestCount < MAX_DAILY_REQUESTS
     }
 
     /**
