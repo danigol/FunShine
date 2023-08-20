@@ -1,7 +1,8 @@
-package com.daniellegolinsky.funshine.testImplementations
+package com.daniellegolinsky.funshine
 
 import com.daniellegolinsky.funshine.data.ApiRequestLimiter
 import com.daniellegolinsky.funshine.models.ForecastTimestamp
+import com.daniellegolinsky.funshine.testImplementations.MockWeatherSettingsDataStore
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
