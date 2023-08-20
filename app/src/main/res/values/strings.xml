@@ -6,6 +6,7 @@
     <string name="error_message">Error: %1$s</string>
     <string name="error_help">Check your internet connection and contact the developer if you still see this message. </string>
     <string name="api_limit_error">You have made too many API requests today. Please try again in %1$d hours.</string>
+    <string name="unknown_error">Unknown</string>
 
     <!-- Settings Screen -->
     <string name="welcome_to_funshine">Welcome to FunShine!</string>
