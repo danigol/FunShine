@@ -1,6 +1,6 @@
 package com.daniellegolinsky.funshine.data
 
-import com.daniellegolinsky.funshine.datastore.WeatherSettingsDataStore
+import com.daniellegolinsky.funshine.datastore.IWeatherSettingsDataStore
 import com.daniellegolinsky.funshine.models.Forecast
 import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
@@ -10,7 +10,7 @@ import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import javax.inject.Inject
 
 class SettingsRepo @Inject constructor(
-    private val dataStore: WeatherSettingsDataStore,
+    private val dataStore: IWeatherSettingsDataStore,
 ) {
     suspend fun setLocation(lat: Float, long: Float) {
         dataStore.setLocation(Location(lat, long))
