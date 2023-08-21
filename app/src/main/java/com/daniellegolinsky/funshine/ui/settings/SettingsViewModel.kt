@@ -165,14 +165,14 @@ class SettingsViewModel @Inject constructor(
                     setIsLoadingLocation(true)
 
                     locationClient.getCurrentLocation(
-                        Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+                        Priority.PRIORITY_PASSIVE,
                         CancellationTokenSource().token,
                     ).addOnCompleteListener {
-                        val locationResult = it.result
-                        val latitude = locationResult.latitude.toBigDecimal()
-                            .setScale(3, RoundingMode.UP).toFloat()
-                        val longitude = locationResult.longitude.toBigDecimal()
-                            .setScale(3, RoundingMode.UP).toFloat()
+                        val locationResult = it?.result
+                        val latitude = locationResult?.latitude?.toBigDecimal()
+                            ?.setScale(3, RoundingMode.UP)?.toFloat() ?: 0.0f
+                        val longitude = locationResult?.longitude?.toBigDecimal()
+                            ?.setScale(3, RoundingMode.UP)?.toFloat() ?: 0.0f
                         setViewStateLocation("${latitude},${longitude}")
                     }
                 } catch(e: Exception) {
