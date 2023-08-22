@@ -204,14 +204,20 @@ class SettingsViewModel @Inject constructor(
      * ViewState is string-based, data storage retains type
      */
     private fun generateLocationFromString(locString: String): Location {
-        return if (locString.length > locString.indexOf(",")) {
+        return if (locString.isNotEmpty()
+                    && locString.length > locString.indexOf(",")
+                    && locString.indexOf(",") > 0 ) {
             val latString = locString.substring(0, locString.indexOf(",")).trim()
             val longString = locString
                 .substring(locString.indexOf(","), locString.length)
                 .replace(",", "").trim()
-            val latitude = latString.toFloat()
-            val longitude = longString.toFloat()
-            Location(latitude = latitude, longitude = longitude)
+            if (!latString.isNullOrEmpty() && !longString.isNullOrEmpty()) {
+                val latitude = latString.toFloat()
+                val longitude = longString.toFloat()
+                Location(latitude = latitude, longitude = longitude)
+            } else {
+                Location(0f, 0f)
+            }
         } else {
             Location(0f, 0f)
         }
