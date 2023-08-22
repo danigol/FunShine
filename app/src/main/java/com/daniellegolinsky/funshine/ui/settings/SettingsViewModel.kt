@@ -165,14 +165,14 @@ class SettingsViewModel @Inject constructor(
                     setIsLoadingLocation(true)
 
                     locationClient.getCurrentLocation(
-                        Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+                        Priority.PRIORITY_PASSIVE,
                         CancellationTokenSource().token,
                     ).addOnCompleteListener {
-                        val locationResult = it.result
-                        val latitude = locationResult.latitude.toBigDecimal()
-                            .setScale(3, RoundingMode.UP).toFloat()
-                        val longitude = locationResult.longitude.toBigDecimal()
-                            .setScale(3, RoundingMode.UP).toFloat()
+                        val locationResult = it?.result
+                        val latitude = locationResult?.latitude?.toBigDecimal()
+                            ?.setScale(3, RoundingMode.UP)?.toFloat() ?: 0.0f
+                        val longitude = locationResult?.longitude?.toBigDecimal()
+                            ?.setScale(3, RoundingMode.UP)?.toFloat() ?: 0.0f
                         setViewStateLocation("${latitude},${longitude}")
                     }
                 } catch(e: Exception) {
@@ -204,14 +204,20 @@ class SettingsViewModel @Inject constructor(
      * ViewState is string-based, data storage retains type
      */
     private fun generateLocationFromString(locString: String): Location {
-        return if (locString.length > locString.indexOf(",")) {
+        return if (locString.isNotEmpty()
+                    && locString.length > locString.indexOf(",")
+                    && locString.indexOf(",") > 0 ) {
             val latString = locString.substring(0, locString.indexOf(",")).trim()
             val longString = locString
                 .substring(locString.indexOf(","), locString.length)
                 .replace(",", "").trim()
-            val latitude = latString.toFloat()
-            val longitude = longString.toFloat()
-            Location(latitude = latitude, longitude = longitude)
+            if (!latString.isNullOrEmpty() && !longString.isNullOrEmpty()) {
+                val latitude = latString.toFloat()
+                val longitude = longString.toFloat()
+                Location(latitude = latitude, longitude = longitude)
+            } else {
+                Location(0f, 0f)
+            }
         } else {
             Location(0f, 0f)
         }
