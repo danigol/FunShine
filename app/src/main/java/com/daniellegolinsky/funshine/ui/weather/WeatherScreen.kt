@@ -67,7 +67,7 @@ fun WeatherScreen(
         FsText(
             text = viewState.forecast,
             textStyle = getBodyFontStyle(),
-            maxLines = 11,
+            maxLines = 15,
         )
         Spacer(modifier = Modifier.weight(1f))
         Row (

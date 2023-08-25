@@ -13,4 +13,7 @@ data class HourlyWeatherResponse(
 
     @SerializedName("relativehumidity_2m")
     val humidityList: List<Int>,
+
+    @SerializedName("precipitation_probability")
+    val precipitationProbability: List<Int>,
 )
