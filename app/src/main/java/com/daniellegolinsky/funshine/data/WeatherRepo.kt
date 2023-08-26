@@ -36,21 +36,20 @@ class WeatherRepo @Inject constructor(
     ): ResponseOrError<Forecast, ForecastError> {
         // Reset the API limiter if necessary
         weatherMutex.withLock {
+            var alwaysDoRequest = forceUpdate
             apiRequestLimiter.resetApiCallCounterAndTimestampIfValid()
-        }
 
-        // If any parameters changed with the request, we MUST do a new request
-        var alwaysDoRequest = forceUpdate
-        if (repoCachedWeatherRequest == null) {
-            // Try to see if it's in the data store already
-            repoCachedWeatherRequest = settingsRepo.getLastRequest()
-        }
-        if (repoCachedWeatherRequest != null && weatherRequest != repoCachedWeatherRequest) {
-            alwaysDoRequest = true
-        }
-        // Check if there is a stored version of the forecast before testing any cached weather
-        if (!alwaysDoRequest && repoCachedWeather == null) {
-            weatherMutex.withLock {
+            // If any parameters changed with the request, we MUST do a new request
+            if (repoCachedWeatherRequest == null) {
+                // Try to see if it's in the data store already
+                repoCachedWeatherRequest = settingsRepo.getLastRequest()
+            }
+            // If it's not in the data store, we need to load it
+            if (repoCachedWeatherRequest != null && weatherRequest != repoCachedWeatherRequest) {
+                alwaysDoRequest = true
+            }
+            // Check if there is a stored version of the forecast before testing any cached weather
+            if (!alwaysDoRequest && repoCachedWeather == null) {
                 repoCachedWeather = settingsRepo.getLastForecast()
                 if (repoCachedWeather != null) {
                     // A response was cached on disk, but not yet in memory
@@ -68,15 +67,13 @@ class WeatherRepo @Inject constructor(
                     )
                 }
             }
-        }
 
-        // Only perform API actions if under the daily limit
-        if (apiRequestLimiter.canMakeRequest()) {
-            if (alwaysDoRequest
-                || repoCachedWeather == null
-                || repoCachedWeather?.timeCreated != getCurrentForecastTimestamp()
-            ) {
-                weatherMutex.withLock {
+            // Only perform API actions if under the daily limit
+            if (apiRequestLimiter.canMakeRequest()) {
+                if (alwaysDoRequest
+                    || repoCachedWeather == null
+                    || repoCachedWeather?.timeCreated != getCurrentForecastTimestamp()
+                ) {
                     // Do the request and cache the response locally
                     repoCachedWeatherResponse = makeApiRequest(
                         requestLatitude = weatherRequest.location.latitude,
@@ -94,21 +91,21 @@ class WeatherRepo @Inject constructor(
                         )
                     }
                 }
-            }
-        } else { // Cannot make API request, too many within a 24 hour period
-            // TODO Consider making this a popup and instead showing cached data
-            val hoursLeft = apiRequestLimiter.hoursLeft()
-            repoCachedWeatherResponse = ResponseOrError(
-                isSuccess = false,
-                data = null,
-                error = ForecastError(
-                    isError = true,
-                    errorMessage = API_REQUEST_ERROR,
-                    hoursLeft = hoursLeft,
+            } else { // Cannot make API request, too many within a 24 hour period
+                // TODO Consider making this a popup and instead showing cached data
+                val hoursLeft = apiRequestLimiter.hoursLeft()
+                repoCachedWeatherResponse = ResponseOrError(
+                    isSuccess = false,
+                    data = null,
+                    error = ForecastError(
+                        isError = true,
+                        errorMessage = API_REQUEST_ERROR,
+                        hoursLeft = hoursLeft,
+                    )
                 )
-            )
+            }
+            return repoCachedWeatherResponse!!
         }
-        return weatherMutex.withLock { repoCachedWeatherResponse!! }
     }
 
     /**

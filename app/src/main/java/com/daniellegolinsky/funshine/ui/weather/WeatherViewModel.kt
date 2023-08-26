@@ -16,7 +16,6 @@ import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.WeatherCode
 import com.daniellegolinsky.funshine.models.api.WeatherRequest
-import com.daniellegolinsky.funshine.models.api.WeatherResponse
 import com.daniellegolinsky.funshine.models.getIconResource
 import com.daniellegolinsky.funshine.models.getResourceStringForWeatherCode
 import com.daniellegolinsky.funshine.viewstates.ViewState
@@ -129,11 +128,12 @@ class WeatherViewModel @Inject constructor(
     ): String {
         val dailyWeatherResponse = forecast.dailyWeatherResponse
         val currentWeatherResponse = forecast.currentWeather
+        val hourlyWeatherResponse = forecast.hourlyWeatherResponse
         val tempMaxAsInt = dailyWeatherResponse.maxTemp[0].toInt()
         val tempMinAsInt = dailyWeatherResponse.minTemp[0].toInt()
-        val precipChance = dailyWeatherResponse.precipitationProbabilityMax[0]
-        val precipAmount: Double = dailyWeatherResponse.precipitationSum[0]
-        val hourlyWeatherResponse = forecast.hourlyWeatherResponse
+        val hourlyPrecipitationChance = hourlyWeatherResponse.precipitationProbability[getCurrentHourIndex(hourlyWeatherResponse.precipitationProbability.size)]
+        val dailyPrecipChance = dailyWeatherResponse.precipitationProbabilityMax[0]
+        val dailyPrecipAmount: Double = dailyWeatherResponse.precipitationSum[0]
 
         val humidityString: String? = try {
             val humidityListSize = hourlyWeatherResponse.humidityList.size
@@ -153,9 +153,10 @@ class WeatherViewModel @Inject constructor(
         weatherString += "\n${context.getString(R.string.windspeed)} ${currentWeatherResponse.windSpeed}${windspeedUnitString}" +
                 "\n${context.getString(R.string.min_temp)} ${tempMinAsInt}${tempUnitString}" +
                 "\n${context.getString(R.string.max_temp)} ${tempMaxAsInt}${tempUnitString}" +
-                "\n${context.getString(R.string.precip_chance)} ${precipChance}%"
-        if (precipChance > 0 && precipAmount > 0.010) {
-            weatherString += "\n${context.getString(R.string.precip_max)} ${precipAmount}${lengthUnitString}"
+                "\n${context.getString(R.string.precip_chance)} ${hourlyPrecipitationChance}%" +
+                "\n${context.getString(R.string.precip_chance_daily)} ${dailyPrecipChance}%"
+        if (dailyPrecipChance > 0 && dailyPrecipAmount > 0.010) {
+            weatherString += "\n${context.getString(R.string.precip_max)} ${dailyPrecipAmount}${lengthUnitString}"
         }
         return weatherString
     }
