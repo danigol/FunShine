@@ -8,7 +8,9 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.daniellegolinsky.funshine.BuildConfig
 import com.daniellegolinsky.funshine.api.RequestDatapoints
 import com.daniellegolinsky.funshine.di.ApplicationModule
 import com.daniellegolinsky.funshine.models.Forecast
@@ -44,6 +46,7 @@ class WeatherSettingsDataStore @Inject constructor(
         val REQUEST_KEY = stringPreferencesKey("request")
         val API_CALL_COUNT = intPreferencesKey("api_call_count")
         val START_API_TIMESTAMP = stringPreferencesKey("start_api_timestamp")
+        val VERSION_CODE_OF_FORECAST_CACHE = longPreferencesKey("version_code_of_forecast_cache")
     }
 
     private val settingsFlow = dataStore.data.catch {
@@ -151,6 +154,15 @@ class WeatherSettingsDataStore @Inject constructor(
     }
 
     override suspend fun getLastForecast(): Forecast? {
+        // If the version code for the forecast is outdated, return null to force a new request
+        val storedForecastVersion = settingsFlow.map { preferences ->
+            preferences[StoreKeys.VERSION_CODE_OF_FORECAST_CACHE]
+        }.firstOrNull()
+
+        if (storedForecastVersion != null && storedForecastVersion != BuildConfig.VERSION_CODE) {
+            return null
+        }
+
         var forecast: Forecast? = null
         val jsonForecast = settingsFlow.map{ preferences ->
             preferences[StoreKeys.FORECAST_KEY]
@@ -169,6 +181,7 @@ class WeatherSettingsDataStore @Inject constructor(
     override suspend fun setLastForecast(forecast: Forecast) {
         dataStore.edit { preferences ->
             preferences[StoreKeys.FORECAST_KEY] = Json.encodeToString(forecast)
+            preferences[StoreKeys.VERSION_CODE_OF_FORECAST_CACHE] = BuildConfig.VERSION_CODE
         }
     }
 

@@ -10,7 +10,7 @@ class ApiRequestLimiter @Inject constructor(
 ) : IApiRequestLimiter {
 
     companion object{
-        const val MAX_DAILY_REQUESTS = 20
+        const val MAX_DAILY_REQUESTS = 2000
     }
 
     override suspend fun incrementApiCallCounter() {
