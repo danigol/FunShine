@@ -32,7 +32,7 @@
     <string name="min_temp">Min daily temp:</string>
     <string name="humidity">Humidity:</string>
     <string name="windspeed">Current windspeed:</string>
-    <string name="precip_chance">Chance of precipitation:</string>
+    <string name="precip_chance">Chance of precipitation this hour:</string>
     <string name="precip_chance_daily">Chance of precipitation today:</string>
     <string name="precip_max">Precipitation amount:</string>
     <string name="mph">mph</string>
