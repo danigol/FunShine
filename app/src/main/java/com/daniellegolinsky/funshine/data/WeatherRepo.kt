@@ -17,7 +17,7 @@ import javax.inject.Named
 
 class WeatherRepo @Inject constructor(
     @Named(ApplicationModule.OPEN_METEO_WEATHER_SERVICE) private val weatherService: OpenMeteoWeatherService,
-    private val settingsRepo: SettingsRepo, // TODO: The fun bit, now we can also get it from here!
+    private val settingsRepo: SettingsRepo,
     private val apiRequestLimiter: ApiRequestLimiter,
 ) {
 
