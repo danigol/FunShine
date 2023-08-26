@@ -159,7 +159,8 @@ class WeatherSettingsDataStore @Inject constructor(
             preferences[StoreKeys.VERSION_CODE_OF_FORECAST_CACHE]
         }.firstOrNull()
 
-        if (storedForecastVersion != null && storedForecastVersion != BuildConfig.VERSION_CODE) {
+        if (storedForecastVersion == null
+            || (storedForecastVersion != null && storedForecastVersion != BuildConfig.VERSION_CODE)) {
             return null
         }
 
