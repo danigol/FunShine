@@ -6,8 +6,10 @@ import com.daniellegolinsky.funshine.models.Forecast
 import com.daniellegolinsky.funshine.models.ForecastTimestamp
 import com.daniellegolinsky.funshine.models.api.ForecastError
 import com.daniellegolinsky.funshine.models.ResponseOrError
+import com.daniellegolinsky.funshine.models.WeatherCode
 import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
+import com.daniellegolinsky.funshine.models.toWeatherCode
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okhttp3.ResponseBody
@@ -54,6 +56,8 @@ class WeatherRepo @Inject constructor(
                 if (repoCachedWeather != null) {
                     // A response was cached on disk, but not yet in memory
                     // Only cache successful forecast in repoCachedWeather
+                    // NOTE: We could force a refresh here if the last request had a bad weather code,
+                    //       however, that could spam the service in a DDOS if it's broken.
                     cacheSuccessfulForecast(
                         saveToSettings = false,
                         forecastToCache = repoCachedWeather!!,

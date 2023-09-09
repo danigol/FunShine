@@ -151,56 +151,34 @@ class SettingsViewModel @Inject constructor(
         return ioDispatcher
     }
 
+    @SuppressLint("MissingPermission")
     fun getApproximateLocation(
         locationGranted: Boolean,
         locationClient: FusedLocationProviderClient
     ) {
         if (locationGranted) {
-            getLocation(locationClient = locationClient, isPrecise = false)
-        }
-    }
+            viewModelScope.launch(ioDispatcher) {
+                try {
+                    setIsLoadingLocation(true)
 
-    @SuppressLint("MissingPermission")
-    fun getPreciseLocation(
-        locationGranted: Boolean,
-        locationClient: FusedLocationProviderClient
-    ) {
-        if (locationGranted) {
-            getLocation(locationClient = locationClient, isPrecise = true)
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun getLocation(
-        locationClient: FusedLocationProviderClient,
-        isPrecise: Boolean = false
-    ) {
-        viewModelScope.launch(ioDispatcher) {
-            val priority = if (isPrecise) {
-                Priority.PRIORITY_BALANCED_POWER_ACCURACY
-            } else {
-                Priority.PRIORITY_LOW_POWER
-            }
-            try {
-                setIsLoadingLocation(true)
-
-                locationClient.getCurrentLocation(
-                    priority,
-                    CancellationTokenSource().token,
-                ).addOnCompleteListener {
-                    val locationResult = it?.result
-                    val latitude = locationResult?.latitude?.toBigDecimal()
-                        ?.setScale(2, RoundingMode.UP)?.toFloat() ?: 0.0f
-                    val longitude = locationResult?.longitude?.toBigDecimal()
-                        ?.setScale(2, RoundingMode.UP)?.toFloat() ?: 0.0f
-                    setViewStateLocation("${latitude},${longitude}")
+                    locationClient.getCurrentLocation(
+                        Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+                        CancellationTokenSource().token,
+                    ).addOnCompleteListener {
+                        val locationResult = it?.result
+                        val latitude = locationResult?.latitude?.toBigDecimal()
+                            ?.setScale(2, RoundingMode.UP)?.toFloat() ?: 0.0f
+                        val longitude = locationResult?.longitude?.toBigDecimal()
+                            ?.setScale(2, RoundingMode.UP)?.toFloat() ?: 0.0f
+                        setViewStateLocation("${latitude},${longitude}")
+                    }
+                } catch (e: Exception) {
+                    // The only way this could be called is bad programmers calling this without permission
+                    // Fortunately, Android will shut that down. This just prevents a crash.
+                    e.printStackTrace()
+                } finally {
+                    setIsLoadingLocation(false)
                 }
-            } catch (e: Exception) {
-                // The only way this could be called is bad programmers calling this without permission
-                // Fortunately, Android will shut that down. This just prevents a crash.
-                e.printStackTrace()
-            } finally {
-                setIsLoadingLocation(false)
             }
         }
     }

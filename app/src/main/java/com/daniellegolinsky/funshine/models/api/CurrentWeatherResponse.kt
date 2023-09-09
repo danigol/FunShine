@@ -1,6 +1,5 @@
 package com.daniellegolinsky.funshine.models.api
 
-import com.daniellegolinsky.funshine.models.WeatherCode
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 
@@ -10,7 +9,7 @@ data class CurrentWeatherResponse(
     val temperature: Float,
 
     @SerializedName("weathercode")
-    val weatherCode: WeatherCode,
+    val weatherCodeInt: Int,
 
     @SerializedName("is_day")
     val isDay: Int,
