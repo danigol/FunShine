@@ -165,14 +165,14 @@ class SettingsViewModel @Inject constructor(
         locationClient: FusedLocationProviderClient
     ) {
         viewModelScope.launch(ioDispatcher) {
-            setIsLoadingLocation(true)
             // Ensure we're tracking response in datastore
             setGrantedPermission(locationGranted)
             // If granted location access, request it
             if (locationGranted) {
+                setIsLoadingLocation(true)
                 try {
                     locationClient.getCurrentLocation(
-                        Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+                        Priority.PRIORITY_HIGH_ACCURACY,
                         CancellationTokenSource().token,
                     ).addOnCompleteListener {
                         val locationResult = it?.result
@@ -181,12 +181,12 @@ class SettingsViewModel @Inject constructor(
                         val longitude = locationResult?.longitude?.toBigDecimal()
                             ?.setScale(2, RoundingMode.UP)?.toFloat() ?: 0.0f
                         setViewStateLocation("${latitude},${longitude}")
+                        setIsLoadingLocation(false)
                     }
                 } catch (e: Exception) {
                     // The only way this could be called is bad programmers calling this without permission
                     // Fortunately, Android will shut that down. This just prevents a crash.
                     e.printStackTrace()
-                } finally {
                     setIsLoadingLocation(false)
                 }
             }
