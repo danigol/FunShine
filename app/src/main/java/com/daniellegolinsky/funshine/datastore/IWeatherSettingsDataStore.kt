@@ -15,6 +15,8 @@ interface IWeatherSettingsDataStore {
     suspend fun setHasSeenLocationWarning(hasSeen: Boolean)
     suspend fun getHasBeenPromptedForLocationPermission(): Boolean
     suspend fun setHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean)
+    suspend fun getGrantedLocationPermissionBefore(): Boolean
+    suspend fun setGrantedLocationPermissionBefore(hasGranted: Boolean)
     suspend fun getTemperatureUnit(): TemperatureUnit
     suspend fun setTemperatureUnit(isF: Boolean)
     suspend fun getLengthUnit(): LengthUnit

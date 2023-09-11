@@ -88,7 +88,7 @@ fun SettingsScreen(
                 ) {
                     LocationPermissionInfoDialog()
                     FsTextButton(
-                        buttonText = "Sounds good!" // TODO String resource!
+                        buttonText = stringResource(id = string.sounds_good)
                     ) {
                         dismissLocationWarning(viewModel = viewModel)
                     }
@@ -130,10 +130,17 @@ fun SettingsScreen(
                             if (coarseLocationPermissionState.status.isGranted) {
                                 viewModel.getApproximateLocation(coarseLocationPermissionState.status.isGranted, locationClient)
                             } else {
-                                // If we've already prompted them, remind them we need the permission
-                                // We will not re-prompt or spam the user, this will tell them to enable it if they want
+                                // TODO May eventually be able to pull this out of view state
+                                //      only here still because it needs to be in the view, but also within a lambda
+                                //      can't just add it to the view state like the location warning dialog.
                                 if (viewState.value.hasBeenPromptedForLocationPermission) {
-                                    viewModel.setViewStateHasSeenLocationWarning(false)
+                                    if (viewState.value.grantedPermissionLastTime) {
+                                        coarseLocationPermissionState.launchPermissionRequest()
+                                    } else {
+                                        // If they denied the permission last time, we have to just
+                                        //      show them instructions to add it backs
+                                        viewModel.setViewStateHasSeenLocationWarning(false)
+                                    }
                                 } else {
                                     coarseLocationPermissionState.launchPermissionRequest()
                                     viewModel.setViewStateHasBeenPromptedForLocationPermission(true)

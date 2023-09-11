@@ -1,6 +1,7 @@
 package com.daniellegolinsky.funshine.ui.settings
 
 import android.annotation.SuppressLint
+import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.data.SettingsRepo
@@ -34,6 +35,7 @@ class SettingsViewModel @Inject constructor(
         latLong = "",
         hasSeenLocationWarning = true,
         hasBeenPromptedForLocationPermission = false,
+        grantedPermissionLastTime = false,
         isLoadingLocation = false,
     )
     private var _settingsViewState: MutableStateFlow<SettingsViewState> =
@@ -55,10 +57,13 @@ class SettingsViewModel @Inject constructor(
         val hasSeenLocationWarning = settingsRepo.getHasSeenLocationWarning()
         val hasBeenPromptedForLocationPermission =
             settingsRepo.getHasBeenPromptedForLocationPermission()
+        val grantedPermissionInPast = settingsRepo.getGrantedLocationPermissionBefore()
+
         _settingsViewState.value = mapSettingsToViewState(
             location = location,
             hasSeenLocationWarning = hasSeenLocationWarning,
             hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission,
+            grantedPermissionInPast = grantedPermissionInPast,
             isFahrenheit = getIsFahrenheitFromDataStore(),
             isInch = getIsInchFromDataStore(),
             isMph = getIsMphFromDataStore(),
@@ -78,8 +83,12 @@ class SettingsViewModel @Inject constructor(
             updateViewState(hasBeenPromptedForLocationPermission = hasBeenPrompted)
     }
 
-    fun setIsLoadingLocation(isLoading: Boolean) {
+    private fun setIsLoadingLocation(isLoading: Boolean) {
         _settingsViewState.value = updateViewState(isLoadingLocation = isLoading)
+    }
+
+    private suspend fun setGrantedPermission(granted: Boolean) {
+        settingsRepo.setGrantedLocationPermissionBefore(granted)
     }
 
     /*
@@ -142,7 +151,6 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-
     fun saveSettings() {
         saveStateToDatastore(this._settingsViewState.value)
     }
@@ -156,11 +164,13 @@ class SettingsViewModel @Inject constructor(
         locationGranted: Boolean,
         locationClient: FusedLocationProviderClient
     ) {
-        if (locationGranted) {
-            viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch(ioDispatcher) {
+            setIsLoadingLocation(true)
+            // Ensure we're tracking response in datastore
+            setGrantedPermission(locationGranted)
+            // If granted location access, request it
+            if (locationGranted) {
                 try {
-                    setIsLoadingLocation(true)
-
                     locationClient.getCurrentLocation(
                         Priority.PRIORITY_BALANCED_POWER_ACCURACY,
                         CancellationTokenSource().token,
@@ -227,7 +237,7 @@ class SettingsViewModel @Inject constructor(
                 settingsRepo.setLocation(location.latitude, location.longitude)
             }
             settingsRepo.setHasSeenLocationWarning(viewState.hasSeenLocationWarning)
-            settingsRepo.setHasBeenPromptedForLocationPermission(viewState.hasBeenPromptedForLocationPermission)
+//            settingsRepo.setHasBeenPromptedForLocationPermission(viewState.hasBeenPromptedForLocationPermission)
             settingsRepo.setTemperatureUnit(viewState.isFahrenheit)
             settingsRepo.setLengthUnit(viewState.isInch)
             settingsRepo.setSpeedUnit(viewState.isMph)
@@ -242,6 +252,7 @@ class SettingsViewModel @Inject constructor(
         location: String? = null,
         hasSeenLocationWarning: Boolean? = null,
         hasBeenPromptedForLocationPermission: Boolean? = null,
+        grantedPermissionInPast: Boolean? = null,
         isLoadingLocation: Boolean? = null,
         isFahrenheit: Boolean? = null,
         isMph: Boolean? = null,
@@ -253,6 +264,7 @@ class SettingsViewModel @Inject constructor(
                 ?: _settingsViewState.value.hasSeenLocationWarning,
             hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission
                 ?: _settingsViewState.value.hasBeenPromptedForLocationPermission,
+            grantedPermissionLastTime = grantedPermissionInPast ?: false,
             isLoadingLocation = isLoadingLocation ?: false,
             isFahrenheit = isFahrenheit ?: _settingsViewState.value.isFahrenheit,
             isMph = isMph ?: _settingsViewState.value.isMph,
@@ -264,15 +276,16 @@ class SettingsViewModel @Inject constructor(
         location: Location,
         hasSeenLocationWarning: Boolean,
         hasBeenPromptedForLocationPermission: Boolean,
+        grantedPermissionInPast: Boolean,
         isFahrenheit: Boolean,
         isMph: Boolean,
         isInch: Boolean,
     ): SettingsViewState {
-        // TODO Update with units, call update method instead of returning directly
         return SettingsViewState(
             latLong = "${location.latitude}, ${location.longitude}",
             hasSeenLocationWarning = hasSeenLocationWarning,
             hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission,
+            grantedPermissionLastTime = grantedPermissionInPast,
             isFahrenheit = isFahrenheit,
             isMph = isMph,
             isInch = isInch

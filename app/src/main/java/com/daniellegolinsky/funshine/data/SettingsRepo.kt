@@ -34,6 +34,14 @@ class SettingsRepo @Inject constructor(
         return dataStore.getHasBeenPromptedForLocationPermission()
     }
 
+    suspend fun setGrantedLocationPermissionBefore(grantedPermission: Boolean) {
+        dataStore.setGrantedLocationPermissionBefore(grantedPermission)
+    }
+
+    suspend fun getGrantedLocationPermissionBefore(): Boolean {
+        return dataStore.getGrantedLocationPermissionBefore()
+    }
+
     suspend fun setTemperatureUnit(isF: Boolean) {
         dataStore.setTemperatureUnit(isF)
     }
