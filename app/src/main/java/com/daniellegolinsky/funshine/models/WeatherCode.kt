@@ -143,14 +143,15 @@ fun WeatherCode.getIconResource(isDay: Boolean = true): Int {
 
         WeatherCode.OVERCAST -> drawable.ic_cloudy_black
 
-        WeatherCode.RAIN,
         WeatherCode.LIGHT_RAIN,
+        WeatherCode.LIGHT_DRIZZLE,
+        WeatherCode.DRIZZLE -> drawable.ic_drizzle_black
+
+        WeatherCode.RAIN,
         WeatherCode.HEAVY_RAIN,
         WeatherCode.LIGHT_RAIN_SHOWERS,
         WeatherCode.RAIN_SHOWERS,
         WeatherCode.VIOLENT_RAIN_SHOWERS,
-        WeatherCode.LIGHT_DRIZZLE,
-        WeatherCode.DRIZZLE,
         WeatherCode.HEAVY_DRIZZLE -> drawable.ic_rain_black
 
         WeatherCode.LIGHT_SNOW,
