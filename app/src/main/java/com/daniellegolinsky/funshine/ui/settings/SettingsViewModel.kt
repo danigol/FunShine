@@ -1,7 +1,6 @@
 package com.daniellegolinsky.funshine.ui.settings
 
 import android.annotation.SuppressLint
-import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.data.SettingsRepo
@@ -74,13 +73,27 @@ class SettingsViewModel @Inject constructor(
         _settingsViewState.value = updateViewState(location = sanitizeLocationString(location))
     }
 
-    fun setViewStateHasSeenLocationWarning(hasSeenLocationWarning: Boolean) {
+    /**
+     * These update both the view model and the data store, to ensure even if the user
+     *  doesn't save settings, we still won't bother them again.
+     */
+    fun setHasSeenLocationWarning(hasSeenLocationWarning: Boolean) {
         _settingsViewState.value = updateViewState(hasSeenLocationWarning = hasSeenLocationWarning)
+        viewModelScope.launch {
+            settingsRepo.setHasSeenLocationWarning(hasSeenLocationWarning)
+        }
     }
 
-    fun setViewStateHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean) {
+    /**
+     * These update both the view model and the data store, to ensure even if the user
+     *  doesn't save settings, we still won't bother them again.
+     */
+    fun setHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean) {
         _settingsViewState.value =
             updateViewState(hasBeenPromptedForLocationPermission = hasBeenPrompted)
+        viewModelScope.launch {
+            settingsRepo.setHasBeenPromptedForLocationPermission(hasBeenPrompted)
+        }
     }
 
     private fun setIsLoadingLocation(isLoading: Boolean) {
@@ -237,7 +250,7 @@ class SettingsViewModel @Inject constructor(
                 settingsRepo.setLocation(location.latitude, location.longitude)
             }
             settingsRepo.setHasSeenLocationWarning(viewState.hasSeenLocationWarning)
-//            settingsRepo.setHasBeenPromptedForLocationPermission(viewState.hasBeenPromptedForLocationPermission)
+            settingsRepo.setHasBeenPromptedForLocationPermission(viewState.hasBeenPromptedForLocationPermission)
             settingsRepo.setTemperatureUnit(viewState.isFahrenheit)
             settingsRepo.setLengthUnit(viewState.isInch)
             settingsRepo.setSpeedUnit(viewState.isMph)

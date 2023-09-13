@@ -139,11 +139,11 @@ fun SettingsScreen(
                                     } else {
                                         // If they denied the permission last time, we have to just
                                         //      show them instructions to add it backs
-                                        viewModel.setViewStateHasSeenLocationWarning(false)
+                                        viewModel.setHasSeenLocationWarning(false)
                                     }
                                 } else {
+                                    viewModel.setHasBeenPromptedForLocationPermission(true)
                                     coarseLocationPermissionState.launchPermissionRequest()
-                                    viewModel.setViewStateHasBeenPromptedForLocationPermission(true)
                                 }
                             }
                         }
@@ -219,6 +219,6 @@ fun PreviewSettingsScreen() {
 }
 
 private fun dismissLocationWarning(viewModel: SettingsViewModel) {
-    viewModel.setViewStateHasSeenLocationWarning(true)
+    viewModel.setHasSeenLocationWarning(true)
     viewModel.saveSettings()
 }
