@@ -97,7 +97,6 @@ fun SettingsScreen(
         }
     }
 
-    // TODO TODOs all around!
     Column(
         horizontalAlignment = Alignment.Start,
         modifier = modifier
@@ -116,7 +115,7 @@ fun SettingsScreen(
                 textStyle = getBodyFontStyle(),
                 modifier = Modifier.align(alignment = Alignment.Start)
             )
-            FsTextField( // TODO Update with local text, then save? Or direct to viewstate?
+            FsTextField(
                 value = viewState.value.latLong,
                 onValueChange = { viewModel.setViewStateLocation(it) },
                 trailingIcon = @Composable {
