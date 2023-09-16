@@ -14,6 +14,7 @@ class MockWeatherSettingsDataStore(
     private var isImperial: Boolean = true,
     private var hasSeenLocation: Boolean = true,
     private var hasBeenPrompted: Boolean = true,
+    private var permissionGranted: Boolean = true,
     private var apiCallCount: Int = 0,
     private var lastForecast: Forecast? = null,
     private var weatherRequest: WeatherRequest? = null,
@@ -46,6 +47,14 @@ class MockWeatherSettingsDataStore(
 
     override suspend fun setHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean) {
         this.hasBeenPrompted = hasBeenPrompted
+    }
+
+    override suspend fun getGrantedLocationPermissionBefore(): Boolean {
+        return permissionGranted
+    }
+
+    override suspend fun setGrantedLocationPermissionBefore(hasGranted: Boolean) {
+        permissionGranted = hasGranted
     }
 
     override suspend fun getTemperatureUnit(): TemperatureUnit {

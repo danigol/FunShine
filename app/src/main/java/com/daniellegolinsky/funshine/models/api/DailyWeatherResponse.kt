@@ -1,6 +1,5 @@
 package com.daniellegolinsky.funshine.models.api
 
-import com.daniellegolinsky.funshine.models.WeatherCode
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 
@@ -8,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class DailyWeatherResponse(
 
     @SerializedName("weathercode")
-    val weatherCode: List<WeatherCode>,
+    val weatherCodes: List<Int>,
 
     @SerializedName("temperature_2m_max")
     val maxTemp: List<Float>,

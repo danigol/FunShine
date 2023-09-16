@@ -18,6 +18,7 @@ import com.daniellegolinsky.funshine.models.WeatherCode
 import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import com.daniellegolinsky.funshine.models.getIconResource
 import com.daniellegolinsky.funshine.models.getResourceStringForWeatherCode
+import com.daniellegolinsky.funshine.models.toWeatherCode
 import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -71,7 +72,7 @@ class WeatherViewModel @Inject constructor(
                     val tempAsInt = currentWeatherResponse.temperature.toInt()
                     val tempUnitString = getTemperatureUnitInitial()
                     val speedUnitString = getSpeedUnit().toString()
-                    val condition = currentWeatherResponse.weatherCode
+                    val condition = currentWeatherResponse.weatherCodeInt.toWeatherCode()
                     val precipitationString = getLengthUnitString()
 
                     _weatherViewState.value = ViewState.Success(
@@ -145,7 +146,7 @@ class WeatherViewModel @Inject constructor(
         }
 
         var weatherString =
-            "${getWeatherCodeString(currentWeatherResponse.weatherCode)} ${context.getString(R.string.currently)}.\n" // Adds an extra space
+            "${getWeatherCodeString(currentWeatherResponse.weatherCodeInt.toWeatherCode())} ${context.getString(R.string.currently)}.\n" // Adds an extra space
 
         humidityString?.let {
             weatherString += it

@@ -1,9 +1,7 @@
 package com.daniellegolinsky.funshine.models
 
 import com.daniellegolinsky.funshine.R
-import com.google.gson.annotations.SerializedName
 import com.daniellegolinsky.themeresources.R.drawable
-import kotlinx.serialization.Serializable
 
 /**
  * WMO Weather interpretation codes (WW)
@@ -25,62 +23,69 @@ import kotlinx.serialization.Serializable
  *
  *   Maps ints to enum from response. Will keep int value so we can return a resource string
  */
-@Serializable
 enum class WeatherCode(wcode: Int) {
-    @SerializedName("0")
     CLEAR(0),
-    @SerializedName("1")
     MOSTLY_CLEAR(1),
-    @SerializedName("2")
     PARTLY_CLOUDY(2),
-    @SerializedName("3")
     OVERCAST(3),
-    @SerializedName("45")
     FOG(45),
-    @SerializedName("48")
     FREEZING_FOG(48),
-    @SerializedName("51")
     LIGHT_DRIZZLE(51),
-    @SerializedName("53")
     DRIZZLE(53),
-    @SerializedName("55")
     HEAVY_DRIZZLE(55),
-    @SerializedName("56")
     LIGHT_FREEZING_DRIZZLE(56),
-    @SerializedName("57")
     FREEZING_DRIZZLE(57),
-    @SerializedName("61")
     LIGHT_RAIN(61),
-    @SerializedName("63")
     RAIN(63),
-    @SerializedName("65")
     HEAVY_RAIN(65),
-    @SerializedName("66")
     LIGHT_FREEZING_RAIN(66),
-    @SerializedName("67")
     FREEZING_RAIN(67),
-    @SerializedName("71")
     LIGHT_SNOW(71),
-    @SerializedName("73")
     SNOW(73),
-    @SerializedName("75")
     HEAVY_SNOW(75),
-    @SerializedName("80")
     LIGHT_RAIN_SHOWERS(80),
-    @SerializedName("81")
     RAIN_SHOWERS(81),
-    @SerializedName("82")
     VIOLENT_RAIN_SHOWERS(82),
-    @SerializedName("85")
     LIGHT_SNOW_SHOWERS(85),
-    @SerializedName("86")
     SNOW_SHOWERS(86),
-    @SerializedName("95")
     THUNDERSTORM(95),
-    @SerializedName("96")
     THUNDERSTORM_WITH_LIGHT_HAIL(96),
-    @SerializedName("99")
     THUNDERSTORM_WITH_HEAVY_HAIL(99),
+
+    UNKNOWN_CONDITION(-1),
+}
+
+fun Int.toWeatherCode(): WeatherCode {
+    return when (this) {
+        0 -> WeatherCode.CLEAR
+        1 -> WeatherCode.MOSTLY_CLEAR
+        2 -> WeatherCode.PARTLY_CLOUDY
+        3 -> WeatherCode.OVERCAST
+        45 -> WeatherCode.FOG
+        48 -> WeatherCode.FREEZING_FOG
+        51 -> WeatherCode.LIGHT_DRIZZLE
+        53 -> WeatherCode.DRIZZLE
+        55 -> WeatherCode.HEAVY_DRIZZLE
+        56 -> WeatherCode.LIGHT_FREEZING_DRIZZLE
+        57 -> WeatherCode.FREEZING_DRIZZLE
+        61 -> WeatherCode.LIGHT_RAIN
+        63 -> WeatherCode.RAIN
+        65 -> WeatherCode.HEAVY_RAIN
+        66 -> WeatherCode.LIGHT_FREEZING_RAIN
+        67 -> WeatherCode.FREEZING_RAIN
+        71-> WeatherCode.LIGHT_SNOW
+        73 -> WeatherCode.SNOW
+        75 -> WeatherCode.HEAVY_SNOW
+        80 -> WeatherCode.LIGHT_RAIN_SHOWERS
+        81 -> WeatherCode.RAIN_SHOWERS
+        82 -> WeatherCode.VIOLENT_RAIN_SHOWERS
+        85 -> WeatherCode.LIGHT_SNOW_SHOWERS
+        86 -> WeatherCode.SNOW_SHOWERS
+        95, 96, 99 -> WeatherCode.THUNDERSTORM
+//        96 -> WeatherCode.THUNDERSTORM_WITH_LIGHT_HAIL // These tend to get over-used?
+//        99 -> WeatherCode.THUNDERSTORM_WITH_HEAVY_HAIL // Not valid outside of EU, but show up in U.S. sometimes
+        else -> WeatherCode.UNKNOWN_CONDITION
+    }
 }
 
 fun WeatherCode.getResourceStringForWeatherCode(): Int {
@@ -136,14 +141,15 @@ fun WeatherCode.getIconResource(isDay: Boolean = true): Int {
 
         WeatherCode.OVERCAST -> drawable.ic_cloudy_black
 
-        WeatherCode.RAIN,
         WeatherCode.LIGHT_RAIN,
+        WeatherCode.LIGHT_DRIZZLE,
+        WeatherCode.DRIZZLE -> drawable.ic_drizzle_black
+
+        WeatherCode.RAIN,
         WeatherCode.HEAVY_RAIN,
         WeatherCode.LIGHT_RAIN_SHOWERS,
         WeatherCode.RAIN_SHOWERS,
         WeatherCode.VIOLENT_RAIN_SHOWERS,
-        WeatherCode.LIGHT_DRIZZLE,
-        WeatherCode.DRIZZLE,
         WeatherCode.HEAVY_DRIZZLE -> drawable.ic_rain_black
 
         WeatherCode.LIGHT_SNOW,

@@ -34,6 +34,7 @@ class SettingsViewModel @Inject constructor(
         latLong = "",
         hasSeenLocationWarning = true,
         hasBeenPromptedForLocationPermission = false,
+        grantedPermissionLastTime = false,
         isLoadingLocation = false,
     )
     private var _settingsViewState: MutableStateFlow<SettingsViewState> =
@@ -55,10 +56,13 @@ class SettingsViewModel @Inject constructor(
         val hasSeenLocationWarning = settingsRepo.getHasSeenLocationWarning()
         val hasBeenPromptedForLocationPermission =
             settingsRepo.getHasBeenPromptedForLocationPermission()
+        val grantedPermissionInPast = settingsRepo.getGrantedLocationPermissionBefore()
+
         _settingsViewState.value = mapSettingsToViewState(
             location = location,
             hasSeenLocationWarning = hasSeenLocationWarning,
             hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission,
+            grantedPermissionInPast = grantedPermissionInPast,
             isFahrenheit = getIsFahrenheitFromDataStore(),
             isInch = getIsInchFromDataStore(),
             isMph = getIsMphFromDataStore(),
@@ -69,17 +73,35 @@ class SettingsViewModel @Inject constructor(
         _settingsViewState.value = updateViewState(location = sanitizeLocationString(location))
     }
 
-    fun setViewStateHasSeenLocationWarning(hasSeenLocationWarning: Boolean) {
+    /**
+     * These update both the view model and the data store, to ensure even if the user
+     *  doesn't save settings, we still won't bother them again.
+     */
+    fun setHasSeenLocationWarning(hasSeenLocationWarning: Boolean) {
         _settingsViewState.value = updateViewState(hasSeenLocationWarning = hasSeenLocationWarning)
+        viewModelScope.launch {
+            settingsRepo.setHasSeenLocationWarning(hasSeenLocationWarning)
+        }
     }
 
-    fun setViewStateHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean) {
+    /**
+     * These update both the view model and the data store, to ensure even if the user
+     *  doesn't save settings, we still won't bother them again.
+     */
+    fun setHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean) {
         _settingsViewState.value =
             updateViewState(hasBeenPromptedForLocationPermission = hasBeenPrompted)
+        viewModelScope.launch {
+            settingsRepo.setHasBeenPromptedForLocationPermission(hasBeenPrompted)
+        }
     }
 
-    fun setIsLoadingLocation(isLoading: Boolean) {
+    private fun setIsLoadingLocation(isLoading: Boolean) {
         _settingsViewState.value = updateViewState(isLoadingLocation = isLoading)
+    }
+
+    private suspend fun setGrantedPermission(granted: Boolean) {
+        settingsRepo.setGrantedLocationPermissionBefore(granted)
     }
 
     /*
@@ -142,7 +164,6 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-
     fun saveSettings() {
         saveStateToDatastore(this._settingsViewState.value)
     }
@@ -157,26 +178,28 @@ class SettingsViewModel @Inject constructor(
         locationClient: FusedLocationProviderClient
     ) {
         viewModelScope.launch(ioDispatcher) {
+            // Ensure we're tracking response in datastore
+            setGrantedPermission(locationGranted)
+            // If granted location access, request it
             if (locationGranted) {
+                setIsLoadingLocation(true)
                 try {
-                    setIsLoadingLocation(true)
-
                     locationClient.getCurrentLocation(
-                        Priority.PRIORITY_PASSIVE,
+                        Priority.PRIORITY_HIGH_ACCURACY,
                         CancellationTokenSource().token,
                     ).addOnCompleteListener {
                         val locationResult = it?.result
                         val latitude = locationResult?.latitude?.toBigDecimal()
-                            ?.setScale(3, RoundingMode.UP)?.toFloat() ?: 0.0f
+                            ?.setScale(2, RoundingMode.UP)?.toFloat() ?: 0.0f
                         val longitude = locationResult?.longitude?.toBigDecimal()
-                            ?.setScale(3, RoundingMode.UP)?.toFloat() ?: 0.0f
+                            ?.setScale(2, RoundingMode.UP)?.toFloat() ?: 0.0f
                         setViewStateLocation("${latitude},${longitude}")
+                        setIsLoadingLocation(false)
                     }
-                } catch(e: Exception) {
+                } catch (e: Exception) {
                     // The only way this could be called is bad programmers calling this without permission
                     // Fortunately, Android will shut that down. This just prevents a crash.
                     e.printStackTrace()
-                } finally {
                     setIsLoadingLocation(false)
                 }
             }
@@ -242,6 +265,7 @@ class SettingsViewModel @Inject constructor(
         location: String? = null,
         hasSeenLocationWarning: Boolean? = null,
         hasBeenPromptedForLocationPermission: Boolean? = null,
+        grantedPermissionInPast: Boolean? = null,
         isLoadingLocation: Boolean? = null,
         isFahrenheit: Boolean? = null,
         isMph: Boolean? = null,
@@ -253,6 +277,7 @@ class SettingsViewModel @Inject constructor(
                 ?: _settingsViewState.value.hasSeenLocationWarning,
             hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission
                 ?: _settingsViewState.value.hasBeenPromptedForLocationPermission,
+            grantedPermissionLastTime = grantedPermissionInPast ?: false,
             isLoadingLocation = isLoadingLocation ?: false,
             isFahrenheit = isFahrenheit ?: _settingsViewState.value.isFahrenheit,
             isMph = isMph ?: _settingsViewState.value.isMph,
@@ -264,15 +289,16 @@ class SettingsViewModel @Inject constructor(
         location: Location,
         hasSeenLocationWarning: Boolean,
         hasBeenPromptedForLocationPermission: Boolean,
+        grantedPermissionInPast: Boolean,
         isFahrenheit: Boolean,
         isMph: Boolean,
         isInch: Boolean,
     ): SettingsViewState {
-        // TODO Update with units, call update method instead of returning directly
         return SettingsViewState(
             latLong = "${location.latitude}, ${location.longitude}",
             hasSeenLocationWarning = hasSeenLocationWarning,
             hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission,
+            grantedPermissionLastTime = grantedPermissionInPast,
             isFahrenheit = isFahrenheit,
             isMph = isMph,
             isInch = isInch

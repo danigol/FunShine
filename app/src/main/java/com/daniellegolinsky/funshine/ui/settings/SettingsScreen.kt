@@ -65,14 +65,14 @@ fun SettingsScreen(
     val locationClient = remember {
         LocationServices.getFusedLocationProviderClient(localContext)
     }
-    val locationPermissionState = rememberPermissionState(
+    val coarseLocationPermissionState = rememberPermissionState(
         permission = android.Manifest.permission.ACCESS_COARSE_LOCATION
     ) { granted ->
         viewModel.getApproximateLocation(locationGranted = granted, locationClient = locationClient)
     }
 
     // Only show the warning if they haven't seen it and we don't have permission
-    if (!hasSeenLocationWarning && !locationPermissionState.status.isGranted) {
+    if (!hasSeenLocationWarning && !coarseLocationPermissionState.status.isGranted) {
         AlertDialog(onDismissRequest = {
             dismissLocationWarning(viewModel = viewModel)
         } ) {
@@ -88,7 +88,7 @@ fun SettingsScreen(
                 ) {
                     LocationPermissionInfoDialog()
                     FsTextButton(
-                        buttonText = "Sounds good!" // TODO String resource!
+                        buttonText = stringResource(id = string.sounds_good)
                     ) {
                         dismissLocationWarning(viewModel = viewModel)
                     }
@@ -97,7 +97,6 @@ fun SettingsScreen(
         }
     }
 
-    // TODO TODOs all around!
     Column(
         horizontalAlignment = Alignment.Start,
         modifier = modifier
@@ -116,7 +115,7 @@ fun SettingsScreen(
                 textStyle = getBodyFontStyle(),
                 modifier = Modifier.align(alignment = Alignment.Start)
             )
-            FsTextField( // TODO Update with local text, then save? Or direct to viewstate?
+            FsTextField(
                 value = viewState.value.latLong,
                 onValueChange = { viewModel.setViewStateLocation(it) },
                 trailingIcon = @Composable {
@@ -127,16 +126,23 @@ fun SettingsScreen(
                     } else {
                         FsLocationButton(modifier = Modifier.height(16.dp)) {
                             viewModel.setViewStateLocation("0.00,0.00")
-                            if (locationPermissionState.status.isGranted) {
-                                viewModel.getApproximateLocation(locationPermissionState.status.isGranted, locationClient)
+                            if (coarseLocationPermissionState.status.isGranted) {
+                                viewModel.getApproximateLocation(coarseLocationPermissionState.status.isGranted, locationClient)
                             } else {
-                                // If we've already prompted them, remind them we need the permission
-                                // We will not re-prompt or spam the user, this will tell them to enable it if they want
+                                // TODO May eventually be able to pull this out of view state
+                                //      only here still because it needs to be in the view, but also within a lambda
+                                //      can't just add it to the view state like the location warning dialog.
                                 if (viewState.value.hasBeenPromptedForLocationPermission) {
-                                    viewModel.setViewStateHasSeenLocationWarning(false)
+                                    if (viewState.value.grantedPermissionLastTime) {
+                                        coarseLocationPermissionState.launchPermissionRequest()
+                                    } else {
+                                        // If they denied the permission last time, we have to just
+                                        //      show them instructions to add it backs
+                                        viewModel.setHasSeenLocationWarning(false)
+                                    }
                                 } else {
-                                    locationPermissionState.launchPermissionRequest()
-                                    viewModel.setViewStateHasBeenPromptedForLocationPermission(true)
+                                    viewModel.setHasBeenPromptedForLocationPermission(true)
+                                    coarseLocationPermissionState.launchPermissionRequest()
                                 }
                             }
                         }
@@ -212,6 +218,6 @@ fun PreviewSettingsScreen() {
 }
 
 private fun dismissLocationWarning(viewModel: SettingsViewModel) {
-    viewModel.setViewStateHasSeenLocationWarning(true)
+    viewModel.setHasSeenLocationWarning(true)
     viewModel.saveSettings()
 }
