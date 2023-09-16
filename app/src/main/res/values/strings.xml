@@ -65,9 +65,10 @@
     <string name="wc_freezing_drizzle">There is freezing drizzle</string>
     <string name="wc_light_freezing_rain">There is light freezing rain</string>
     <string name="wc_freezing_rain">There is freezing rain</string>
-    <string name="wc_thunderstorm">There is a thunderstorm</string>
-    <string name="wc_thunderstorm_with_light_hail">There is a severe thunderstorm with light hail</string>
-    <string name="wc_thunderstorm_with_heavy_hail">There is a severe thunderstorm with heavy hail</string>
+    <!-- High Chance (thunderstorm) -->
+    <string name="wc_thunderstorm">High chance of thunderstorm</string>
+    <string name="wc_thunderstorm_with_light_hail">High chance of a severe thunderstorm with light hail</string>
+    <string name="wc_thunderstorm_with_heavy_hail">High chance of a severe thunderstorm with heavy hail</string>
     <!-- There are -->
     <string name="wc_light_rain_showers">There are light rain showers</string>
     <string name="wc_rain_showers">There are rain showers</string>
