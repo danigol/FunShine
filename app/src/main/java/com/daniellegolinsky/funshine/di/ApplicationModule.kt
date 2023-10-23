@@ -10,6 +10,8 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import com.daniellegolinsky.funshine.api.OpenMeteoWeatherService
 import com.daniellegolinsky.funshine.datastore.IWeatherSettingsDataStore
 import com.daniellegolinsky.funshine.datastore.WeatherSettingsDataStore
+import com.daniellegolinsky.funshine.utilities.ResourceProvider
+import com.daniellegolinsky.funshine.utilities.ResourceProviderImpl
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
@@ -92,5 +94,11 @@ object ApplicationModule {
     @Singleton
     fun providesWeatherSettingsDataStore(@Named(SETTINGS_DATASTORE) dataStore: DataStore<Preferences>): IWeatherSettingsDataStore {
         return WeatherSettingsDataStore(dataStore)
+    }
+
+    @Provides
+    @Singleton
+    fun providesResourceProvider(@ApplicationContext context: Context): ResourceProvider {
+        return ResourceProviderImpl(context)
     }
 }
