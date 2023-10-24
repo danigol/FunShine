@@ -18,7 +18,7 @@ import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import com.daniellegolinsky.funshine.models.getIconResource
 import com.daniellegolinsky.funshine.models.getResourceStringForWeatherCode
 import com.daniellegolinsky.funshine.models.toWeatherCode
-import com.daniellegolinsky.funshine.utilities.ResourceProvider
+import com.daniellegolinsky.funshine.utilities.IResourceProvider
 import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
-    private val resourceProvider: ResourceProvider,
+    private val resourceProvider: IResourceProvider,
     private val weatherRepo: WeatherRepo,
     private val settingsRepo: SettingsRepo,
 ) : ViewModel() {
