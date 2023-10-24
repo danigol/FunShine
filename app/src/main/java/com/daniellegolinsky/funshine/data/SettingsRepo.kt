@@ -11,69 +11,68 @@ import javax.inject.Inject
 
 class SettingsRepo @Inject constructor(
     private val dataStore: IWeatherSettingsDataStore,
-) {
-    suspend fun setLocation(lat: Float, long: Float) {
+) : ISettingsRepo {
+    override suspend fun setLocation(lat: Float, long: Float) {
         dataStore.setLocation(Location(lat, long))
     }
 
-    suspend fun getLocation(): Location {
+    override suspend fun getLocation(): Location {
         return dataStore.getLocation()
     }
 
-    suspend fun setHasSeenLocationWarning(hasSeen: Boolean) {
+    override suspend fun setHasSeenLocationWarning(hasSeen: Boolean) {
         dataStore.setHasSeenLocationWarning(hasSeen)
     }
-    suspend fun getHasSeenLocationWarning(): Boolean {
+    override suspend fun getHasSeenLocationWarning(): Boolean {
         return dataStore.getHasSeenLocationWarning()
     }
 
-    suspend fun setHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean) {
+    override suspend fun setHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean) {
         dataStore.setHasBeenPromptedForLocationPermission(hasBeenPrompted)
     }
-    suspend fun getHasBeenPromptedForLocationPermission(): Boolean {
+    override suspend fun getHasBeenPromptedForLocationPermission(): Boolean {
         return dataStore.getHasBeenPromptedForLocationPermission()
     }
 
-    suspend fun setGrantedLocationPermissionBefore(grantedPermission: Boolean) {
+    override suspend fun setGrantedLocationPermissionBefore(grantedPermission: Boolean) {
         dataStore.setGrantedLocationPermissionBefore(grantedPermission)
     }
-
-    suspend fun getGrantedLocationPermissionBefore(): Boolean {
+    override suspend fun getGrantedLocationPermissionBefore(): Boolean {
         return dataStore.getGrantedLocationPermissionBefore()
     }
 
-    suspend fun setTemperatureUnit(isF: Boolean) {
+    override suspend fun setTemperatureUnit(isF: Boolean) {
         dataStore.setTemperatureUnit(isF)
     }
-    suspend fun getTemperatureUnit(): TemperatureUnit {
+    override suspend fun getTemperatureUnit(): TemperatureUnit {
         return dataStore.getTemperatureUnit()
     }
 
-    suspend fun setLengthUnit(isIn: Boolean) {
+    override suspend fun setLengthUnit(isIn: Boolean) {
         dataStore.setLengthUnit(isIn)
     }
-    suspend fun getLengthUnit(): LengthUnit {
+    override suspend fun getLengthUnit(): LengthUnit {
         return dataStore.getLengthUnit()
     }
 
-    suspend fun setSpeedUnit(isMph: Boolean) {
+    override suspend fun setSpeedUnit(isMph: Boolean) {
         dataStore.setSpeedUnit(isMph)
     }
-    suspend fun getSpeedUnit(): SpeedUnit {
+    override suspend fun getSpeedUnit(): SpeedUnit {
         return dataStore.getSpeedUnit()
     }
 
-    suspend fun setLastForecast(forecast: Forecast) {
+    override suspend fun setLastForecast(forecast: Forecast) {
         dataStore.setLastForecast(forecast)
     }
-    suspend fun getLastForecast(): Forecast? {
+    override suspend fun getLastForecast(): Forecast? {
         return dataStore.getLastForecast()
     }
 
-    suspend fun setLastRequest(weatherRequest: WeatherRequest) {
+    override suspend fun setLastRequest(weatherRequest: WeatherRequest) {
         dataStore.setLastRequest(weatherRequest)
     }
-    suspend fun getLastRequest(): WeatherRequest? {
+    override suspend fun getLastRequest(): WeatherRequest? {
         return dataStore.getLastRequest()
     }
 }

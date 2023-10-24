@@ -14,5 +14,9 @@ class ResourceProviderImpl @Inject constructor(
     override fun getString(id: Int, formatString: String) : String {
         return context.getString(id, formatString)
     }
+
+    override fun getString(id: Int, formatInt: Int) : String {
+        return context.getString(id, formatInt)
+    }
 }
 

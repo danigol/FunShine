@@ -58,12 +58,13 @@ class WeatherViewModel @Inject constructor(
     fun loadForecast() {
         viewModelScope.launch {
             val weatherResponse = weatherRepo.getWeather(
-                WeatherRequest(
+                weatherRequest = WeatherRequest(
                     location = getLocation(),
                     tempUnit = getTemperatureUnit(),
                     speedUnit = getSpeedUnit(),
                     lengthUnit = getLengthUnit(),
-                )
+                ),
+                forceUpdate = false,
             )
             if (weatherResponse.isSuccess) {
                 weatherResponse.data?.let { weatherResponseData ->
@@ -95,7 +96,7 @@ class WeatherViewModel @Inject constructor(
                 val errorString = if (weatherResponse?.error?.errorMessage?.startsWith(WeatherRepo.API_REQUEST_ERROR) == true) {
                     resourceProvider.getString(
                         R.string.api_limit_error,
-                        (weatherResponse?.error?.hoursLeft ?: ForecastTimestamp.HOURS_IN_DAY).toString()
+                        weatherResponse?.error?.hoursLeft ?: ForecastTimestamp.HOURS_IN_DAY
                     )
                 } else {
                     weatherResponse?.error?.errorMessage ?: resourceProvider.getString(R.string.unknown_error)
