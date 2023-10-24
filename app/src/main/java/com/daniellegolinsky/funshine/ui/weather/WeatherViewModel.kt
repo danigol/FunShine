@@ -4,7 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.R
-import com.daniellegolinsky.funshine.data.SettingsRepo
+import com.daniellegolinsky.funshine.data.ISettingsRepo
+import com.daniellegolinsky.funshine.data.IWeatherRepo
 import com.daniellegolinsky.themeresources.R.drawable
 import com.daniellegolinsky.funshine.data.WeatherRepo
 import com.daniellegolinsky.funshine.models.Forecast
@@ -32,8 +33,8 @@ import javax.inject.Inject
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
     private val resourceProvider: IResourceProvider,
-    private val weatherRepo: WeatherRepo,
-    private val settingsRepo: SettingsRepo,
+    private val weatherRepo: IWeatherRepo,
+    private val settingsRepo: ISettingsRepo,
 ) : ViewModel() {
     private val loadingState = WeatherScreenViewState(
         weatherIconResource = drawable.ic_loading_black,

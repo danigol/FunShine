@@ -8,6 +8,11 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.daniellegolinsky.funshine.api.OpenMeteoWeatherService
+import com.daniellegolinsky.funshine.data.ApiRequestLimiter
+import com.daniellegolinsky.funshine.data.ISettingsRepo
+import com.daniellegolinsky.funshine.data.IWeatherRepo
+import com.daniellegolinsky.funshine.data.SettingsRepo
+import com.daniellegolinsky.funshine.data.WeatherRepo
 import com.daniellegolinsky.funshine.datastore.IWeatherSettingsDataStore
 import com.daniellegolinsky.funshine.datastore.WeatherSettingsDataStore
 import com.daniellegolinsky.funshine.utilities.IResourceProvider
@@ -100,5 +105,20 @@ object ApplicationModule {
     @Singleton
     fun providesResourceProvider(@ApplicationContext context: Context): IResourceProvider {
         return ResourceProvider(context)
+    }
+
+    @Provides
+    @Singleton
+    fun providesSettingsRepo(settingsDataStore: IWeatherSettingsDataStore): ISettingsRepo {
+        return SettingsRepo(settingsDataStore)
+    }
+
+    @Provides
+    @Singleton
+    fun providesWeatherRepo(
+            @Named(ApplicationModule.OPEN_METEO_WEATHER_SERVICE) weatherService: OpenMeteoWeatherService,
+            settingsRepo: SettingsRepo,
+            apiRequestLimiter: ApiRequestLimiter): IWeatherRepo {
+        return WeatherRepo(weatherService, settingsRepo, apiRequestLimiter)
     }
 }

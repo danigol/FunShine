@@ -8,7 +8,7 @@ import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.api.WeatherRequest
 
-class MockSettingsRepo: ISettingsRepo {
+class MockSettingsRepo(): ISettingsRepo {
 
     private var location: Location = Location(0f, 0f)
     private var hasSeenLocationWarning = false
