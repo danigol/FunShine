@@ -10,4 +10,8 @@ class MockResourceProvider: ResourceProvider {
     override fun getString(id: Int, formatString: String): String {
         return "You requested ID: $id with format: $formatString"
     }
+
+    override fun getString(id: Int, formatInt: Int): String {
+        return "You requested ID: $id with format: $formatInt"
+    }
 }
