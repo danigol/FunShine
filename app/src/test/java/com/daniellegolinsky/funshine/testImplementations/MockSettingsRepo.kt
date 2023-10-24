@@ -9,63 +9,84 @@ import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.api.WeatherRequest
 
 class MockSettingsRepo: ISettingsRepo {
-    // TODO... yeah
+
+    private var location: Location = Location(0f, 0f)
+    private var hasSeenLocationWarning = false
+    private var hasBeenPrompted = false
+    private var grantedPermissionBefore = false
+    private var tempUnitIsF = false
+    private var isInch = false
+    private var isMph = false
+
     override suspend fun setLocation(lat: Float, long: Float) {
-        TODO("Not yet implemented")
+        location = Location(lat, long)
     }
 
     override suspend fun getLocation(): Location {
-        TODO("Not yet implemented")
+        return location
     }
 
     override suspend fun setHasSeenLocationWarning(hasSeen: Boolean) {
-        TODO("Not yet implemented")
+        hasSeenLocationWarning = hasSeen
     }
 
     override suspend fun getHasSeenLocationWarning(): Boolean {
-        TODO("Not yet implemented")
+        return hasSeenLocationWarning
     }
 
     override suspend fun setHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean) {
-        TODO("Not yet implemented")
+        this.hasBeenPrompted = hasBeenPrompted
     }
 
     override suspend fun getHasBeenPromptedForLocationPermission(): Boolean {
-        TODO("Not yet implemented")
+        return hasBeenPrompted
     }
 
     override suspend fun setGrantedLocationPermissionBefore(grantedPermission: Boolean) {
-        TODO("Not yet implemented")
+        grantedPermissionBefore = grantedPermission
     }
 
     override suspend fun getGrantedLocationPermissionBefore(): Boolean {
-        TODO("Not yet implemented")
+        return grantedPermissionBefore
     }
 
     override suspend fun setTemperatureUnit(isF: Boolean) {
-        TODO("Not yet implemented")
+        tempUnitIsF = isF
     }
 
     override suspend fun getTemperatureUnit(): TemperatureUnit {
-        TODO("Not yet implemented")
+        return if (tempUnitIsF) {
+            TemperatureUnit.FAHRENHEIT
+        } else {
+            TemperatureUnit.CELSIUS
+        }
     }
 
     override suspend fun setLengthUnit(isIn: Boolean) {
-        TODO("Not yet implemented")
+        isInch = isIn
     }
 
     override suspend fun getLengthUnit(): LengthUnit {
-        TODO("Not yet implemented")
+        return if (isInch) {
+            LengthUnit.INCH
+        } else {
+            LengthUnit.MILLIMETER
+        }
     }
 
     override suspend fun setSpeedUnit(isMph: Boolean) {
-        TODO("Not yet implemented")
+        this.isMph = isMph
     }
 
     override suspend fun getSpeedUnit(): SpeedUnit {
-        TODO("Not yet implemented")
+        return if (isMph) {
+           SpeedUnit.MPH
+        } else {
+            SpeedUnit.KMH
+        }
     }
 
+    // TODO These are more complex, may use them for API testing though
     override suspend fun setLastForecast(forecast: Forecast) {
         TODO("Not yet implemented")
     }
