@@ -21,7 +21,7 @@ class WeatherRepo @Inject constructor(
     @Named(ApplicationModule.OPEN_METEO_WEATHER_SERVICE) private val weatherService: OpenMeteoWeatherService,
     private val settingsRepo: SettingsRepo,
     private val apiRequestLimiter: ApiRequestLimiter,
-) {
+): IWeatherRepo {
 
     companion object{
         const val API_REQUEST_ERROR = "API_REQUEST_ERROR"
@@ -32,9 +32,9 @@ class WeatherRepo @Inject constructor(
     private var repoCachedWeatherResponse: ResponseOrError<Forecast, ForecastError>? = null
     private var repoCachedWeatherRequest: WeatherRequest? = null
 
-    suspend fun getWeather(
+    override suspend fun getWeather(
         weatherRequest: WeatherRequest,
-        forceUpdate: Boolean = false,
+        forceUpdate: Boolean,
     ): ResponseOrError<Forecast, ForecastError> {
         // Reset the API limiter if necessary
         weatherMutex.withLock {

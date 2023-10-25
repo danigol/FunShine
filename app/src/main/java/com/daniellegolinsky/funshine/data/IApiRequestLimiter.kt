@@ -1,7 +1,5 @@
 package com.daniellegolinsky.funshine.data
 
-import com.daniellegolinsky.funshine.models.ForecastTimestamp
-
 interface IApiRequestLimiter {
     suspend fun incrementApiCallCounter()
     suspend fun resetApiCallCounterAndTimestampIfValid()

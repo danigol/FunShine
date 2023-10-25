@@ -1,78 +1,105 @@
-package com.daniellegolinsky.funshine.data
+package com.daniellegolinsky.funshine.testImplementations
 
-import com.daniellegolinsky.funshine.datastore.IWeatherSettingsDataStore
+import com.daniellegolinsky.funshine.data.ISettingsRepo
 import com.daniellegolinsky.funshine.models.Forecast
 import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.api.WeatherRequest
-import javax.inject.Inject
 
-class SettingsRepo @Inject constructor(
-    private val dataStore: IWeatherSettingsDataStore,
-) : ISettingsRepo {
+class MockSettingsRepo(): ISettingsRepo {
+
+    private var location: Location = Location(0f, 0f)
+    private var hasSeenLocationWarning = false
+    private var hasBeenPrompted = false
+    private var grantedPermissionBefore = false
+    private var tempUnitIsF = false
+    private var isInch = false
+    private var isMph = false
+
     override suspend fun setLocation(lat: Float, long: Float) {
-        dataStore.setLocation(Location(lat, long))
+        location = Location(lat, long)
     }
 
     override suspend fun getLocation(): Location {
-        return dataStore.getLocation()
+        return location
     }
 
     override suspend fun setHasSeenLocationWarning(hasSeen: Boolean) {
-        dataStore.setHasSeenLocationWarning(hasSeen)
+        hasSeenLocationWarning = hasSeen
     }
+
     override suspend fun getHasSeenLocationWarning(): Boolean {
-        return dataStore.getHasSeenLocationWarning()
+        return hasSeenLocationWarning
     }
 
     override suspend fun setHasBeenPromptedForLocationPermission(hasBeenPrompted: Boolean) {
-        dataStore.setHasBeenPromptedForLocationPermission(hasBeenPrompted)
+        this.hasBeenPrompted = hasBeenPrompted
     }
+
     override suspend fun getHasBeenPromptedForLocationPermission(): Boolean {
-        return dataStore.getHasBeenPromptedForLocationPermission()
+        return hasBeenPrompted
     }
 
     override suspend fun setGrantedLocationPermissionBefore(grantedPermission: Boolean) {
-        dataStore.setGrantedLocationPermissionBefore(grantedPermission)
+        grantedPermissionBefore = grantedPermission
     }
+
     override suspend fun getGrantedLocationPermissionBefore(): Boolean {
-        return dataStore.getGrantedLocationPermissionBefore()
+        return grantedPermissionBefore
     }
 
     override suspend fun setTemperatureUnit(isF: Boolean) {
-        dataStore.setTemperatureUnit(isF)
+        tempUnitIsF = isF
     }
+
     override suspend fun getTemperatureUnit(): TemperatureUnit {
-        return dataStore.getTemperatureUnit()
+        return if (tempUnitIsF) {
+            TemperatureUnit.FAHRENHEIT
+        } else {
+            TemperatureUnit.CELSIUS
+        }
     }
 
     override suspend fun setLengthUnit(isIn: Boolean) {
-        dataStore.setLengthUnit(isIn)
+        isInch = isIn
     }
+
     override suspend fun getLengthUnit(): LengthUnit {
-        return dataStore.getLengthUnit()
+        return if (isInch) {
+            LengthUnit.INCH
+        } else {
+            LengthUnit.MILLIMETER
+        }
     }
 
     override suspend fun setSpeedUnit(isMph: Boolean) {
-        dataStore.setSpeedUnit(isMph)
-    }
-    override suspend fun getSpeedUnit(): SpeedUnit {
-        return dataStore.getSpeedUnit()
+        this.isMph = isMph
     }
 
-    override suspend fun setLastForecast(forecast: Forecast) {
-        dataStore.setLastForecast(forecast)
+    override suspend fun getSpeedUnit(): SpeedUnit {
+        return if (isMph) {
+           SpeedUnit.MPH
+        } else {
+            SpeedUnit.KMH
+        }
     }
+
+    // TODO These are more complex, may use them for API testing though
+    override suspend fun setLastForecast(forecast: Forecast) {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getLastForecast(): Forecast? {
-        return dataStore.getLastForecast()
+        TODO("Not yet implemented")
     }
 
     override suspend fun setLastRequest(weatherRequest: WeatherRequest) {
-        dataStore.setLastRequest(weatherRequest)
+        TODO("Not yet implemented")
     }
+
     override suspend fun getLastRequest(): WeatherRequest? {
-        return dataStore.getLastRequest()
+        TODO("Not yet implemented")
     }
 }

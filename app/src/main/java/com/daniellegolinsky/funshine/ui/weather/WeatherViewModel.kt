@@ -1,11 +1,11 @@
 package com.daniellegolinsky.funshine.ui.weather
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.R
-import com.daniellegolinsky.funshine.data.SettingsRepo
+import com.daniellegolinsky.funshine.data.ISettingsRepo
+import com.daniellegolinsky.funshine.data.IWeatherRepo
 import com.daniellegolinsky.themeresources.R.drawable
 import com.daniellegolinsky.funshine.data.WeatherRepo
 import com.daniellegolinsky.funshine.models.Forecast
@@ -19,10 +19,10 @@ import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import com.daniellegolinsky.funshine.models.getIconResource
 import com.daniellegolinsky.funshine.models.getResourceStringForWeatherCode
 import com.daniellegolinsky.funshine.models.toWeatherCode
+import com.daniellegolinsky.funshine.utilities.IResourceProvider
 import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -32,9 +32,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val weatherRepo: WeatherRepo,
-    private val settingsRepo: SettingsRepo,
+    private val resourceProvider: IResourceProvider,
+    private val weatherRepo: IWeatherRepo,
+    private val settingsRepo: ISettingsRepo,
 ) : ViewModel() {
     private val loadingState = WeatherScreenViewState(
         weatherIconResource = drawable.ic_loading_black,
@@ -43,7 +43,7 @@ class WeatherViewModel @Inject constructor(
         temperatureUnit = null,
         windspeedUnit = null,
         precipitationAmountUnit = null,
-        forecast = context.getString(R.string.loading)
+        forecast = resourceProvider.getString(R.string.loading)
     )
     private var _weatherViewState: MutableStateFlow<ViewState<WeatherScreenViewState>> =
         MutableStateFlow(ViewState.Loading(loadingState))
@@ -59,12 +59,13 @@ class WeatherViewModel @Inject constructor(
     fun loadForecast() {
         viewModelScope.launch {
             val weatherResponse = weatherRepo.getWeather(
-                WeatherRequest(
+                weatherRequest = WeatherRequest(
                     location = getLocation(),
                     tempUnit = getTemperatureUnit(),
                     speedUnit = getSpeedUnit(),
                     lengthUnit = getLengthUnit(),
-                )
+                ),
+                forceUpdate = false,
             )
             if (weatherResponse.isSuccess) {
                 weatherResponse.data?.let { weatherResponseData ->
@@ -94,12 +95,12 @@ class WeatherViewModel @Inject constructor(
                 }
             } else { // Error returned
                 val errorString = if (weatherResponse?.error?.errorMessage?.startsWith(WeatherRepo.API_REQUEST_ERROR) == true) {
-                    context.getString(
+                    resourceProvider.getString(
                         R.string.api_limit_error,
                         weatherResponse?.error?.hoursLeft ?: ForecastTimestamp.HOURS_IN_DAY
                     )
                 } else {
-                    weatherResponse?.error?.errorMessage ?: context.getString(R.string.unknown_error)
+                    weatherResponse?.error?.errorMessage ?: resourceProvider.getString(R.string.unknown_error)
                 }
                 _weatherViewState.value = ViewState.Error(
                     WeatherScreenViewState(
@@ -110,11 +111,11 @@ class WeatherViewModel @Inject constructor(
                         windspeedUnit = null,
                         precipitationAmountUnit = null,
                         forecast = "${
-                            context.getString(
+                            resourceProvider.getString(
                                 R.string.error_message,
                                 errorString
                             )
-                        }\n ${context.getString(R.string.error_help)}"
+                        }\n ${resourceProvider.getString(R.string.error_help)}"
                     )
                 )
             }
@@ -139,31 +140,31 @@ class WeatherViewModel @Inject constructor(
         val humidityString: String? = try {
             val humidityListSize = hourlyWeatherResponse.humidityList.size
             val humidity = hourlyWeatherResponse.humidityList[getCurrentHourIndex(humidityListSize)]
-            "\n${context.getString(R.string.humidity)} ${humidity}%"
+            "\n${resourceProvider.getString(R.string.humidity)} ${humidity}%"
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
 
         var weatherString =
-            "${getWeatherCodeString(currentWeatherResponse.weatherCodeInt.toWeatherCode())} ${context.getString(R.string.currently)}.\n" // Adds an extra space
+            "${getWeatherCodeString(currentWeatherResponse.weatherCodeInt.toWeatherCode())} ${resourceProvider.getString(R.string.currently)}.\n" // Adds an extra space
 
         humidityString?.let {
             weatherString += it
         }
-        weatherString += "\n${context.getString(R.string.windspeed)} ${currentWeatherResponse.windSpeed}${windspeedUnitString}" +
-                "\n${context.getString(R.string.min_temp)} ${tempMinAsInt}${tempUnitString}" +
-                "\n${context.getString(R.string.max_temp)} ${tempMaxAsInt}${tempUnitString}" +
-                "\n${context.getString(R.string.precip_chance)} ${hourlyPrecipitationChance}%" +
-                "\n${context.getString(R.string.precip_chance_daily)} ${dailyPrecipChance}%"
+        weatherString += "\n${resourceProvider.getString(R.string.windspeed)} ${currentWeatherResponse.windSpeed}${windspeedUnitString}" +
+                "\n${resourceProvider.getString(R.string.min_temp)} ${tempMinAsInt}${tempUnitString}" +
+                "\n${resourceProvider.getString(R.string.max_temp)} ${tempMaxAsInt}${tempUnitString}" +
+                "\n${resourceProvider.getString(R.string.precip_chance)} ${hourlyPrecipitationChance}%" +
+                "\n${resourceProvider.getString(R.string.precip_chance_daily)} ${dailyPrecipChance}%"
         if (dailyPrecipChance > 0 && dailyPrecipAmount > 0.010) {
-            weatherString += "\n${context.getString(R.string.precip_max)} ${dailyPrecipAmount}${lengthUnitString}"
+            weatherString += "\n${resourceProvider.getString(R.string.precip_max)} ${dailyPrecipAmount}${lengthUnitString}"
         }
         return weatherString
     }
 
     private fun getWeatherCodeString(wc: WeatherCode): String {
-        return context.getString(wc.getResourceStringForWeatherCode())
+        return resourceProvider.getString(wc.getResourceStringForWeatherCode())
     }
 
     /**
@@ -219,7 +220,7 @@ class WeatherViewModel @Inject constructor(
         return if (lengthUnit == LengthUnit.MILLIMETER) {
             lengthUnit.toString()
         } else {
-            context.getString(R.string.inch_abbreviation)
+            resourceProvider.getString(R.string.inch_abbreviation)
         }
     }
 }
