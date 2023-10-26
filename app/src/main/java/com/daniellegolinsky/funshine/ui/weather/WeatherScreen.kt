@@ -75,7 +75,7 @@ fun WeatherScreen(
         )
         Spacer(modifier = Modifier.weight(1f))
         Row (
-            horizontalArrangement = Arrangement.End,
+            horizontalArrangement = if (viewState.buttonsOnRight) Arrangement.End else Arrangement.Start,
             modifier = Modifier.fillMaxWidth()
                 ){
             FsIconButton(

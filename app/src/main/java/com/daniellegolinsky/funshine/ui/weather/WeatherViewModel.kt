@@ -43,7 +43,8 @@ class WeatherViewModel @Inject constructor(
         temperatureUnit = null,
         windspeedUnit = null,
         precipitationAmountUnit = null,
-        forecast = resourceProvider.getString(R.string.loading)
+        forecast = resourceProvider.getString(R.string.loading),
+        buttonsOnRight = true,
     )
     private var _weatherViewState: MutableStateFlow<ViewState<WeatherScreenViewState>> =
         MutableStateFlow(ViewState.Loading(loadingState))
@@ -58,6 +59,7 @@ class WeatherViewModel @Inject constructor(
 
     fun loadForecast() {
         viewModelScope.launch {
+            val buttonsOnRight = settingsRepo.getWeatherButtonsOnRight() // TODO Split out state of side effect! Create new update function
             val weatherResponse = weatherRepo.getWeather(
                 weatherRequest = WeatherRequest(
                     location = getLocation(),
@@ -89,7 +91,8 @@ class WeatherViewModel @Inject constructor(
                                 tempUnitString = tempUnitString,
                                 windspeedUnitString = speedUnitString,
                                 lengthUnitString = precipitationString,
-                            )
+                            ),
+                            buttonsOnRight = buttonsOnRight,
                         )
                     )
                 }
@@ -115,7 +118,8 @@ class WeatherViewModel @Inject constructor(
                                 R.string.error_message,
                                 errorString
                             )
-                        }\n ${resourceProvider.getString(R.string.error_help)}"
+                        }\n ${resourceProvider.getString(R.string.error_help)}",
+                        buttonsOnRight = buttonsOnRight,
                     )
                 )
             }
