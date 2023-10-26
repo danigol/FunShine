@@ -27,6 +27,9 @@
     <string name="about_information">FunShine will only ever use your approximate location, not your exact location. You can also enter any coordinates you\'d like.\nFunShine does not collect your location, or store it off device anywhere.\nYou can read privacy policies for FunShine and my other apps here:</string>
     <string name="about_information_2">Open-Meteo, who handles the weather data, stores anonymous logs that include passed-in values for latitude and longitude.\nYou can read more about their privacy terms here:</string>
     <string name="sounds_good">Sounds good!</string>
+    <string name="weather_button_location_label">Weather screen button location:</string>
+    <string name="left">Left</string>
+    <string name="right">Right</string>
 
     <!-- Weather Condition String -->
     <string name="max_temp">Max daily temp:</string>

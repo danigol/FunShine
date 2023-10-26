@@ -21,6 +21,7 @@ import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
@@ -48,6 +49,7 @@ class WeatherSettingsDataStore @Inject constructor(
         val API_CALL_COUNT = intPreferencesKey("api_call_count")
         val START_API_TIMESTAMP = stringPreferencesKey("start_api_timestamp")
         val VERSION_CODE_OF_FORECAST_CACHE = longPreferencesKey("version_code_of_forecast_cache")
+        val WEATHER_BUTTONS_ON_RIGHT = booleanPreferencesKey("weather_buttons_on_right")
     }
 
     private val settingsFlow = dataStore.data.catch {
@@ -262,6 +264,18 @@ class WeatherSettingsDataStore @Inject constructor(
     override suspend fun resetApiCallCount() {
         dataStore.edit { preferences->
             preferences[StoreKeys.API_CALL_COUNT] = 0
+        }
+    }
+
+    override suspend fun getWeatherButtonsOnRight(): Boolean {
+        return settingsFlow.map { preferences ->
+            preferences[StoreKeys.WEATHER_BUTTONS_ON_RIGHT]
+        }.firstOrNull() ?: true
+    }
+
+    override suspend fun setWeatherButtonsOnRight(isRight: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[StoreKeys.WEATHER_BUTTONS_ON_RIGHT] = isRight
         }
     }
 }

@@ -32,4 +32,6 @@ interface IWeatherSettingsDataStore {
     suspend fun getApiCallCount(): Int
     suspend fun incrementApiCallCount()
     suspend fun resetApiCallCount()
+    suspend fun getWeatherButtonsOnRight(): Boolean
+    suspend fun setWeatherButtonsOnRight(isRight: Boolean)
 }

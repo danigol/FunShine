@@ -57,6 +57,7 @@ class SettingsViewModel @Inject constructor(
         val hasBeenPromptedForLocationPermission =
             settingsRepo.getHasBeenPromptedForLocationPermission()
         val grantedPermissionInPast = settingsRepo.getGrantedLocationPermissionBefore()
+        val weatherButtonsOnRight = settingsRepo.getWeatherButtonsOnRight()
 
         _settingsViewState.value = mapSettingsToViewState(
             location = location,
@@ -66,6 +67,7 @@ class SettingsViewModel @Inject constructor(
             isFahrenheit = getIsFahrenheitFromDataStore(),
             isInch = getIsInchFromDataStore(),
             isMph = getIsMphFromDataStore(),
+            weatherButtonsOnRight = weatherButtonsOnRight,
         )
     }
 
@@ -138,6 +140,10 @@ class SettingsViewModel @Inject constructor(
             TemperatureUnit.CELSIUS -> false
             else -> true
         }
+    }
+
+    fun setWeatherButtonsOnRight(isOnRight: Boolean) {
+        _settingsViewState.value = updateViewState(weatherButtonsOnRight = isOnRight)
     }
 
     /**
@@ -254,6 +260,7 @@ class SettingsViewModel @Inject constructor(
             settingsRepo.setTemperatureUnit(viewState.isFahrenheit)
             settingsRepo.setLengthUnit(viewState.isInch)
             settingsRepo.setSpeedUnit(viewState.isMph)
+            settingsRepo.setWeatherButtonsOnRight(viewState.weatherButtonsOnRight)
         }
     }
 
@@ -270,6 +277,7 @@ class SettingsViewModel @Inject constructor(
         isFahrenheit: Boolean? = null,
         isMph: Boolean? = null,
         isInch: Boolean? = null,
+        weatherButtonsOnRight: Boolean? = null,
     ): SettingsViewState {
         return SettingsViewState(
             latLong = location ?: _settingsViewState.value.latLong,
@@ -282,6 +290,7 @@ class SettingsViewModel @Inject constructor(
             isFahrenheit = isFahrenheit ?: _settingsViewState.value.isFahrenheit,
             isMph = isMph ?: _settingsViewState.value.isMph,
             isInch = isInch ?: _settingsViewState.value.isInch,
+            weatherButtonsOnRight = weatherButtonsOnRight ?: _settingsViewState.value.weatherButtonsOnRight,
         )
     }
 
@@ -293,6 +302,7 @@ class SettingsViewModel @Inject constructor(
         isFahrenheit: Boolean,
         isMph: Boolean,
         isInch: Boolean,
+        weatherButtonsOnRight: Boolean,
     ): SettingsViewState {
         return SettingsViewState(
             latLong = "${location.latitude}, ${location.longitude}",
@@ -301,7 +311,8 @@ class SettingsViewModel @Inject constructor(
             grantedPermissionLastTime = grantedPermissionInPast,
             isFahrenheit = isFahrenheit,
             isMph = isMph,
-            isInch = isInch
+            isInch = isInch,
+            weatherButtonsOnRight = weatherButtonsOnRight,
         )
     }
 }

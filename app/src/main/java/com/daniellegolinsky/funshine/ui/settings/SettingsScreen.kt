@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +49,8 @@ import com.daniellegolinsky.funshinetheme.components.FsIconButton
 import com.daniellegolinsky.funshinetheme.components.FsLocationButton
 import com.daniellegolinsky.funshinetheme.components.FsTwoStateSwitch
 import com.daniellegolinsky.funshinetheme.designelements.getBackgroundColor
+import com.daniellegolinsky.funshinetheme.font.FsTextStyle
+import com.daniellegolinsky.funshinetheme.font.getBodyFontStyleWithoutShadow
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -109,9 +114,13 @@ fun SettingsScreen(
         )
         Spacer(modifier = Modifier.height(64.dp))
         // Content
-        Column(modifier = Modifier.padding(start = 32.dp, end = 32.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(start = 32.dp, end = 32.dp) // TODO Make top dynamic
+                .verticalScroll(rememberScrollState())
+        ) {
             FsText(
-                text = "Latitude, Longitude: ",
+                text = "Latitude, Longitude: ", // TODO NOOOOOOO How did I miss this?
                 textStyle = getBodyFontStyle(),
                 modifier = Modifier.align(alignment = Alignment.Start)
             )
@@ -150,50 +159,86 @@ fun SettingsScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
             // ** Unit Options ** //
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 128.dp),
-                contentPadding = PaddingValues(12.dp)
-            ){
-                item {
-                    FsTwoStateSwitch(
-                        optionOneString = stringResource(id = string.option_c),
-                        optionTwoString = stringResource(id = string.option_f),
-                        optionTwoSelected = viewState.value.isFahrenheit,
-                        onOptionChanged = { viewModel.setIsFahrenheit(!viewState.value.isFahrenheit) },
-                    )
-                }
-                item {
-                    FsTwoStateSwitch(
-                        optionOneString = stringResource(id = string.option_mm),
-                        optionTwoString = stringResource(id = string.option_in),
-                        optionTwoSelected = viewState.value.isInch,
-                        onOptionChanged = { viewModel.setIsInch(!viewState.value.isInch) },
-                    )
-                }
-                item {
-                    FsTwoStateSwitch(
-                        optionOneString = stringResource(id = string.option_kmh),
-                        optionTwoString = stringResource(id = string.option_mph),
-                        optionTwoSelected = viewState.value.isMph,
-                        onOptionChanged = { viewModel.setIsMph(!viewState.value.isMph) },
-                    )
-                }
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                FsTwoStateSwitch(
+                    optionOneString = stringResource(id = string.option_c),
+                    optionTwoString = stringResource(id = string.option_f),
+                    optionTwoSelected = viewState.value.isFahrenheit,
+                    onOptionChanged = { viewModel.setIsFahrenheit(!viewState.value.isFahrenheit) },
+                )
+                Spacer(modifier = Modifier.fillMaxWidth(0.25f))
+                FsTwoStateSwitch(
+                    optionOneString = stringResource(id = string.option_mm),
+                    optionTwoString = stringResource(id = string.option_in),
+                    optionTwoSelected = viewState.value.isInch,
+                    onOptionChanged = { viewModel.setIsInch(!viewState.value.isInch) },
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                FsTwoStateSwitch(
+                    optionOneString = stringResource(id = string.option_kmh),
+                    optionTwoString = stringResource(id = string.option_mph),
+                    optionTwoSelected = viewState.value.isMph,
+                    onOptionChanged = { viewModel.setIsMph(!viewState.value.isMph) },
+                )
             }
             // ** End Unit Options ** //
-            Spacer(modifier = Modifier.height(64.dp))
-            FsTextButton(
-                buttonText = stringResource(id = R.string.button_save_settings),
-                modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
+
+            // Button location options
+            // TODO: Can we detect a flip phone and have an "Only on outside screen" option?
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                viewModel.saveSettings()
-                // Go back to the weather screen
-                // Note: We navigate here, not using back in case of changes
-                //       or the user wants to go back and change a setting quickly
-                navController.navigate(MainNavHost.WEATHER)
+                FsText(
+                    text = stringResource(string.weather_button_location_label),
+                    textStyle = getBodyFontStyleWithoutShadow()
+                )
             }
-            Spacer(modifier = Modifier.fillMaxHeight(0.75f))
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                FsTwoStateSwitch(
+                    optionOneString = "Left",
+                    optionTwoString = "Right",
+                    optionTwoSelected = viewState.value.weatherButtonsOnRight,
+                    onOptionChanged = {
+                        viewModel.setWeatherButtonsOnRight(!viewState.value.weatherButtonsOnRight)
+                    },
+                )
+            }
+
+            // Save and about buttons
+            Spacer(modifier = Modifier.height(64.dp))
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                FsTextButton(
+                    buttonText = stringResource(id = R.string.button_save_settings)
+                ) {
+                    viewModel.saveSettings()
+                    // Go back to the weather screen
+                    // Note: We navigate here, not using back in case of changes
+                    //       or the user wants to go back and change a setting quickly
+                    navController.navigate(MainNavHost.WEATHER)
+                }
+            }
+            Spacer(modifier = Modifier
+                .fillMaxHeight(0.75f) // TODO This doesn't really work with a scroll area
+                .defaultMinSize(minHeight = 96.dp)
+            )
             Row(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier.fillMaxWidth()

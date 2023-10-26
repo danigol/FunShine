@@ -51,10 +51,15 @@ fun WeatherScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        FsIconWithShadow(
-            image = painterResource(viewState.weatherIconResource),
-            imageResourceContentDescription = stringResource(id = viewState.weatherIconContentDescription),
-        )
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            FsIconWithShadow(
+                image = painterResource(viewState.weatherIconResource),
+                imageResourceContentDescription = stringResource(id = viewState.weatherIconContentDescription),
+            )
+        }
         if (viewState.temperature != null) {
             FsText(
                 text = "${viewState.temperature}${viewState.temperatureUnit}",
