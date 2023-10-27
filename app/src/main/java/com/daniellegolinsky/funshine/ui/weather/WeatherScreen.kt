@@ -102,7 +102,7 @@ fun WeatherScreen(
                         Toast.makeText(localContext, refreshMessage, Toast.LENGTH_SHORT).show()
                     }
                     viewModel.loading()
-                    viewModel.loadForecast()
+                    viewModel.updateWeatherScreen()
                 }
             )
         }

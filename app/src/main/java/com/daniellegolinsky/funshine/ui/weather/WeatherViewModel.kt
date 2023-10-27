@@ -44,7 +44,7 @@ class WeatherViewModel @Inject constructor(
         windspeedUnit = null,
         precipitationAmountUnit = null,
         forecast = resourceProvider.getString(R.string.loading),
-        buttonsOnRight = true,
+        buttonsOnRight = true, // TODO we could remove a lot of lag by making a null loading state
     )
     private var _weatherViewState: MutableStateFlow<ViewState<WeatherScreenViewState>> =
         MutableStateFlow(ViewState.Loading(loadingState))
@@ -57,7 +57,7 @@ class WeatherViewModel @Inject constructor(
         }
     }
 
-    fun loadForecast() {
+    fun updateWeatherScreen() {
         viewModelScope.launch {
             val buttonsOnRight = settingsRepo.getWeatherButtonsOnRight() // TODO Split out state of side effect! Create new update function
             val weatherResponse = weatherRepo.getWeather(
@@ -78,6 +78,7 @@ class WeatherViewModel @Inject constructor(
                     val condition = currentWeatherResponse.weatherCodeInt.toWeatherCode()
                     val precipitationString = getLengthUnitString()
 
+                    // TODO replace with viewstate builder function
                     _weatherViewState.value = ViewState.Success(
                         WeatherScreenViewState(
                             weatherIconResource = condition.getIconResource(currentWeatherResponse.isDay == 1),
@@ -105,7 +106,7 @@ class WeatherViewModel @Inject constructor(
                 } else {
                     weatherResponse?.error?.errorMessage ?: resourceProvider.getString(R.string.unknown_error)
                 }
-                _weatherViewState.value = ViewState.Error(
+                _weatherViewState.value = ViewState.Error( // TODO Replace with viewstate builder
                     WeatherScreenViewState(
                         weatherIconResource = drawable.ic_circle_x_black,
                         weatherIconContentDescription = R.string.wc_unknown,
@@ -225,6 +226,59 @@ class WeatherViewModel @Inject constructor(
             lengthUnit.toString()
         } else {
             resourceProvider.getString(R.string.inch_abbreviation)
+        }
+    }
+
+    private fun getUpdatedViewState(
+        isSuccess: Boolean,
+        isLoading: Boolean = false,
+        weatherIconResource: Int? = null,
+        weatherIconContentDescription: Int? = null,
+        temp: Int? = null,
+        tempUnit: String? = null,
+        windSpeedUnit: String? = null,
+        precipitationAmountUnit: String? = null,
+        forecastString: String? = null,
+        buttonsOnRight: Boolean? = null,
+    ): ViewState<WeatherScreenViewState> {
+        return if (isLoading) {
+            ViewState.Loading(loadingState)
+        } else if (isSuccess) {
+            ViewState.Success(
+                WeatherScreenViewState(
+                    weatherIconResource = weatherIconResource
+                        ?: _weatherViewState.value.viewState.weatherIconResource,
+                    weatherIconContentDescription = weatherIconContentDescription
+                        ?: _weatherViewState.value.viewState.weatherIconContentDescription,
+                    temperature = temp ?: _weatherViewState.value.viewState.temperature,
+                    temperatureUnit = tempUnit ?: _weatherViewState.value.viewState.temperatureUnit,
+                    windspeedUnit = windSpeedUnit
+                        ?: _weatherViewState.value.viewState.windspeedUnit,
+                    precipitationAmountUnit = precipitationAmountUnit
+                        ?: _weatherViewState.value.viewState.precipitationAmountUnit,
+                    forecast = forecastString ?: _weatherViewState.value.viewState.forecast,
+                    buttonsOnRight = buttonsOnRight
+                        ?: _weatherViewState.value.viewState.buttonsOnRight,
+                )
+            )
+        } else {
+            ViewState.Error(
+                WeatherScreenViewState(
+                    weatherIconResource = weatherIconResource
+                        ?: _weatherViewState.value.viewState.weatherIconResource,
+                    weatherIconContentDescription = weatherIconContentDescription
+                        ?: _weatherViewState.value.viewState.weatherIconContentDescription,
+                    temperature = temp ?: _weatherViewState.value.viewState.temperature,
+                    temperatureUnit = tempUnit ?: _weatherViewState.value.viewState.temperatureUnit,
+                    windspeedUnit = windSpeedUnit
+                        ?: _weatherViewState.value.viewState.windspeedUnit,
+                    precipitationAmountUnit = precipitationAmountUnit
+                        ?: _weatherViewState.value.viewState.precipitationAmountUnit,
+                    forecast = forecastString ?: _weatherViewState.value.viewState.forecast,
+                    buttonsOnRight = buttonsOnRight
+                        ?: _weatherViewState.value.viewState.buttonsOnRight,
+                )
+            )
         }
     }
 }
