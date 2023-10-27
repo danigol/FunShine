@@ -21,7 +21,6 @@ fun MainNavHost(destination: String) {
     NavHost(navController = navController, startDestination = destination) {
         composable(WEATHER) {
             val weatherViewModel = hiltViewModel<WeatherViewModel>()
-            weatherViewModel.loading()
             weatherViewModel.updateWeatherScreen()
             WeatherScreen(
                 weatherViewModel,

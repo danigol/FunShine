@@ -240,7 +240,7 @@ fun SettingsScreen(
                 .defaultMinSize(minHeight = 96.dp)
             )
             Row(
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = if (viewState.value.weatherButtonsOnRight) Arrangement.End else Arrangement.Start,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 FsForwardButton(
