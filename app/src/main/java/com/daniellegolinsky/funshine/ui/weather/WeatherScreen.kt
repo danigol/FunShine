@@ -33,6 +33,7 @@ import com.daniellegolinsky.funshinetheme.components.FsIconWithShadow
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 import com.daniellegolinsky.funshinetheme.font.getHeadingFontStyle
 import com.daniellegolinsky.funshine.navigation.MainNavHost
+import com.daniellegolinsky.funshine.viewstates.ViewState
 
 @Composable
 fun WeatherScreen(
@@ -40,71 +41,64 @@ fun WeatherScreen(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    val viewState = viewModel.weatherViewState.collectAsState().value.viewState
+    val viewState = viewModel.weatherViewState.collectAsState().value
     val localContext = LocalContext.current
-
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .padding(32.dp) // TODO Obviously bad
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            FsIconWithShadow(
-                image = painterResource(viewState.weatherIconResource),
-                imageResourceContentDescription = stringResource(id = viewState.weatherIconContentDescription),
-            )
-        }
-        if (viewState.temperature != null) {
-            FsText(
-                text = "${viewState.temperature}${viewState.temperatureUnit}",
-                textStyle = getHeadingFontStyle(),
-                maxLines = 1
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-        FsText(
-            text = viewState.forecast,
-            textStyle = getBodyFontStyle(),
-            maxLines = 15,
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Row (
-            horizontalArrangement = if (viewState.buttonsOnRight) Arrangement.End else Arrangement.Start,
-            modifier = Modifier.fillMaxWidth()
-                ){
-            FsIconButton(
-                buttonIcon = painterResource(id = R.drawable.ic_settings_button_black),
-                buttonIconContentDescription = stringResource(id = R.string.ic_settings_button_content_description),
-                onClick = {
-                    navController.navigate(MainNavHost.SETTINGS)
+        when (viewState) {
+            is ViewState.Loading -> {
+                LoadingScreen(modifier)
+            }
+            is ViewState.Error-> {
+                ErrorScreen(
+                    viewState = viewState,
+                    navController = navController,
+                    viewModel = viewModel
+                )
+            }
+            is ViewState.Success -> {
+                WeatherComponent(viewState = viewState)
+                // Controls (TODO: Split this out too)
+                Row(
+                    horizontalArrangement = if (viewState.data.buttonsOnRight) Arrangement.End else Arrangement.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp) // TODO Make this a constant
+                ) {
+                    FsIconButton(
+                        buttonIcon = painterResource(id = R.drawable.ic_settings_button_black),
+                        buttonIconContentDescription = stringResource(id = R.string.ic_settings_button_content_description),
+                        onClick = {
+                            navController.navigate(MainNavHost.SETTINGS)
+                        }
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
+                    FsIconButton(
+                        buttonIcon = painterResource(id = R.drawable.ic_refresh_button_black),
+                        buttonIconContentDescription = stringResource(id = R.string.ic_refresh_button_content_description),
+                        onClick = {
+                            // Everything loads too fast for feedback on the refresh button tap
+                            // This will read out that it's refreshing with Toast (very high) priority
+                            val accessibilityService =
+                                localContext.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+                            val accessibilityEnabled =
+                                accessibilityService != null && accessibilityService.isEnabled
+                            if (accessibilityEnabled) {
+                                val refreshMessage =
+                                    localContext.getString(R.string.refresh_button_updating_message)
+                                Toast.makeText(localContext, refreshMessage, Toast.LENGTH_SHORT).show()
+                            }
+                            viewModel.loading()
+                            viewModel.updateWeatherScreen()
+                        }
+                    )
                 }
-            )
-            Spacer(modifier = Modifier.width(2.dp))
-            FsIconButton(
-                buttonIcon = painterResource(id = R.drawable.ic_refresh_button_black),
-                buttonIconContentDescription = stringResource(id = R.string.ic_refresh_button_content_description),
-                onClick = {
-                    // Everything loads too fast for feedback on the refresh button tap
-                    // This will read out that it's refreshing with Toast (very high) priority
-                    val accessibilityService =
-                        localContext.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
-                    val accessibilityEnabled =
-                        accessibilityService != null && accessibilityService.isEnabled
-                    if (accessibilityEnabled) {
-                        val refreshMessage =
-                            localContext.getString(R.string.refresh_button_updating_message)
-                        Toast.makeText(localContext, refreshMessage, Toast.LENGTH_SHORT).show()
-                    }
-                    viewModel.loading()
-                    viewModel.updateWeatherScreen()
-                }
-            )
+            }
         }
     }
 }

@@ -36,30 +36,22 @@ class WeatherViewModel @Inject constructor(
     private val weatherRepo: IWeatherRepo,
     private val settingsRepo: ISettingsRepo,
 ) : ViewModel() {
-    private val loadingState = WeatherScreenViewState(
-        weatherIconResource = drawable.ic_loading_black,
-        weatherIconContentDescription = R.string.wc_loading,
-        temperature = null,
-        temperatureUnit = null,
-        windspeedUnit = null,
-        precipitationAmountUnit = null,
-        forecast = resourceProvider.getString(R.string.loading),
-        buttonsOnRight = true, // TODO we could remove a lot of lag by making a null loading state
-    )
+
     private var _weatherViewState: MutableStateFlow<ViewState<WeatherScreenViewState>> =
-        MutableStateFlow(ViewState.Loading(loadingState))
+        MutableStateFlow(ViewState.Loading())
     val weatherViewState: StateFlow<ViewState<WeatherScreenViewState>> = _weatherViewState
 
     fun loading() {
         // Prevent re-composition of any views using the state
         if (_weatherViewState.value !is ViewState.Loading) {
-            _weatherViewState.value = ViewState.Loading(loadingState)
+            _weatherViewState.value = ViewState.Loading()
         }
     }
 
     fun updateWeatherScreen() {
         viewModelScope.launch {
-            val buttonsOnRight = settingsRepo.getWeatherButtonsOnRight() // TODO Split out state of side effect! Create new update function
+            val buttonsOnRight =
+                settingsRepo.getWeatherButtonsOnRight() // TODO Split out state of side effect! Create new update function
             val weatherResponse = weatherRepo.getWeather(
                 weatherRequest = WeatherRequest(
                     location = getLocation(),
@@ -98,30 +90,23 @@ class WeatherViewModel @Inject constructor(
                     )
                 }
             } else { // Error returned
-                val errorString = if (weatherResponse?.error?.errorMessage?.startsWith(WeatherRepo.API_REQUEST_ERROR) == true) {
-                    resourceProvider.getString(
-                        R.string.api_limit_error,
-                        weatherResponse?.error?.hoursLeft ?: ForecastTimestamp.HOURS_IN_DAY
-                    )
-                } else {
-                    weatherResponse?.error?.errorMessage ?: resourceProvider.getString(R.string.unknown_error)
-                }
-                _weatherViewState.value = ViewState.Error( // TODO Replace with viewstate builder
-                    WeatherScreenViewState(
-                        weatherIconResource = drawable.ic_circle_x_black,
-                        weatherIconContentDescription = R.string.wc_unknown,
-                        temperature = null,
-                        temperatureUnit = null,
-                        windspeedUnit = null,
-                        precipitationAmountUnit = null,
-                        forecast = "${
-                            resourceProvider.getString(
-                                R.string.error_message,
-                                errorString
-                            )
-                        }\n ${resourceProvider.getString(R.string.error_help)}",
-                        buttonsOnRight = buttonsOnRight,
-                    )
+                val errorString =
+                    if (weatherResponse?.error?.errorMessage?.startsWith(WeatherRepo.API_REQUEST_ERROR) == true) {
+                        resourceProvider.getString(
+                            R.string.api_limit_error,
+                            weatherResponse?.error?.hoursLeft ?: ForecastTimestamp.HOURS_IN_DAY
+                        )
+                    } else {
+                        weatherResponse?.error?.errorMessage
+                            ?: resourceProvider.getString(R.string.unknown_error)
+                    }
+                _weatherViewState.value = ViewState.Error(
+                    errorString = "${
+                        resourceProvider.getString(
+                            R.string.error_message,
+                            errorString
+                        )
+                    }\n ${resourceProvider.getString(R.string.error_help)}"
                 )
             }
         }
@@ -138,7 +123,8 @@ class WeatherViewModel @Inject constructor(
         val hourlyWeatherResponse = forecast.hourlyWeatherResponse
         val tempMaxAsInt = dailyWeatherResponse.maxTemp[0].toInt()
         val tempMinAsInt = dailyWeatherResponse.minTemp[0].toInt()
-        val hourlyPrecipitationChance = hourlyWeatherResponse.precipitationProbability[getCurrentHourIndex(hourlyWeatherResponse.precipitationProbability.size)]
+        val hourlyPrecipitationChance =
+            hourlyWeatherResponse.precipitationProbability[getCurrentHourIndex(hourlyWeatherResponse.precipitationProbability.size)]
         val dailyPrecipChance = dailyWeatherResponse.precipitationProbabilityMax[0]
         val dailyPrecipAmount: Double = dailyWeatherResponse.precipitationSum[0]
 
@@ -152,7 +138,11 @@ class WeatherViewModel @Inject constructor(
         }
 
         var weatherString =
-            "${getWeatherCodeString(currentWeatherResponse.weatherCodeInt.toWeatherCode())} ${resourceProvider.getString(R.string.currently)}.\n" // Adds an extra space
+            "${getWeatherCodeString(currentWeatherResponse.weatherCodeInt.toWeatherCode())} ${
+                resourceProvider.getString(
+                    R.string.currently
+                )
+            }.\n" // Adds an extra space
 
         humidityString?.let {
             weatherString += it
@@ -226,59 +216,6 @@ class WeatherViewModel @Inject constructor(
             lengthUnit.toString()
         } else {
             resourceProvider.getString(R.string.inch_abbreviation)
-        }
-    }
-
-    private fun getUpdatedViewState(
-        isSuccess: Boolean,
-        isLoading: Boolean = false,
-        weatherIconResource: Int? = null,
-        weatherIconContentDescription: Int? = null,
-        temp: Int? = null,
-        tempUnit: String? = null,
-        windSpeedUnit: String? = null,
-        precipitationAmountUnit: String? = null,
-        forecastString: String? = null,
-        buttonsOnRight: Boolean? = null,
-    ): ViewState<WeatherScreenViewState> {
-        return if (isLoading) {
-            ViewState.Loading(loadingState)
-        } else if (isSuccess) {
-            ViewState.Success(
-                WeatherScreenViewState(
-                    weatherIconResource = weatherIconResource
-                        ?: _weatherViewState.value.viewState.weatherIconResource,
-                    weatherIconContentDescription = weatherIconContentDescription
-                        ?: _weatherViewState.value.viewState.weatherIconContentDescription,
-                    temperature = temp ?: _weatherViewState.value.viewState.temperature,
-                    temperatureUnit = tempUnit ?: _weatherViewState.value.viewState.temperatureUnit,
-                    windspeedUnit = windSpeedUnit
-                        ?: _weatherViewState.value.viewState.windspeedUnit,
-                    precipitationAmountUnit = precipitationAmountUnit
-                        ?: _weatherViewState.value.viewState.precipitationAmountUnit,
-                    forecast = forecastString ?: _weatherViewState.value.viewState.forecast,
-                    buttonsOnRight = buttonsOnRight
-                        ?: _weatherViewState.value.viewState.buttonsOnRight,
-                )
-            )
-        } else {
-            ViewState.Error(
-                WeatherScreenViewState(
-                    weatherIconResource = weatherIconResource
-                        ?: _weatherViewState.value.viewState.weatherIconResource,
-                    weatherIconContentDescription = weatherIconContentDescription
-                        ?: _weatherViewState.value.viewState.weatherIconContentDescription,
-                    temperature = temp ?: _weatherViewState.value.viewState.temperature,
-                    temperatureUnit = tempUnit ?: _weatherViewState.value.viewState.temperatureUnit,
-                    windspeedUnit = windSpeedUnit
-                        ?: _weatherViewState.value.viewState.windspeedUnit,
-                    precipitationAmountUnit = precipitationAmountUnit
-                        ?: _weatherViewState.value.viewState.precipitationAmountUnit,
-                    forecast = forecastString ?: _weatherViewState.value.viewState.forecast,
-                    buttonsOnRight = buttonsOnRight
-                        ?: _weatherViewState.value.viewState.buttonsOnRight,
-                )
-            )
         }
     }
 }
