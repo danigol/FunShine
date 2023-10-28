@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.R
 import com.daniellegolinsky.funshine.data.ISettingsRepo
 import com.daniellegolinsky.funshine.data.IWeatherRepo
-import com.daniellegolinsky.themeresources.R.drawable
 import com.daniellegolinsky.funshine.data.WeatherRepo
 import com.daniellegolinsky.funshine.models.Forecast
 import com.daniellegolinsky.funshine.models.ForecastTimestamp
@@ -41,7 +40,7 @@ class WeatherViewModel @Inject constructor(
         MutableStateFlow(ViewState.Loading())
     val weatherViewState: StateFlow<ViewState<WeatherScreenViewState>> = _weatherViewState
 
-    fun loading() {
+    private fun loading() {
         // Prevent re-composition of any views using the state
         if (_weatherViewState.value !is ViewState.Loading) {
             _weatherViewState.value = ViewState.Loading()
@@ -49,6 +48,9 @@ class WeatherViewModel @Inject constructor(
     }
 
     fun updateWeatherScreen() {
+        // Show the loading state
+        loading()
+        // Make the request and update buttons
         viewModelScope.launch {
             val buttonsOnRight =
                 settingsRepo.getWeatherButtonsOnRight() // TODO Split out state of side effect! Create new update function

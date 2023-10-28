@@ -15,8 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.daniellegolinsky.funshine.navigation.MainNavHost
 import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
@@ -36,7 +39,9 @@ fun ErrorScreen(
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize().padding(16.dp)
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
@@ -61,4 +66,14 @@ fun ErrorScreen(
             navController.navigate(MainNavHost.SETTINGS)
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewErrorScreen() {
+    ErrorScreen(
+        viewState = ViewState.Error("This was a nasty error"),
+        navController = rememberNavController(),
+        viewModel = viewModel()
+    )
 }

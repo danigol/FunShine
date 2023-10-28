@@ -93,7 +93,6 @@ fun WeatherScreen(
                                     localContext.getString(R.string.refresh_button_updating_message)
                                 Toast.makeText(localContext, refreshMessage, Toast.LENGTH_SHORT).show()
                             }
-                            viewModel.loading()
                             viewModel.updateWeatherScreen()
                         }
                     )
