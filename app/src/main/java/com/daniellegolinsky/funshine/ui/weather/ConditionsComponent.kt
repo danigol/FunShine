@@ -32,7 +32,7 @@ fun ConditionsComponent(
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
         ) {
             FsIconWithShadow(
                 image = painterResource(weatherIconResource),
@@ -44,7 +44,6 @@ fun ConditionsComponent(
             textStyle = getHeadingFontStyle(),
             maxLines = 1
         )
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 

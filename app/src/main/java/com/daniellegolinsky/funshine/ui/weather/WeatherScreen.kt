@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -48,7 +49,6 @@ fun WeatherScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
     ) {
         when (viewState) {
             is ViewState.Loading -> {
@@ -62,7 +62,17 @@ fun WeatherScreen(
                 )
             }
             is ViewState.Success -> {
-                WeatherComponent(viewState = viewState)
+                Column(
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = modifier
+                        .verticalScroll(rememberScrollState())
+                        .weight(1f)
+                ) {
+                    // Todo decide whether or not to use large or small screen here
+                    WeatherComponent(viewState = viewState)
+//                    WeatherComponentSmall(viewState = viewState)
+                }
                 // Controls (TODO: Split this out too)
                 Row(
                     horizontalArrangement = if (viewState.data.buttonsOnRight) Arrangement.End else Arrangement.Start,
