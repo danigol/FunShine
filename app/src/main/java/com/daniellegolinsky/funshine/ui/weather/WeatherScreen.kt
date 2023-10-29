@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -35,6 +36,7 @@ import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 import com.daniellegolinsky.funshinetheme.font.getHeadingFontStyle
 import com.daniellegolinsky.funshine.navigation.MainNavHost
 import com.daniellegolinsky.funshine.viewstates.ViewState
+import kotlin.math.abs
 
 @Composable
 fun WeatherScreen(
@@ -54,13 +56,15 @@ fun WeatherScreen(
             is ViewState.Loading -> {
                 LoadingScreen(modifier)
             }
-            is ViewState.Error-> {
+
+            is ViewState.Error -> {
                 ErrorScreen(
                     viewState = viewState,
                     navController = navController,
                     viewModel = viewModel
                 )
             }
+
             is ViewState.Success -> {
                 Column(
                     verticalArrangement = Arrangement.Top,
@@ -69,9 +73,19 @@ fun WeatherScreen(
                         .verticalScroll(rememberScrollState())
                         .weight(1f)
                 ) {
-                    // Todo decide whether or not to use large or small screen here
-                    WeatherComponent(viewState = viewState)
-//                    WeatherComponentSmall(viewState = viewState)
+                    /* TODO
+                     *  May want to use foldable methods here with
+                     *      WindowInfoTracker on the containing activity
+                     *  But using recomposition from folding/unfolding to swap these out also works
+                     */
+                    val config = LocalConfiguration.current
+                    if (config.screenHeightDp < config.screenWidthDp
+                        || abs(config.screenWidthDp - config.screenHeightDp) < config.screenHeightDp / 9 // If it's pretty close to being a square
+                    ) {
+                        WeatherComponentSmall(viewState = viewState)
+                    } else {
+                        WeatherComponent(viewState = viewState)
+                    }
                 }
                 // Controls (TODO: Split this out too)
                 Row(
@@ -101,7 +115,8 @@ fun WeatherScreen(
                             if (accessibilityEnabled) {
                                 val refreshMessage =
                                     localContext.getString(R.string.refresh_button_updating_message)
-                                Toast.makeText(localContext, refreshMessage, Toast.LENGTH_SHORT).show()
+                                Toast.makeText(localContext, refreshMessage, Toast.LENGTH_SHORT)
+                                    .show()
                             }
                             viewModel.updateWeatherScreen()
                         }

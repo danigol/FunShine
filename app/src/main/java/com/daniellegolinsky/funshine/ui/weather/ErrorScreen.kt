@@ -41,11 +41,12 @@ fun ErrorScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(0.7f)
         ) {
             FsIconWithShadow(
                 image = painterResource(R.drawable.ic_circle_x_black),
@@ -65,6 +66,7 @@ fun ErrorScreen(
         FsTextButton(buttonText = stringResource(id = R.string.button_settings)) {
             navController.navigate(MainNavHost.SETTINGS)
         }
+        Spacer(modifier = Modifier.height(96.dp))
     }
 }
 
