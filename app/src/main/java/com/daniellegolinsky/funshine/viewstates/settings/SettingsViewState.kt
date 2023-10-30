@@ -9,4 +9,5 @@ data class SettingsViewState(
     val isFahrenheit: Boolean = true,
     val isMph: Boolean = true,
     val isInch: Boolean = true,
+    val weatherButtonsOnRight: Boolean = true,
 )

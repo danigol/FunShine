@@ -26,4 +26,6 @@ interface ISettingsRepo {
     suspend fun getLastForecast(): Forecast?
     suspend fun setLastRequest(weatherRequest: WeatherRequest)
     suspend fun getLastRequest(): WeatherRequest?
+    suspend fun setWeatherButtonsOnRight(isOnRight: Boolean)
+    suspend fun getWeatherButtonsOnRight(): Boolean
 }

@@ -75,4 +75,12 @@ class SettingsRepo @Inject constructor(
     override suspend fun getLastRequest(): WeatherRequest? {
         return dataStore.getLastRequest()
     }
+
+    override suspend fun setWeatherButtonsOnRight(isOnRight: Boolean) {
+        dataStore.setWeatherButtonsOnRight(isOnRight)
+    }
+
+    override suspend fun getWeatherButtonsOnRight(): Boolean {
+        return dataStore.getWeatherButtonsOnRight()
+    }
 }

@@ -35,7 +35,7 @@ class WeatherViewModelTest {
             weatherRepo = MockWeatherRepo(),
             settingsRepo = MockSettingsRepo(),
         )
-        testViewModel.loadForecast()
+        testViewModel.updateWeatherScreen()
         advanceUntilIdle()
         assert(testViewModel.weatherViewState.value is ViewState.Success)
     }
@@ -47,7 +47,7 @@ class WeatherViewModelTest {
             weatherRepo = MockWeatherRepo(failedRequest = true),
             settingsRepo = MockSettingsRepo(),
         )
-        testViewModel.loadForecast()
+        testViewModel.updateWeatherScreen()
         advanceUntilIdle()
         assert(testViewModel.weatherViewState.value is ViewState.Error)
     }
