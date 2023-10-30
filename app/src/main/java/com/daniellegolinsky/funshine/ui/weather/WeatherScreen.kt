@@ -79,8 +79,10 @@ fun WeatherScreen(
                      *  But using recomposition from folding/unfolding to swap these out also works
                      */
                     val config = LocalConfiguration.current
+                    val widthHeightRatio: Float = config.screenWidthDp.toFloat() / config.screenHeightDp.toFloat()
                     if (config.screenHeightDp < config.screenWidthDp
-                        || abs(config.screenWidthDp - config.screenHeightDp) < config.screenHeightDp / 9 // If it's pretty close to being a square
+                        || widthHeightRatio < 1.25f && widthHeightRatio > 0.75f // It's square-like
+                        || config.screenWidthDp > (config.screenHeightDp * 1.5) // It's landscape
                     ) {
                         WeatherComponentSmall(viewState = viewState)
                     } else {

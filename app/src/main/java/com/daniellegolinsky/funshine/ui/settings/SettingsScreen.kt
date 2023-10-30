@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -13,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -49,7 +46,6 @@ import com.daniellegolinsky.funshinetheme.components.FsIconButton
 import com.daniellegolinsky.funshinetheme.components.FsLocationButton
 import com.daniellegolinsky.funshinetheme.components.FsTwoStateSwitch
 import com.daniellegolinsky.funshinetheme.designelements.getBackgroundColor
-import com.daniellegolinsky.funshinetheme.font.FsTextStyle
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyleWithoutShadow
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -200,7 +196,7 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 FsText(
-                    text = stringResource(string.weather_button_location_label),
+                    text = stringResource(string.button_side_option_label),
                     textStyle = getBodyFontStyleWithoutShadow()
                 )
             }

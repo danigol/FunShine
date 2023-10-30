@@ -24,18 +24,21 @@ fun WeatherComponentSmall(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
-        modifier = modifier.padding(start = 2.dp, end = 2.dp, top = 8.dp).fillMaxWidth()
+        modifier = modifier
+            .padding(start = 0.dp, end = 2.dp, top = 8.dp, bottom = 4.dp)
+            .fillMaxWidth()
     ) {
         ConditionsComponent(
             weatherIconResource = data.weatherIconResource,
             weatherIconContentDescription = data.weatherIconContentDescription,
             temperature = data.temperature,
             temperatureUnit = data.temperatureUnit,
-            modifier = Modifier.fillMaxWidth(0.4f)
+            modifier = Modifier
+                .fillMaxWidth(0.35f)
         )
         ForecastComponent(
             forecast = data.forecast,
-            modifier = Modifier.fillMaxWidth(0.6f)
+            modifier = Modifier.fillMaxWidth(0.65f)
         )
     }
 }
