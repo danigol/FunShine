@@ -76,7 +76,7 @@ fun SettingsScreen(
     if (!hasSeenLocationWarning && !coarseLocationPermissionState.status.isGranted) {
         AlertDialog(onDismissRequest = {
             dismissLocationWarning(viewModel = viewModel)
-        } ) {
+        }) {
             Surface(
                 shape = MaterialTheme.shapes.large,
                 modifier = Modifier.fillMaxWidth()
@@ -102,7 +102,7 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.Start,
         modifier = modifier
             .fillMaxSize()
-            .padding(top = ScreenConstants.SCREEN_PADDING)
+            .padding(vertical = ScreenConstants.SCREEN_PADDING)
     ) {
         FsAppBar(
             headingText = stringResource(string.settings_heading),
@@ -112,7 +112,8 @@ fun SettingsScreen(
         // Content
         Column(
             modifier = Modifier
-                .padding(start = 32.dp, end = 32.dp) // TODO Make top dynamic
+                .padding(start = 32.dp, end = 32.dp)
+                .weight(1f)
                 .verticalScroll(rememberScrollState())
         ) {
             FsText(
@@ -127,12 +128,16 @@ fun SettingsScreen(
                     if (viewState.value.isLoadingLocation) {
                         FsIconButton(
                             buttonIcon = painterResource(R.drawable.ic_loading_black),
-                            buttonIconContentDescription = stringResource(id = string.loading)) {}
+                            buttonIconContentDescription = stringResource(id = string.loading)
+                        ) {}
                     } else {
                         FsLocationButton(modifier = Modifier.height(16.dp)) {
                             viewModel.setViewStateLocation("0.00,0.00")
                             if (coarseLocationPermissionState.status.isGranted) {
-                                viewModel.getApproximateLocation(coarseLocationPermissionState.status.isGranted, locationClient)
+                                viewModel.getApproximateLocation(
+                                    coarseLocationPermissionState.status.isGranted,
+                                    locationClient
+                                )
                             } else {
                                 // TODO May eventually be able to pull this out of view state
                                 //      only here still because it needs to be in the view, but also within a lambda
@@ -231,19 +236,27 @@ fun SettingsScreen(
                     navController.navigate(MainNavHost.WEATHER)
                 }
             }
-            Spacer(modifier = Modifier
-                .fillMaxHeight(0.75f) // TODO This doesn't really work with a scroll area
-                .defaultMinSize(minHeight = 96.dp)
+            Spacer(
+                modifier = Modifier
+                    .fillMaxHeight(0.75f) // TODO This doesn't really work with a scroll area
+                    .defaultMinSize(minHeight = 96.dp)
             )
-            Row(
-                horizontalArrangement = if (viewState.value.weatherButtonsOnRight) Arrangement.End else Arrangement.Start,
-                modifier = Modifier.fillMaxWidth()
+        }
+        Row(
+            horizontalArrangement = if (viewState.value.weatherButtonsOnRight) Arrangement.End else Arrangement.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = ScreenConstants.DOUBLE_SCREEN_PADDING,
+                    end = ScreenConstants.DOUBLE_SCREEN_PADDING,
+                    bottom = ScreenConstants.SCREEN_PADDING,
+                )
+
+        ) {
+            FsForwardButton(
+                buttonText = stringResource(id = string.settings_about)
             ) {
-                FsForwardButton(
-                    buttonText = stringResource(id = string.settings_about)
-                ) {
-                    navController.navigate(MainNavHost.ABOUT)
-                }
+                navController.navigate(MainNavHost.ABOUT)
             }
         }
     }
