@@ -7,10 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -30,13 +28,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.daniellegolinsky.themeresources.*
 import com.daniellegolinsky.funshinetheme.components.FsIconButton
-import com.daniellegolinsky.funshinetheme.components.FsText
-import com.daniellegolinsky.funshinetheme.components.FsIconWithShadow
-import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
-import com.daniellegolinsky.funshinetheme.font.getHeadingFontStyle
 import com.daniellegolinsky.funshine.navigation.MainNavHost
 import com.daniellegolinsky.funshine.viewstates.ViewState
-import kotlin.math.abs
 
 @Composable
 fun WeatherScreen(
