@@ -19,7 +19,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.daniellegolinsky.funshine.R.string
 import com.daniellegolinsky.themeresources.R
@@ -57,11 +56,13 @@ import com.google.android.gms.location.LocationServices
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
-    navController: NavController,
+    returnToWeatherScreen: () -> Unit,
+    cancelAndGoBack: () -> Unit,
+    navigateToAbout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val viewState = viewModel.settingsViewState.collectAsState()
-    val hasSeenLocationWarning = viewState.value.hasSeenLocationWarning
+    val viewState = viewModel.settingsViewState.collectAsStateWithLifecycle().value
+    val hasSeenLocationWarning = viewState.hasSeenLocationWarning
     val localContext = LocalContext.current
     val locationClient = remember {
         LocationServices.getFusedLocationProviderClient(localContext)
@@ -106,7 +107,7 @@ fun SettingsScreen(
     ) {
         FsAppBar(
             headingText = stringResource(string.settings_heading),
-            backButtonAction = { navController.navigateUp() }
+            backButtonAction = { cancelAndGoBack() }
         )
         Spacer(modifier = Modifier.height(64.dp))
         // Content
@@ -122,10 +123,10 @@ fun SettingsScreen(
                 modifier = Modifier.align(alignment = Alignment.Start)
             )
             FsTextField(
-                value = viewState.value.latLong,
+                value = viewState.latLong,
                 onValueChange = { viewModel.setViewStateLocation(it) },
                 trailingIcon = @Composable {
-                    if (viewState.value.isLoadingLocation) {
+                    if (viewState.isLoadingLocation) {
                         FsIconButton(
                             buttonIcon = painterResource(R.drawable.ic_loading_black),
                             buttonIconContentDescription = stringResource(id = string.loading)
@@ -142,8 +143,8 @@ fun SettingsScreen(
                                 // TODO May eventually be able to pull this out of view state
                                 //      only here still because it needs to be in the view, but also within a lambda
                                 //      can't just add it to the view state like the location warning dialog.
-                                if (viewState.value.hasBeenPromptedForLocationPermission) {
-                                    if (viewState.value.grantedPermissionLastTime) {
+                                if (viewState.hasBeenPromptedForLocationPermission) {
+                                    if (viewState.grantedPermissionLastTime) {
                                         coarseLocationPermissionState.launchPermissionRequest()
                                     } else {
                                         // If they denied the permission last time, we have to just
@@ -169,15 +170,15 @@ fun SettingsScreen(
                 FsTwoStateSwitch(
                     optionOneString = stringResource(id = string.option_c),
                     optionTwoString = stringResource(id = string.option_f),
-                    optionTwoSelected = viewState.value.isFahrenheit,
-                    onOptionChanged = { viewModel.setIsFahrenheit(!viewState.value.isFahrenheit) },
+                    optionTwoSelected = viewState.isFahrenheit,
+                    onOptionChanged = { viewModel.setIsFahrenheit(!viewState.isFahrenheit) },
                 )
                 Spacer(modifier = Modifier.fillMaxWidth(0.25f))
                 FsTwoStateSwitch(
                     optionOneString = stringResource(id = string.option_mm),
                     optionTwoString = stringResource(id = string.option_in),
-                    optionTwoSelected = viewState.value.isInch,
-                    onOptionChanged = { viewModel.setIsInch(!viewState.value.isInch) },
+                    optionTwoSelected = viewState.isInch,
+                    onOptionChanged = { viewModel.setIsInch(!viewState.isInch) },
                 )
             }
             Row(
@@ -187,8 +188,8 @@ fun SettingsScreen(
                 FsTwoStateSwitch(
                     optionOneString = stringResource(id = string.option_kmh),
                     optionTwoString = stringResource(id = string.option_mph),
-                    optionTwoSelected = viewState.value.isMph,
-                    onOptionChanged = { viewModel.setIsMph(!viewState.value.isMph) },
+                    optionTwoSelected = viewState.isMph,
+                    onOptionChanged = { viewModel.setIsMph(!viewState.isMph) },
                 )
             }
             // ** End Unit Options ** //
@@ -213,9 +214,9 @@ fun SettingsScreen(
                 FsTwoStateSwitch(
                     optionOneString = "Left",
                     optionTwoString = "Right",
-                    optionTwoSelected = viewState.value.weatherButtonsOnRight,
+                    optionTwoSelected = viewState.weatherButtonsOnRight,
                     onOptionChanged = {
-                        viewModel.setWeatherButtonsOnRight(!viewState.value.weatherButtonsOnRight)
+                        viewModel.setWeatherButtonsOnRight(!viewState.weatherButtonsOnRight)
                     },
                 )
             }
@@ -233,7 +234,7 @@ fun SettingsScreen(
                     // Go back to the weather screen
                     // Note: We navigate here, not using back in case of changes
                     //       or the user wants to go back and change a setting quickly
-                    navController.navigate(MainNavHost.WEATHER)
+                    returnToWeatherScreen()
                 }
             }
             Spacer(
@@ -243,7 +244,7 @@ fun SettingsScreen(
             )
         }
         Row(
-            horizontalArrangement = if (viewState.value.weatherButtonsOnRight) Arrangement.End else Arrangement.Start,
+            horizontalArrangement = if (viewState.weatherButtonsOnRight) Arrangement.End else Arrangement.Start,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -256,7 +257,7 @@ fun SettingsScreen(
             FsForwardButton(
                 buttonText = stringResource(id = string.settings_about)
             ) {
-                navController.navigate(MainNavHost.ABOUT)
+                navigateToAbout()
             }
         }
     }
@@ -267,7 +268,7 @@ fun SettingsScreen(
 fun PreviewSettingsScreen() {
     SettingsScreen(
         hiltViewModel(),
-        rememberNavController(),
+        {},{}, {},
     )
 }
 
