@@ -1,6 +1,7 @@
 package com.daniellegolinsky.funshine.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,10 +27,12 @@ fun MainNavHost(destination: String) {
 
     NavHost(navController = navController, startDestination = destination) {
         composable(WEATHER) {
-            weatherViewModel.updateWeatherScreen() // TODO Get rid of this!
+            weatherViewModel.updateWeatherScreen()
             WeatherScreen(
                 viewModel = weatherViewModel,
-                navigateToSettings = { navController.navigate(SETTINGS) }
+                navigateToSettings = {
+                    navController.navigate(SETTINGS)
+                }
             )
         }
         composable(SETTINGS) {
