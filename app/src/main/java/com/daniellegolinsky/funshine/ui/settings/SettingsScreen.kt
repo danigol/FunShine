@@ -29,14 +29,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.rememberNavController
 import com.daniellegolinsky.funshine.R.string
 import com.daniellegolinsky.themeresources.R
 import com.daniellegolinsky.funshinetheme.components.FsText
 import com.daniellegolinsky.funshinetheme.components.FsTextButton
 import com.daniellegolinsky.funshinetheme.components.FsTextField
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
-import com.daniellegolinsky.funshine.navigation.MainNavHost
 import com.daniellegolinsky.funshine.ui.ScreenConstants
 import com.daniellegolinsky.funshine.ui.info.LocationPermissionInfoDialog
 import com.daniellegolinsky.funshinetheme.components.FsAppBar
@@ -231,9 +229,6 @@ fun SettingsScreen(
                     buttonText = stringResource(id = R.string.button_save_settings)
                 ) {
                     viewModel.saveSettings()
-                    // Go back to the weather screen
-                    // Note: We navigate here, not using back in case of changes
-                    //       or the user wants to go back and change a setting quickly
                     returnToWeatherScreen()
                 }
             }

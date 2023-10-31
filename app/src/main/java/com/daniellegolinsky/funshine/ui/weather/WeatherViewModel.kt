@@ -24,6 +24,8 @@ import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -35,7 +37,6 @@ class WeatherViewModel @Inject constructor(
     private val weatherRepo: IWeatherRepo,
     private val settingsRepo: ISettingsRepo,
 ) : ViewModel() {
-
     private var _weatherViewState: MutableStateFlow<ViewState<WeatherScreenViewState>> =
         MutableStateFlow(ViewState.Loading())
     val weatherViewState: StateFlow<ViewState<WeatherScreenViewState>> = _weatherViewState

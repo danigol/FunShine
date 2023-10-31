@@ -30,7 +30,7 @@ class SettingsViewModel @Inject constructor(
     ) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val emptyState = SettingsViewState(
+    private val emptyState = SettingsViewState( // TODO Remove
         latLong = "",
         hasSeenLocationWarning = true,
         hasBeenPromptedForLocationPermission = false,

@@ -128,4 +128,12 @@ class MockWeatherSettingsDataStore(
     override suspend fun resetApiCallCount() {
         this.apiCallCount = 0
     }
+
+    override suspend fun getWeatherButtonsOnRight(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun setWeatherButtonsOnRight(isRight: Boolean) {
+        TODO("Not yet implemented")
+    }
 }
