@@ -38,10 +38,6 @@ fun WeatherScreen(
     val viewState = viewModel.weatherViewState.collectAsStateWithLifecycle().value
     val localContext = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.updateWeatherScreen()
-    }
-
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -130,6 +126,6 @@ fun WeatherScreen(
 fun PreviewWeatherScreen() {
     WeatherScreen(
         viewModel(),
-        navigateToSettings = {}
+        navigateToSettings = {},
     )
 }

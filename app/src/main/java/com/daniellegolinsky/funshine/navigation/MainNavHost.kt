@@ -27,13 +27,13 @@ fun MainNavHost(destination: String) {
 
     NavHost(navController = navController, startDestination = destination) {
         composable(WEATHER) {
-            weatherViewModel.updateWeatherScreen()
             WeatherScreen(
                 viewModel = weatherViewModel,
                 navigateToSettings = {
                     navController.navigate(SETTINGS)
-                }
+                },
             )
+            weatherViewModel.updateWeatherScreen()
         }
         composable(SETTINGS) {
             SettingsScreen(
