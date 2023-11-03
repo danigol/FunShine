@@ -17,11 +17,11 @@ import com.daniellegolinsky.funshine.ui.weather.WeatherViewModel
 @Composable
 fun MainNavHost(destination: String) {
     val navController = rememberNavController()
-    val weatherViewModel = hiltViewModel<WeatherViewModel>()
-    val settingsViewModel = hiltViewModel<SettingsViewModel>()
 
     NavHost(navController = navController, startDestination = destination) {
+
         composable(WEATHER) {
+            val weatherViewModel = hiltViewModel<WeatherViewModel>()
             WeatherScreen(
                 viewModel = weatherViewModel,
                 navigateToSettings = {
@@ -30,7 +30,9 @@ fun MainNavHost(destination: String) {
             )
             weatherViewModel.updateWeatherScreen()
         }
+
         composable(SETTINGS) {
+            val settingsViewModel = hiltViewModel<SettingsViewModel>()
             SettingsScreen(
                 viewModel = settingsViewModel,
                 returnToWeatherScreen = {
@@ -44,6 +46,7 @@ fun MainNavHost(destination: String) {
                 },
             )
         }
+
         composable(ABOUT) {
             AboutScreen(navigateUp = { navController.navigateUp() })
         }

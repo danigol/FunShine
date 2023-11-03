@@ -1,6 +1,7 @@
 package com.daniellegolinsky.funshine.ui.settings
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daniellegolinsky.funshine.data.SettingsRepo
@@ -9,6 +10,7 @@ import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
+import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
@@ -30,16 +32,11 @@ class SettingsViewModel @Inject constructor(
     ) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val emptyState = SettingsViewState( // TODO Remove
-        latLong = "",
-        hasSeenLocationWarning = true,
-        hasBeenPromptedForLocationPermission = false,
-        grantedPermissionLastTime = false,
-        isLoadingLocation = false,
-    )
-    private var _settingsViewState: MutableStateFlow<SettingsViewState> =
-        MutableStateFlow(emptyState)
-    val settingsViewState: StateFlow<SettingsViewState> = _settingsViewState
+    private val tag = "SETTINGS_VIEW_MODEL"
+
+    private var _settingsViewState: MutableStateFlow<ViewState<SettingsViewState>> =
+            MutableStateFlow(ViewState.Loading())
+    val settingsViewState: StateFlow<ViewState<SettingsViewState>> = _settingsViewState
 
     init {
         viewModelScope.launch {
@@ -146,32 +143,11 @@ class SettingsViewModel @Inject constructor(
         _settingsViewState.value = updateViewState(weatherButtonsOnRight = isOnRight)
     }
 
-    /**
-     * Get the temperature unit for the stored viewstate boolean
-     */
-    private fun getTempUnitFromViewState(): TemperatureUnit {
-        return when (_settingsViewState.value.isFahrenheit) {
-            true -> TemperatureUnit.FAHRENHEIT
-            else -> TemperatureUnit.CELSIUS
-        }
-    }
-
-    private fun getSpeedUnitFromViewState(): SpeedUnit {
-        return when (_settingsViewState.value.isMph) {
-            true -> SpeedUnit.MPH
-            else -> SpeedUnit.KMH
-        }
-    }
-
-    private fun getLengthUnitFromViewState(): LengthUnit {
-        return when (_settingsViewState.value.isInch) {
-            true -> LengthUnit.INCH
-            else -> LengthUnit.MILLIMETER
-        }
-    }
-
     fun saveSettings() {
-        saveStateToDatastore(this._settingsViewState.value)
+        val settingsViewState = this._settingsViewState.value
+        if (settingsViewState is ViewState.Success<SettingsViewState>) {
+            saveStateToDatastore(settingsViewState)
+        }
     }
 
     fun getIoDispatcher(): CoroutineDispatcher {
@@ -249,18 +225,81 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    private fun saveStateToDatastore(viewState: SettingsViewState) {
+    private fun getViewStateLocation(): String {
+        return try {
+            (_settingsViewState.value as ViewState.Success).data.latLong
+        } catch(e: Exception) {
+            Log.e(tag, "Lat/Lng accessed with non-success view state")
+            "0.0,0.0"
+        }
+    }
+
+    private fun getViewStateLocationWarning(): Boolean {
+        return try {
+            (_settingsViewState.value as ViewState.Success).data.hasSeenLocationWarning
+        } catch(e: Exception) {
+            Log.e(tag, "Has seen location warning accessed with non-success view state")
+            false
+        }
+    }
+
+    private fun getViewStatePromptedForLocationPermission(): Boolean {
+        return try {
+            (_settingsViewState.value as ViewState.Success).data.hasBeenPromptedForLocationPermission
+        } catch(e: Exception) {
+            Log.e(tag, "Has been prompted for location accessed with non-success view state")
+            false
+        }
+    }
+
+    private fun getViewStateIsFahrenheit(): Boolean {
+        return try {
+            (_settingsViewState.value as ViewState.Success).data.isFahrenheit
+        } catch(e: Exception) {
+            Log.e(tag, "Is Fahrenheit accessed with non-success view state")
+            false
+        }
+    }
+
+    private fun getViewStateIsMph(): Boolean {
+        return try {
+            (_settingsViewState.value as ViewState.Success).data.isMph
+        } catch(e: Exception) {
+            Log.e(tag, "Is MPH accessed with non-success view state")
+            false
+        }
+    }
+
+    private fun getViewStateIsInch(): Boolean {
+        return try {
+            (_settingsViewState.value as ViewState.Success).data.isInch
+        } catch(e: Exception) {
+            Log.e(tag, "Is Inch accessed with non-success view state")
+            false
+        }
+    }
+
+    private fun getViewStateButtonsOnRight(): Boolean {
+        return try {
+            (_settingsViewState.value as ViewState.Success).data.weatherButtonsOnRight
+        } catch(e: Exception) {
+            Log.e(tag, "Weather button location accessed with non-success view state")
+            false
+        }
+    }
+
+    private fun saveStateToDatastore(viewState: ViewState.Success<SettingsViewState>) {
         viewModelScope.launch {
-            val location = generateLocationFromString(viewState.latLong)
+            val location = generateLocationFromString(viewState.data.latLong)
             if (isValidLocation(location)) {
                 settingsRepo.setLocation(location.latitude, location.longitude)
             }
-            settingsRepo.setHasSeenLocationWarning(viewState.hasSeenLocationWarning)
-            settingsRepo.setHasBeenPromptedForLocationPermission(viewState.hasBeenPromptedForLocationPermission)
-            settingsRepo.setTemperatureUnit(viewState.isFahrenheit)
-            settingsRepo.setLengthUnit(viewState.isInch)
-            settingsRepo.setSpeedUnit(viewState.isMph)
-            settingsRepo.setWeatherButtonsOnRight(viewState.weatherButtonsOnRight)
+            settingsRepo.setHasSeenLocationWarning(viewState.data.hasSeenLocationWarning)
+            settingsRepo.setHasBeenPromptedForLocationPermission(viewState.data.hasBeenPromptedForLocationPermission)
+            settingsRepo.setTemperatureUnit(viewState.data.isFahrenheit)
+            settingsRepo.setLengthUnit(viewState.data.isInch)
+            settingsRepo.setSpeedUnit(viewState.data.isMph)
+            settingsRepo.setWeatherButtonsOnRight(viewState.data.weatherButtonsOnRight)
         }
     }
 
@@ -278,19 +317,20 @@ class SettingsViewModel @Inject constructor(
         isMph: Boolean? = null,
         isInch: Boolean? = null,
         weatherButtonsOnRight: Boolean? = null,
-    ): SettingsViewState {
-        return SettingsViewState(
-            latLong = location ?: _settingsViewState.value.latLong,
-            hasSeenLocationWarning = hasSeenLocationWarning
-                ?: _settingsViewState.value.hasSeenLocationWarning,
-            hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission
-                ?: _settingsViewState.value.hasBeenPromptedForLocationPermission,
-            grantedPermissionLastTime = grantedPermissionInPast ?: false,
-            isLoadingLocation = isLoadingLocation ?: false,
-            isFahrenheit = isFahrenheit ?: _settingsViewState.value.isFahrenheit,
-            isMph = isMph ?: _settingsViewState.value.isMph,
-            isInch = isInch ?: _settingsViewState.value.isInch,
-            weatherButtonsOnRight = weatherButtonsOnRight ?: _settingsViewState.value.weatherButtonsOnRight,
+    ): ViewState.Success<SettingsViewState> {
+        return ViewState.Success(
+            SettingsViewState(
+                latLong = location ?: getViewStateLocation(),
+                hasSeenLocationWarning = hasSeenLocationWarning ?: getViewStateLocationWarning(),
+                hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission
+                    ?: getViewStatePromptedForLocationPermission(),
+                grantedPermissionLastTime = grantedPermissionInPast ?: false,
+                isLoadingLocation = isLoadingLocation ?: false,
+                isFahrenheit = isFahrenheit ?: getViewStateIsFahrenheit(),
+                isMph = isMph ?: getViewStateIsMph(),
+                isInch = isInch ?: getViewStateIsInch(),
+                weatherButtonsOnRight = weatherButtonsOnRight ?: getViewStateButtonsOnRight(),
+            )
         )
     }
 
@@ -303,16 +343,18 @@ class SettingsViewModel @Inject constructor(
         isMph: Boolean,
         isInch: Boolean,
         weatherButtonsOnRight: Boolean,
-    ): SettingsViewState {
-        return SettingsViewState(
-            latLong = "${location.latitude}, ${location.longitude}",
-            hasSeenLocationWarning = hasSeenLocationWarning,
-            hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission,
-            grantedPermissionLastTime = grantedPermissionInPast,
-            isFahrenheit = isFahrenheit,
-            isMph = isMph,
-            isInch = isInch,
-            weatherButtonsOnRight = weatherButtonsOnRight,
+    ): ViewState.Success<SettingsViewState> {
+        return ViewState.Success(
+            SettingsViewState(
+                latLong = "${location.latitude}, ${location.longitude}",
+                hasSeenLocationWarning = hasSeenLocationWarning,
+                hasBeenPromptedForLocationPermission = hasBeenPromptedForLocationPermission,
+                grantedPermissionLastTime = grantedPermissionInPast,
+                isFahrenheit = isFahrenheit,
+                isMph = isMph,
+                isInch = isInch,
+                weatherButtonsOnRight = weatherButtonsOnRight,
+            )
         )
     }
 }
