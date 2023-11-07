@@ -106,10 +106,16 @@ class WeatherViewModel @Inject constructor(
     private fun getErrorStringFromError(error: ForecastError?): String {
         return if (error != null) {
             if (error.errorMessage?.startsWith(WeatherRepo.API_REQUEST_ERROR) == true) {
-                val hoursLeft = if (error.hoursLeft > 0) {
+                var hoursLeft = if (error.hoursLeft > 0) {
                     error?.hoursLeft
                 } else {
                     ForecastTimestamp.HOURS_IN_DAY
+                }
+
+                // This should be impossible, but... TODO Remove after debugging?
+                if (hoursLeft > 24) {
+                    Log.e("HOURS_LEFT_BUG", "Hours left was: $hoursLeft")
+                    hoursLeft = 25 // Will signal to the user (me) it reached this weird spot
                 }
 
                 resourceProvider.getString(
