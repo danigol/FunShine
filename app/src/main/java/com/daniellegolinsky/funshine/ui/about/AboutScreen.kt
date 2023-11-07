@@ -18,7 +18,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.daniellegolinsky.funshine.R
 import com.daniellegolinsky.funshine.ui.ScreenConstants
@@ -29,7 +28,7 @@ import com.daniellegolinsky.funshinetheme.font.getHeadingFontStyle
 
 @Composable
 fun AboutScreen(
-    navController: NavController,
+    navigateUp: () -> Unit,
     modifier: Modifier = Modifier
 ){
     val uriHandler = LocalUriHandler.current
@@ -48,7 +47,7 @@ fun AboutScreen(
         FsAppBar(
             headingText = stringResource(id = R.string.settings_about)
         ) {
-            navController.navigateUp()
+            navigateUp()
         }
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -90,5 +89,5 @@ fun AboutScreen(
 @Preview
 @Composable
 fun PreviewAboutScreen() {
-    AboutScreen(navController = rememberNavController())
+    AboutScreen({})
 }

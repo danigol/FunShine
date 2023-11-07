@@ -32,7 +32,7 @@ import com.daniellegolinsky.themeresources.R
 @Composable
 fun ErrorScreen(
     viewState: ViewState.Error<WeatherScreenViewState>,
-    navController: NavController,
+    navigateToSettings: () -> Unit,
     viewModel: WeatherViewModel, // TODO Only necessary for now, ViewEvents in View States coming...
     modifier: Modifier = Modifier,
 ) {
@@ -64,7 +64,7 @@ fun ErrorScreen(
         }
         Spacer(modifier = Modifier.height(16.dp))
         FsTextButton(buttonText = stringResource(id = R.string.button_settings)) {
-            navController.navigate(MainNavHost.SETTINGS)
+            navigateToSettings()
         }
         Spacer(modifier = Modifier.height(96.dp))
     }
@@ -75,7 +75,7 @@ fun ErrorScreen(
 fun PreviewErrorScreen() {
     ErrorScreen(
         viewState = ViewState.Error("This was a nasty error"),
-        navController = rememberNavController(),
+        navigateToSettings = {},
         viewModel = viewModel()
     )
 }

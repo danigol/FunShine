@@ -35,16 +35,12 @@ class WeatherViewModel @Inject constructor(
     private val weatherRepo: IWeatherRepo,
     private val settingsRepo: ISettingsRepo,
 ) : ViewModel() {
-
     private var _weatherViewState: MutableStateFlow<ViewState<WeatherScreenViewState>> =
         MutableStateFlow(ViewState.Loading())
     val weatherViewState: StateFlow<ViewState<WeatherScreenViewState>> = _weatherViewState
 
     private fun loading() {
-        // Prevent re-composition of any views using the state
-        if (_weatherViewState.value !is ViewState.Loading) {
-            _weatherViewState.value = ViewState.Loading()
-        }
+        _weatherViewState.value = ViewState.Loading()
     }
 
     fun updateWeatherScreen() {

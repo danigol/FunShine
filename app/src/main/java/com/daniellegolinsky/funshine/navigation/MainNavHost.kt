@@ -19,23 +19,36 @@ fun MainNavHost(destination: String) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = destination) {
+
         composable(WEATHER) {
             val weatherViewModel = hiltViewModel<WeatherViewModel>()
-            weatherViewModel.updateWeatherScreen()
             WeatherScreen(
-                weatherViewModel,
-                navController
+                viewModel = weatherViewModel,
+                navigateToSettings = {
+                    navController.navigate(SETTINGS)
+                },
             )
+            weatherViewModel.updateWeatherScreen()
         }
+
         composable(SETTINGS) {
             val settingsViewModel = hiltViewModel<SettingsViewModel>()
             SettingsScreen(
-                settingsViewModel,
-                navController
+                viewModel = settingsViewModel,
+                returnToWeatherScreen = {
+                    navController.navigate(WEATHER)
+                },
+                cancelAndGoBack  = {
+                    navController.navigateUp()
+                },
+                navigateToAbout = {
+                    navController.navigate(ABOUT)
+                },
             )
         }
+
         composable(ABOUT) {
-            AboutScreen(navController = navController)
+            AboutScreen(navigateUp = { navController.navigateUp() })
         }
     }
 }
@@ -45,3 +58,4 @@ object MainNavHost {
     const val SETTINGS = "settings"
     const val ABOUT = "about"
 }
+

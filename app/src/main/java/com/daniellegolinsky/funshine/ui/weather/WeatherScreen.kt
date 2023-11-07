@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -23,22 +22,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.daniellegolinsky.themeresources.*
 import com.daniellegolinsky.funshinetheme.components.FsIconButton
-import com.daniellegolinsky.funshine.navigation.MainNavHost
 import com.daniellegolinsky.funshine.viewstates.ViewState
 
 @Composable
 fun WeatherScreen(
     viewModel: WeatherViewModel,
-    navController: NavController,
+    navigateToSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val viewState = viewModel.weatherViewState.collectAsState().value
+    val viewState = viewModel.weatherViewState.collectAsStateWithLifecycle().value
     val localContext = LocalContext.current
+
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -53,7 +51,7 @@ fun WeatherScreen(
             is ViewState.Error -> {
                 ErrorScreen(
                     viewState = viewState,
-                    navController = navController,
+                    navigateToSettings = navigateToSettings,
                     viewModel = viewModel
                 )
             }
@@ -93,7 +91,7 @@ fun WeatherScreen(
                         buttonIcon = painterResource(id = R.drawable.ic_settings_button_black),
                         buttonIconContentDescription = stringResource(id = R.string.ic_settings_button_content_description),
                         onClick = {
-                            navController.navigate(MainNavHost.SETTINGS)
+                            navigateToSettings()
                         }
                     )
                     Spacer(modifier = Modifier.width(2.dp))
@@ -127,6 +125,6 @@ fun WeatherScreen(
 fun PreviewWeatherScreen() {
     WeatherScreen(
         viewModel(),
-        rememberNavController()
+        navigateToSettings = {},
     )
 }
