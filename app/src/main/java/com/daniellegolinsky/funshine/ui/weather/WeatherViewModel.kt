@@ -90,14 +90,20 @@ class WeatherViewModel @Inject constructor(
             } else { // Error returned
                 val errorString =
                     if (weatherResponse?.error?.errorMessage?.startsWith(WeatherRepo.API_REQUEST_ERROR) == true) {
+                        val hoursLeft = if (weatherResponse?.error?.hoursLeft ?: -1 > 0) {
+                            weatherResponse?.error?.hoursLeft
+                        } else {
+                            ForecastTimestamp.HOURS_IN_DAY
+                        }
                         resourceProvider.getString(
                             R.string.api_limit_error,
-                            weatherResponse?.error?.hoursLeft ?: ForecastTimestamp.HOURS_IN_DAY
+                            hoursLeft
                         )
                     } else {
                         weatherResponse?.error?.errorMessage
                             ?: resourceProvider.getString(R.string.unknown_error)
                     }
+
                 _weatherViewState.value = ViewState.Error(
                     errorString = "${
                         resourceProvider.getString(
