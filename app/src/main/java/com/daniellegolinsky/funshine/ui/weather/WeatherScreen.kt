@@ -52,7 +52,7 @@ fun WeatherScreen(
                 ErrorScreen(
                     viewState = viewState,
                     navigateToSettings = navigateToSettings,
-                    viewModel = viewModel
+                    updateWeatherScreen = { viewModel.updateWeatherScreen() }
                 )
             }
 

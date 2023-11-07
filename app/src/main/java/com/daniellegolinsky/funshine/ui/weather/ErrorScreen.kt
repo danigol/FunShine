@@ -33,7 +33,7 @@ import com.daniellegolinsky.themeresources.R
 fun ErrorScreen(
     viewState: ViewState.Error<WeatherScreenViewState>,
     navigateToSettings: () -> Unit,
-    viewModel: WeatherViewModel, // TODO Only necessary for now, ViewEvents in View States coming...
+    updateWeatherScreen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -60,7 +60,7 @@ fun ErrorScreen(
         )
         Spacer(modifier = Modifier.height(32.dp))
         FsTextButton(buttonText = stringResource(id = R.string.button_retry)) {
-            viewModel.updateWeatherScreen()
+            updateWeatherScreen()
         }
         Spacer(modifier = Modifier.height(16.dp))
         FsTextButton(buttonText = stringResource(id = R.string.button_settings)) {
@@ -76,6 +76,6 @@ fun PreviewErrorScreen() {
     ErrorScreen(
         viewState = ViewState.Error("This was a nasty error"),
         navigateToSettings = {},
-        viewModel = viewModel()
+        updateWeatherScreen = {},
     )
 }
