@@ -123,7 +123,7 @@ fun SettingsScreen(
                     headingText = stringResource(string.settings_heading),
                     backButtonAction = { cancelAndGoBack() }
                 )
-                Spacer(modifier = Modifier.height(64.dp))
+                Spacer(modifier = Modifier.height(32.dp))
                 // Content
                 Column(
                     modifier = Modifier
