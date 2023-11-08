@@ -1,5 +1,6 @@
 package com.daniellegolinsky.funshine.data
 
+import android.util.Log
 import com.daniellegolinsky.funshine.datastore.IWeatherSettingsDataStore
 import com.daniellegolinsky.funshine.models.ForecastTimestamp
 import com.daniellegolinsky.funshine.models.hoursBetween
@@ -10,7 +11,9 @@ class ApiRequestLimiter @Inject constructor(
 ) : IApiRequestLimiter {
 
     companion object{
-        const val MAX_DAILY_REQUESTS = 20
+        // Increased to 1/hour for current install base
+        // Enables all-day usage too, for now.
+        const val MAX_DAILY_REQUESTS = 24
     }
 
     override suspend fun incrementApiCallCounter() {
@@ -42,10 +45,16 @@ class ApiRequestLimiter @Inject constructor(
      * Mostly used for error messaging, passes on the number of hours until the next reset
      */
     override suspend fun hoursLeft(): Int {
-        val storedTimestamp = dataStore.getApiTimestamp()?.tomorrow()
+        val storedFutureDate = dataStore.getApiTimestamp()?.tomorrow()
             ?: ForecastTimestamp.getCurrentTimestamp().tomorrow() // Fudge response to 24 hours if null
         val now = ForecastTimestamp.getCurrentTimestamp()
-        return now.hoursBetween(storedTimestamp)
+        var hoursBetween = now.hoursBetween(storedFutureDate)
+        // In the rare chance of issue, force it to 1 day
+        if (hoursBetween > 24) {
+            Log.e("HOURS_LEFT_BUG", "Hours left in hoursLeft() method was: $hoursBetween")
+            hoursBetween = ForecastTimestamp.HOURS_IN_DAY
+        }
+        return hoursBetween
     }
 
     /**
