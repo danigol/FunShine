@@ -70,7 +70,7 @@ class ApiRequestLimiter @Inject constructor(
         val currentTimestamp = ForecastTimestamp.getCurrentTimestamp()
         var aDayHasPassed = true
         storedTimestamp?.let{
-            aDayHasPassed = it.hoursBetween(currentTimestamp) > ForecastTimestamp.HOURS_IN_DAY
+            aDayHasPassed = it.hoursBetween(currentTimestamp) >= ForecastTimestamp.HOURS_IN_DAY
         }
         return aDayHasPassed
     }
