@@ -14,6 +14,7 @@ import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.WeatherCode
+import com.daniellegolinsky.funshine.models.api.ForecastError
 import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import com.daniellegolinsky.funshine.models.getIconResource
 import com.daniellegolinsky.funshine.models.getResourceStringForWeatherCode
@@ -88,25 +89,44 @@ class WeatherViewModel @Inject constructor(
                     )
                 }
             } else { // Error returned
-                val errorString =
-                    if (weatherResponse?.error?.errorMessage?.startsWith(WeatherRepo.API_REQUEST_ERROR) == true) {
-                        resourceProvider.getString(
-                            R.string.api_limit_error,
-                            weatherResponse?.error?.hoursLeft ?: ForecastTimestamp.HOURS_IN_DAY
-                        )
-                    } else {
-                        weatherResponse?.error?.errorMessage
-                            ?: resourceProvider.getString(R.string.unknown_error)
-                    }
+                val errorDetails = getErrorStringFromError(weatherResponse?.error)
+
                 _weatherViewState.value = ViewState.Error(
                     errorString = "${
                         resourceProvider.getString(
                             R.string.error_message,
-                            errorString
+                            errorDetails
                         )
                     }\n ${resourceProvider.getString(R.string.error_help)}"
                 )
             }
+        }
+    }
+
+    private fun getErrorStringFromError(error: ForecastError?): String {
+        return if (error != null) {
+            if (error.errorMessage?.startsWith(WeatherRepo.API_REQUEST_ERROR) == true) {
+                var hoursLeft = if (error.hoursLeft > 0) {
+                    error?.hoursLeft
+                } else {
+                    ForecastTimestamp.HOURS_IN_DAY
+                }
+
+                // This should be impossible, but... TODO Remove after debugging?
+                if (hoursLeft > 24) {
+                    Log.e("HOURS_LEFT_BUG", "Hours left was: $hoursLeft")
+                    hoursLeft = 25 // Will signal to the user (me) it reached this weird spot
+                }
+
+                resourceProvider.getString(
+                    R.string.api_limit_error,
+                    hoursLeft
+                )
+            } else {
+                resourceProvider.getString(R.string.unknown_error)
+            }
+        } else {
+            resourceProvider.getString(R.string.unknown_error)
         }
     }
 

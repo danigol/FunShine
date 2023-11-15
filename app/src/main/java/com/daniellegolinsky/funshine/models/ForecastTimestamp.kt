@@ -32,9 +32,19 @@ data class ForecastTimestamp(
         }
     }
     fun tomorrow(): ForecastTimestamp {
+        val daysInYear = if (year % 4 == 0) 366 else 365
+        var newDay: Int
+        var newYear: Int
+        if (this.day + 1 > daysInYear) {
+            newDay = 0
+            newYear = this.year + 1
+        } else {
+            newDay = this.day + 1
+            newYear = this.year
+        }
         return ForecastTimestamp(
-            year = this.year,
-            day = this.day + 1,
+            year = newYear,
+            day = newDay,
             hour = this.hour
         )
     }
