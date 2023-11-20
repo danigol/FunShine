@@ -10,7 +10,10 @@ import com.daniellegolinsky.funshine.models.api.ForecastError
 import com.daniellegolinsky.funshine.models.api.HourlyWeatherResponse
 import com.daniellegolinsky.funshine.models.api.WeatherRequest
 
-class MockWeatherRepo(private val failedRequest: Boolean = false): IWeatherRepo {
+class MockWeatherRepo(
+    private val failedRequest: Boolean = false,
+    private val mustDoRequest: Boolean = false,
+    ): IWeatherRepo {
 
     private val mockForecast: Forecast = Forecast(
         timeCreated = ForecastTimestamp.getCurrentTimestamp(),
@@ -35,10 +38,25 @@ class MockWeatherRepo(private val failedRequest: Boolean = false): IWeatherRepo 
         ),
     )
 
-    override suspend fun getWeather(
+    override suspend fun getAndCacheWeather(
         weatherRequest: WeatherRequest,
         forceUpdate: Boolean
     ): ResponseOrError<Forecast, ForecastError> {
+        return if (!failedRequest) {
+            ResponseOrError(isSuccess = true, data = mockForecast, error = null)
+        } else {
+            ResponseOrError(isSuccess = false, data = null, error = null) // TODO, make an error too?
+        }
+    }
+
+    override suspend fun requiresApiRequest(
+        weatherRequest: WeatherRequest,
+        forceUpdate: Boolean
+    ): Boolean {
+        return mustDoRequest
+    }
+
+    override suspend fun getCachedWeather(): ResponseOrError<Forecast, ForecastError>? {
         return if (!failedRequest) {
             ResponseOrError(isSuccess = true, data = mockForecast, error = null)
         } else {
