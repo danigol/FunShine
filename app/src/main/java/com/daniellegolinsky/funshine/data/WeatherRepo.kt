@@ -9,6 +9,7 @@ import com.daniellegolinsky.funshine.models.ResponseOrError
 import com.daniellegolinsky.funshine.models.WeatherCode
 import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
+import com.daniellegolinsky.funshine.models.hoursBetween
 import com.daniellegolinsky.funshine.models.toWeatherCode
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -32,68 +33,73 @@ class WeatherRepo @Inject constructor(
     private var repoCachedWeatherResponse: ResponseOrError<Forecast, ForecastError>? = null
     private var repoCachedWeatherRequest: WeatherRequest? = null
 
-    override suspend fun getWeather(
+    /**
+     * Returns true if we need to do a new API request. Reasons to do a new API request:
+     * - The requester is forcing it with `forceUpdate`
+     * - There is no cached response in memory or in the dataStore
+     * - The cached response in memory is older than an hour
+     * - The cached response is a failure/error
+     * - The new request is different than the one that generated the cached response
+     */
+    override suspend fun requiresApiRequest(
         weatherRequest: WeatherRequest,
         forceUpdate: Boolean,
+    ): Boolean {
+        weatherMutex.withLock {
+            return if (forceUpdate) {
+                true
+            } else {
+                // Ensure our local response is up to date
+                updateLocalResponseCache()
+
+                // If a cached response is over an hour old, we have to perform a new request
+                // If there is no request, it'll default to true as well
+                val hoursBetween = repoCachedWeatherResponse?.data?.timeCreated?.hoursBetween(ForecastTimestamp.getCurrentTimestamp()) ?: 24
+
+                repoCachedWeatherResponse == null // No last request, need to make one
+                        || repoCachedWeatherResponse?.isSuccess != true // Last request failed, need to retry
+                        || hoursBetween >= 1 // Last request is old, need to refresh
+                        || repoCachedWeatherRequest != null && repoCachedWeatherRequest != weatherRequest // Requests don't match, need to refresh
+            }
+        }
+    }
+
+    /**
+     * Returns whatever response or error is currently cached locally
+     */
+    override suspend fun getCachedWeather(): ResponseOrError<Forecast, ForecastError>? {
+        weatherMutex.withLock {
+            // Ensure we have the latest possible response
+            updateLocalResponseCache()
+            // Return it (can be null)
+            return repoCachedWeatherResponse
+        }
+    }
+
+    override suspend fun getAndCacheWeather(
+        weatherRequest: WeatherRequest,
+        forceUpdate: Boolean, // TODO Eventally remove once logic is moved to requiresApiRequest
     ): ResponseOrError<Forecast, ForecastError> {
         // Reset the API limiter if necessary
         weatherMutex.withLock {
-            var alwaysDoRequest = forceUpdate
             apiRequestLimiter.resetApiCallCounterAndTimestampIfValid()
-
-            // If any parameters changed with the request, we MUST do a new request
-            if (repoCachedWeatherRequest == null) {
-                // Try to see if it's in the data store already
-                repoCachedWeatherRequest = settingsRepo.getLastRequest()
-            }
-            // If it's not in the data store, we need to load it
-            if (repoCachedWeatherRequest != null && weatherRequest != repoCachedWeatherRequest) {
-                alwaysDoRequest = true
-            }
-            // Check if there is a stored version of the forecast before testing any cached weather
-            if (!alwaysDoRequest && repoCachedWeather == null) {
-                repoCachedWeather = settingsRepo.getLastForecast()
-                if (repoCachedWeather != null) {
-                    // A response was cached on disk, but not yet in memory
-                    // Only cache successful forecast in repoCachedWeather
-                    // NOTE: We could force a refresh here if the last request had a bad weather code,
-                    //       however, that could spam the service in a DDOS if it's broken.
-                    cacheSuccessfulForecast(
-                        saveToSettings = false,
-                        forecastToCache = repoCachedWeather!!,
-                        requestForForecast = weatherRequest
-                    )
-                    // Build out the cached return response
-                    repoCachedWeatherResponse = ResponseOrError(
-                        isSuccess = true,
-                        data = repoCachedWeather,
-                        error = null
-                    )
-                }
-            }
-
             // Only perform API actions if under the daily limit
             if (apiRequestLimiter.canMakeRequest()) {
-                if (alwaysDoRequest
-                    || repoCachedWeather == null
-                    || repoCachedWeather?.timeCreated != getCurrentForecastTimestamp()
-                ) {
-                    // Do the request and cache the response locally
-                    repoCachedWeatherResponse = makeApiRequest(
-                        requestLatitude = weatherRequest.location.latitude,
-                        requestLongitude = weatherRequest.location.longitude,
-                        requestTempUnit = weatherRequest.tempUnit.toString(),
-                        requestSpeedUnit = weatherRequest.speedUnit.toString(),
-                        requestLengthUnit = weatherRequest.lengthUnit.toString(),
+                // Do the request and cache the response locally
+                repoCachedWeatherResponse = makeApiRequest(
+                    requestLatitude = weatherRequest.location.latitude,
+                    requestLongitude = weatherRequest.location.longitude,
+                    requestTempUnit = weatherRequest.tempUnit.toString(),
+                    requestSpeedUnit = weatherRequest.speedUnit.toString(),
+                    requestLengthUnit = weatherRequest.lengthUnit.toString(),
+                )
+                // Only cache successful forecast in repoCachedWeather
+                if (repoCachedWeatherResponse?.isSuccess == true) {
+                    cacheSuccessfulForecast(
+                        saveToSettings = true,
+                        forecastToCache = repoCachedWeatherResponse!!.data!!,
+                        requestForForecast = weatherRequest
                     )
-                    // Only cache successful forecast in repoCachedWeather
-                    if (repoCachedWeatherResponse?.isSuccess == true) {
-                        cacheSuccessfulForecast(
-                            saveToSettings = true,
-                            forecastToCache = repoCachedWeatherResponse!!.data!!,
-                            requestForForecast = weatherRequest
-                        )
-                    }
                 }
             } else { // Cannot make API request, too many within a 24 hour period
                 // TODO Consider making this a popup and instead showing cached data
@@ -159,6 +165,24 @@ class WeatherRepo @Inject constructor(
         if (saveToSettings) {
             this.settingsRepo.setLastForecast(this.repoCachedWeather!!)
             this.settingsRepo.setLastRequest(this.repoCachedWeatherRequest!!)
+        }
+    }
+
+    /**
+     * If the in-memory cache is null, update it
+     */
+    private suspend fun updateLocalResponseCache() {
+        if (this.repoCachedWeatherResponse == null && this.repoCachedWeather == null) {
+            val dataStoreForecast = settingsRepo.getLastForecast()
+            val dataStoreRequest = settingsRepo.getLastRequest()
+            if (dataStoreForecast != null && dataStoreRequest != null) {
+                // We only cache successful requests and responses, so we can assume it here
+                cacheSuccessfulForecast(
+                    saveToSettings = false,
+                    forecastToCache = dataStoreForecast,
+                    requestForForecast = dataStoreRequest,
+                )
+            }
         }
     }
 }

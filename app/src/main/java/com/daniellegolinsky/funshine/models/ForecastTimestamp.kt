@@ -31,6 +31,7 @@ data class ForecastTimestamp(
             false
         }
     }
+
     fun tomorrow(): ForecastTimestamp {
         val daysInYear = if (year % 4 == 0) 366 else 365
         var newDay: Int
