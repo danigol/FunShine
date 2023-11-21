@@ -10,12 +10,12 @@ import org.junit.Test
 
 class ApiRequestLimiterTest {
 
-    val mockDataStore = MockWeatherSettingsDataStore()
-    val apiRequestLimiter = ApiRequestLimiter(dataStore = mockDataStore)
+    private val mockDataStore = MockWeatherSettingsDataStore()
+    private val apiRequestLimiter = ApiRequestLimiter(dataStore = mockDataStore)
 
     @Test
     fun shouldBlockNewCalls() = runTest {
-        mockDataStore.setApiCallCount(20)
+        mockDataStore.setApiCallCount(ApiRequestLimiter.MAX_DAILY_REQUESTS)
         mockDataStore.setNewApiTimestamp(ForecastTimestamp.getCurrentTimestamp())
         assertFalse(apiRequestLimiter.canMakeRequest())
     }
@@ -31,7 +31,7 @@ class ApiRequestLimiterTest {
     fun atApiLimitButOlderThanOneDay() = runTest {
         val today = ForecastTimestamp.getCurrentTimestamp()
         val yesterday = today.copy(day = today.day - 1, hour = today.hour - 1)
-        mockDataStore.setApiCallCount(20)
+        mockDataStore.setApiCallCount(ApiRequestLimiter.MAX_DAILY_REQUESTS)
         mockDataStore.setNewApiTimestamp(yesterday)
         // First make sure that, without reset, this fails
         assertFalse(apiRequestLimiter.canMakeRequest())
@@ -43,7 +43,7 @@ class ApiRequestLimiterTest {
     @Test
     fun testApiLimitDoesNotGetResetForToday() = runTest {
         val today = ForecastTimestamp.getCurrentTimestamp()
-        mockDataStore.setApiCallCount(20)
+        mockDataStore.setApiCallCount(ApiRequestLimiter.MAX_DAILY_REQUESTS)
         mockDataStore.setNewApiTimestamp(today)
         // Should not be able to reset because timestamp is from today
         apiRequestLimiter.resetApiCallCounterAndTimestampIfValid()

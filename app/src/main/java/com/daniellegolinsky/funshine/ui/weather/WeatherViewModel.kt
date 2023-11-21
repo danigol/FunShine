@@ -11,6 +11,7 @@ import com.daniellegolinsky.funshine.models.Forecast
 import com.daniellegolinsky.funshine.models.ForecastTimestamp
 import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
+import com.daniellegolinsky.funshine.models.ResponseOrError
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.models.WeatherCode
@@ -45,21 +46,33 @@ class WeatherViewModel @Inject constructor(
     }
 
     fun updateWeatherScreen() {
-        // Show the loading state
-        loading()
         // Make the request and update buttons
         viewModelScope.launch {
             val buttonsOnRight =
                 settingsRepo.getWeatherButtonsOnRight() // TODO Split out state of side effect! Create new update function
-            val weatherResponse = weatherRepo.getWeather(
-                weatherRequest = WeatherRequest(
-                    location = getLocation(),
-                    tempUnit = getTemperatureUnit(),
-                    speedUnit = getSpeedUnit(),
-                    lengthUnit = getLengthUnit(),
-                ),
-                forceUpdate = false,
+            val weatherRequest = WeatherRequest(
+                location = getLocation(),
+                tempUnit = getTemperatureUnit(),
+                speedUnit = getSpeedUnit(),
+                lengthUnit = getLengthUnit(),
             )
+            val weatherResponse = if (weatherRepo.requiresApiRequest(weatherRequest)) {
+                // Show the loading state
+                loading()
+                weatherRepo.getAndCacheWeather(weatherRequest)
+            } else {
+                // Either cached response or generic error response if it's null
+                weatherRepo.getCachedWeather()
+                    ?: ResponseOrError(
+                        isSuccess = false,
+                        data = null,
+                        error = ForecastError(
+                            isError = true,
+                            errorMessage = resourceProvider.getString(R.string.unknown_error),
+                        )
+                    )
+            }
+
             if (weatherResponse.isSuccess) {
                 weatherResponse.data?.let { weatherResponseData ->
                     val currentWeatherResponse = weatherResponseData.currentWeather

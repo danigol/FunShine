@@ -17,6 +17,7 @@ class MockSettingsRepo(): ISettingsRepo {
     private var tempUnitIsF = false
     private var isInch = false
     private var isMph = false
+    private var buttonSideRight = false
 
     override suspend fun setLocation(lat: Float, long: Float) {
         location = Location(lat, long)
@@ -101,5 +102,13 @@ class MockSettingsRepo(): ISettingsRepo {
 
     override suspend fun getLastRequest(): WeatherRequest? {
         TODO("Not yet implemented")
+    }
+
+    override suspend fun setWeatherButtonsOnRight(isOnRight: Boolean) {
+        buttonSideRight = isOnRight
+    }
+
+    override suspend fun getWeatherButtonsOnRight(): Boolean {
+        return buttonSideRight
     }
 }
