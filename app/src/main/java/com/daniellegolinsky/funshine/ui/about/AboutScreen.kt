@@ -18,6 +18,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.daniellegolinsky.funshine.BuildConfig
 import com.daniellegolinsky.funshine.R
 import com.daniellegolinsky.funshine.ui.ScreenConstants
 import com.daniellegolinsky.funshinetheme.components.FsAppBar
@@ -33,6 +34,7 @@ fun AboutScreen(
     val uriHandler = LocalUriHandler.current
     val funshinePrivacyLink = stringResource(id = R.string.funshine_privacy_link)
     val openMeteoTermsLink = stringResource(id = R.string.open_meteo_terms_link)
+    val version = BuildConfig.VERSION_NAME
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -81,6 +83,8 @@ fun AboutScreen(
                     uriHandler.openUri(openMeteoTermsLink)
                 }
             )
+            Spacer(modifier = Modifier.height(32.dp))
+            FsText(text = stringResource(id = R.string.version) + " $version", textStyle = getBodyFontStyle())
             Spacer(modifier = Modifier.height(96.dp)) // End spacing for foldable outer screens
         }
     }

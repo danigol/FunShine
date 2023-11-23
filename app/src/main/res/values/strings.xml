@@ -16,6 +16,7 @@
     <string name="open_meteo_terms_link">https://open-meteo.com/en/terms</string>
     <string name="funshine_privacy">FunShine Privacy</string>
     <string name="funshine_privacy_link">https://daniellegolinsky.com/privacy-policies/</string>
+    <string name="version">Version:</string>
     <string name="option_f">ºF</string>
     <string name="option_c">ºC</string>
     <string name="option_mph">MPH</string>
