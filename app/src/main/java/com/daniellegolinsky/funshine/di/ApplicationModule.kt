@@ -55,7 +55,6 @@ object ApplicationModule {
         loggingInterceptor.level = HttpLoggingInterceptor.Level.NONE
         val httpClient = OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
-            .readTimeout(10, TimeUnit.SECONDS)
 
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.open-meteo.com/")
