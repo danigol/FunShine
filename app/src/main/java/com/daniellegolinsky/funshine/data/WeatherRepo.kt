@@ -1,20 +1,20 @@
 package com.daniellegolinsky.funshine.data
 
+import android.util.Log
 import com.daniellegolinsky.funshine.api.OpenMeteoWeatherService
 import com.daniellegolinsky.funshine.di.ApplicationModule
 import com.daniellegolinsky.funshine.models.Forecast
 import com.daniellegolinsky.funshine.models.ForecastTimestamp
 import com.daniellegolinsky.funshine.models.api.ForecastError
 import com.daniellegolinsky.funshine.models.ResponseOrError
-import com.daniellegolinsky.funshine.models.WeatherCode
 import com.daniellegolinsky.funshine.models.api.WeatherRequest
 import com.daniellegolinsky.funshine.models.api.WeatherResponse
 import com.daniellegolinsky.funshine.models.hoursBetween
-import com.daniellegolinsky.funshine.models.toWeatherCode
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okhttp3.ResponseBody
 import retrofit2.Response
+import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -26,6 +26,8 @@ class WeatherRepo @Inject constructor(
 
     companion object{
         const val API_REQUEST_ERROR = "API_REQUEST_ERROR"
+        const val LOG_INTERNET_CONNECTION_ERROR = "INTERNET_CONNECTION_ERROR"
+        const val LOG_NULL_RESPONSE = "NULL_API_RESPONSE"
     }
 
     private val weatherMutex = Mutex()
@@ -129,7 +131,8 @@ class WeatherRepo @Inject constructor(
         requestLengthUnit: String,
     ): ResponseOrError<Forecast, ForecastError> {
 
-        apiRequestLimiter.incrementApiCallCounter()
+        // Will increment only if we actually hit the API, set to increment by default
+        var incrementApiLimiter = true
 
         var apiResponse: Response<WeatherResponse>? = try {
             weatherService.getCurrentWeather(
@@ -139,9 +142,28 @@ class WeatherRepo @Inject constructor(
                 speedUnit = requestSpeedUnit,
                 lengthUnit = requestLengthUnit,
             )
+        } catch (uhe: UnknownHostException) {
+            // Catches the exception from no internet access
+            uhe.printStackTrace()
+            Log.e(LOG_INTERNET_CONNECTION_ERROR, "Exception in API Response: ${uhe.message}")
+            // We know this didn't hit the API because it was an unknown host exception, so don't increment
+            incrementApiLimiter = false
+            null
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.e(LOG_NULL_RESPONSE, "Unknown exception: ${e.message}")
             null
+        }
+
+        if (apiResponse == null) {
+            Log.e(LOG_NULL_RESPONSE, "API Response was null")
+        }
+
+        if (incrementApiLimiter) {
+            apiRequestLimiter.incrementApiCallCounter()
+            if (apiResponse == null) {
+                Log.e(LOG_NULL_RESPONSE, "Incremented API, even though it's a null response.")
+            }
         }
 
         return mapWeatherResponseToForecastOrError(
