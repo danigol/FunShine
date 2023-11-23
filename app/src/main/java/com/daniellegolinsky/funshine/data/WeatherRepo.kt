@@ -14,6 +14,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okhttp3.ResponseBody
 import retrofit2.Response
+import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Named
@@ -145,11 +146,19 @@ class WeatherRepo @Inject constructor(
         } catch (uhe: UnknownHostException) {
             // Catches the exception from no internet access
             uhe.printStackTrace()
-            Log.e(LOG_INTERNET_CONNECTION_ERROR, "Exception in API Response: ${uhe.message}")
-            // We know this didn't hit the API because it was an unknown host exception, so don't increment
+            Log.e(LOG_INTERNET_CONNECTION_ERROR, "Unknown host exception in API Response: ${uhe.message}")
+            // We know this didn't hit the API
             incrementApiLimiter = false
             null
-        } catch (e: Exception) {
+        } catch (ste: SocketTimeoutException) {
+            // Catches the exception from no internet access
+            ste.printStackTrace()
+            Log.e(LOG_INTERNET_CONNECTION_ERROR, "Socket timeout exception in API Response: ${ste.message}")
+            // We know this didn't hit the API
+            incrementApiLimiter = false
+            null
+        }
+        catch (e: Exception) {
             e.printStackTrace()
             Log.e(LOG_NULL_RESPONSE, "Unknown exception: ${e.message}")
             null
