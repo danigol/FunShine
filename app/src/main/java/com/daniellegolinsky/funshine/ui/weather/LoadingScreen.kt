@@ -28,7 +28,7 @@ fun LoadingScreen(
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth(0.7f)
+            modifier = Modifier.fillMaxWidth(0.6f)
         ) {
             FsIconWithShadow(
                 image = painterResource(com.daniellegolinsky.themeresources.R.drawable.ic_loading_black),
