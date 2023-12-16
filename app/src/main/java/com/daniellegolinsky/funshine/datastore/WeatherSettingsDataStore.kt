@@ -170,45 +170,45 @@ class WeatherSettingsDataStore @Inject constructor(
 
     override suspend fun getLastForecast(): Forecast? {
         // If the version code for the forecast is outdated, return null to force a new request
-        val storedForecastVersion = settingsFlow.map { preferences ->
-            preferences[StoreKeys.VERSION_CODE_OF_FORECAST_CACHE]
-        }.firstOrNull()
-
-        if (storedForecastVersion == null
-            || (storedForecastVersion != null && storedForecastVersion != BuildConfig.VERSION_CODE)) {
+        if (isForecastOutOfDate()) {
             return null
         }
 
         var forecast: Forecast? = null
-        val jsonForecast = settingsFlow.map{ preferences ->
+        val jsonForecast = settingsFlow.map { preferences ->
             preferences[StoreKeys.FORECAST_KEY]
         }.firstOrNull()
 
-        jsonForecast?.let {
-            try{
-                forecast = Json.decodeFromString<Forecast>(it)
-            } catch (jsonException: JSONException) {
-                jsonException.printStackTrace()
+        if (jsonForecast != null && jsonForecast != "null") {
+
+            jsonForecast?.let {
+                try {
+                    forecast = Json.decodeFromString<Forecast>(it)
+                } catch (jsonException: JSONException) {
+                    jsonException.printStackTrace()
+                }
             }
         }
 
         return forecast
     }
+
     override suspend fun setLastForecast(forecast: Forecast) {
+        setForecastVersionCodeToCurrentVersion() // In case it hasn't been set
         dataStore.edit { preferences ->
             preferences[StoreKeys.FORECAST_KEY] = Json.encodeToString(forecast)
-            preferences[StoreKeys.VERSION_CODE_OF_FORECAST_CACHE] = BuildConfig.VERSION_CODE
         }
+        setForecastVersionCodeToCurrentVersion()
     }
 
     override suspend fun getLastRequest(): WeatherRequest? {
         var lastRequest: WeatherRequest? = null
-        val jsonRequest = settingsFlow.map{ preferences ->
+        val jsonRequest = settingsFlow.map { preferences ->
             preferences[StoreKeys.REQUEST_KEY]
         }.firstOrNull()
 
         jsonRequest?.let {
-            try{
+            try {
                 lastRequest = Json.decodeFromString<WeatherRequest>(it)
             } catch (jsonException: JSONException) {
                 jsonException.printStackTrace()
@@ -226,11 +226,17 @@ class WeatherSettingsDataStore @Inject constructor(
 
     override suspend fun getApiTimestamp(): ForecastTimestamp? {
         var forecastTimestamp: ForecastTimestamp? = null
-        val timestampJson = settingsFlow.map{ preferences ->
+        val timestampJson = settingsFlow.map { preferences ->
             preferences[StoreKeys.START_API_TIMESTAMP]
         }.firstOrNull()
+
+        // If the database could have been updated, force an update of the api timestamp
+        if (isForecastOutOfDate()) {
+            return null
+        }
+
         timestampJson?.let {
-            try{
+            try {
                 forecastTimestamp = Json.decodeFromString<ForecastTimestamp>(it)
             } catch (e: JSONException) {
                 e.printStackTrace()
@@ -246,23 +252,30 @@ class WeatherSettingsDataStore @Inject constructor(
     }
 
     override suspend fun getApiCallCount(): Int {
+
+        // Allow new requests if database error from older version caused issues
+        if (isForecastOutOfDate()) {
+            resetApiCallCount()
+            return 0
+        }
+
         return settingsFlow.map { preferences ->
             preferences[StoreKeys.API_CALL_COUNT]
         }.firstOrNull() ?: 0
     }
 
     override suspend fun incrementApiCallCount() {
-       val incrementCount = getApiCallCount() + 1
-       dataStore.edit { preferences->
-           preferences[StoreKeys.API_CALL_COUNT] = incrementCount
-       }
+        val incrementCount = getApiCallCount() + 1
+        dataStore.edit { preferences ->
+            preferences[StoreKeys.API_CALL_COUNT] = incrementCount
+        }
     }
 
     /**
      * Only resets to 0, increment individually.
      */
     override suspend fun resetApiCallCount() {
-        dataStore.edit { preferences->
+        dataStore.edit { preferences ->
             preferences[StoreKeys.API_CALL_COUNT] = 0
         }
     }
@@ -276,6 +289,20 @@ class WeatherSettingsDataStore @Inject constructor(
     override suspend fun setWeatherButtonsOnRight(isRight: Boolean) {
         dataStore.edit { preferences ->
             preferences[StoreKeys.WEATHER_BUTTONS_ON_RIGHT] = isRight
+        }
+    }
+
+    private suspend fun isForecastOutOfDate(): Boolean {
+        val storedForecastVersion = settingsFlow.map { preferences ->
+            preferences[StoreKeys.VERSION_CODE_OF_FORECAST_CACHE]
+        }.firstOrNull()
+        return storedForecastVersion == null
+                || (storedForecastVersion != null && storedForecastVersion != BuildConfig.VERSION_CODE)
+    }
+
+    private suspend fun setForecastVersionCodeToCurrentVersion() {
+        dataStore.edit { preferences ->
+            preferences[StoreKeys.VERSION_CODE_OF_FORECAST_CACHE] = BuildConfig.VERSION_CODE
         }
     }
 }

@@ -19,7 +19,7 @@ data class ForecastTimestamp(
         const val HOURS_IN_YEAR: Int = HOURS_IN_DAY * 365
         fun getCurrentTimestamp(): ForecastTimestamp {
             val currentHour = LocalDateTime.now().hour
-            val currentDay = LocalDateTime.now().dayOfMonth
+            val currentDay = LocalDateTime.now().dayOfYear
             val currentYear = LocalDateTime.now().year
             return ForecastTimestamp(year = currentYear, day = currentDay, hour = currentHour)
         }

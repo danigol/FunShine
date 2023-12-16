@@ -85,9 +85,8 @@ class WeatherRepo @Inject constructor(
     ): ResponseOrError<Forecast, ForecastError> {
         // Reset the API limiter if necessary
         weatherMutex.withLock {
-            apiRequestLimiter.resetApiCallCounterAndTimestampIfValid()
-            // Only perform API actions if under the daily limit
-            if (apiRequestLimiter.canMakeRequest()) {
+            // Check if request is permitted.
+            if (apiRequestLimiter.requestPermitted()) {
                 // Do the request and cache the response locally
                 repoCachedWeatherResponse = makeApiRequest(
                     requestLatitude = weatherRequest.location.latitude,
