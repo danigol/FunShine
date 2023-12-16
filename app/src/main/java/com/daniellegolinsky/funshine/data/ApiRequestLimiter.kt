@@ -4,6 +4,7 @@ import android.util.Log
 import com.daniellegolinsky.funshine.datastore.IWeatherSettingsDataStore
 import com.daniellegolinsky.funshine.models.ForecastTimestamp
 import com.daniellegolinsky.funshine.models.hoursBetween
+import org.jetbrains.annotations.TestOnly
 import javax.inject.Inject
 
 class ApiRequestLimiter @Inject constructor(
@@ -21,22 +22,12 @@ class ApiRequestLimiter @Inject constructor(
     }
 
     /**
-     * Checks to see if the required time (currently one day) has passed
-     * Then, if it has, resets the timestamp to now and resets the API counter
+     * Will reset the call counter if it can
+     * Then checks if the current request is valid
+     * Then increments the counter if a request will be made
      */
-    override suspend fun resetApiCallCounterAndTimestampIfValid() {
-        if (canPerformReset()) {
-            dataStore.resetApiCallCount()
-            setResetTimeNow()
-        }
-    }
-
-    /**
-     * Checks if we can make the request by assuming the timestamp is up to date and checking the
-     * number of API calls since the last daily reset
-     * You should first call the reset if making an API request and checking this
-     */
-    override suspend fun canMakeRequest(): Boolean {
+    override suspend fun requestPermitted(): Boolean {
+        resetApiCallCounterAndTimestampIfValid()
         val currentRequestCount = dataStore.getApiCallCount()
         return currentRequestCount < MAX_DAILY_REQUESTS
     }
@@ -73,5 +64,17 @@ class ApiRequestLimiter @Inject constructor(
             aDayHasPassed = it.hoursBetween(currentTimestamp) >= ForecastTimestamp.HOURS_IN_DAY
         }
         return aDayHasPassed
+    }
+
+    /**
+     * Checks to see if the required time (currently one day) has passed
+     * Then, if it has, resets the timestamp to now and resets the API counter
+     * Don't call this directly, instead call requestPermitted()
+     */
+    private suspend fun resetApiCallCounterAndTimestampIfValid() {
+        if (canPerformReset()) {
+            dataStore.resetApiCallCount()
+            setResetTimeNow()
+        }
     }
 }
