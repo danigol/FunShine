@@ -83,4 +83,12 @@ class SettingsRepo @Inject constructor(
     override suspend fun getWeatherButtonsOnRight(): Boolean {
         return dataStore.getWeatherButtonsOnRight()
     }
+
+    override suspend fun getHasSeenSettingsHint(): Boolean {
+        return dataStore.getHasSeenSettingsHint()
+    }
+
+    override suspend fun setHasSeenSettingsHint(hasSeen: Boolean) {
+        dataStore.setHasSeenSettingsHint(hasSeen)
+    }
 }

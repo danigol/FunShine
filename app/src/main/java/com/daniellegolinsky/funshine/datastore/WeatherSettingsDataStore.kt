@@ -50,6 +50,7 @@ class WeatherSettingsDataStore @Inject constructor(
         val START_API_TIMESTAMP = stringPreferencesKey("start_api_timestamp")
         val VERSION_CODE_OF_FORECAST_CACHE = longPreferencesKey("version_code_of_forecast_cache")
         val WEATHER_BUTTONS_ON_RIGHT = booleanPreferencesKey("weather_buttons_on_right")
+        val HAS_SEEN_SETTINGS_HINT = booleanPreferencesKey("hasSeenSettingsHint")
     }
 
     private val settingsFlow = dataStore.data.catch {
@@ -289,6 +290,18 @@ class WeatherSettingsDataStore @Inject constructor(
     override suspend fun setWeatherButtonsOnRight(isRight: Boolean) {
         dataStore.edit { preferences ->
             preferences[StoreKeys.WEATHER_BUTTONS_ON_RIGHT] = isRight
+        }
+    }
+
+    override suspend fun getHasSeenSettingsHint(): Boolean {
+        return settingsFlow.map { prefs ->
+            prefs[StoreKeys.HAS_SEEN_SETTINGS_HINT]
+        }.firstOrNull() ?: false
+    }
+
+    override suspend fun setHasSeenSettingsHint(hasSeen: Boolean) {
+        dataStore.edit { prefs ->
+            prefs[StoreKeys.HAS_SEEN_SETTINGS_HINT] = hasSeen
         }
     }
 
