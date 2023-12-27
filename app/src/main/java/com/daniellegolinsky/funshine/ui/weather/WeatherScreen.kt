@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -104,6 +105,7 @@ fun WeatherScreen(
                             id = R.string.down_arrow_helper
                         ),
                         size = FsButtonDefaults.BUTTON_HEIGHT,
+                        providedShadowHeight = DpOffset(x = 12.dp, y = 12.dp) // TODO replace this with a theme constant too
                     )
                     FsText(text = "Set up your location here", textStyle = getBodyFontStyle())
                 }
