@@ -12,9 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.daniellegolinsky.funshinetheme.components.FsIconWithShadow
 import com.daniellegolinsky.funshinetheme.components.FsText
 import com.daniellegolinsky.funshinetheme.font.getHeadingFontStyle
+import com.daniellegolinsky.themeresources.WeatherIconConstants
 
 @Composable
 fun ConditionsComponent(
@@ -36,6 +38,8 @@ fun ConditionsComponent(
             FsIconWithShadow(
                 image = painterResource(weatherIconResource),
                 imageResourceContentDescription = stringResource(id = weatherIconContentDescription),
+                size = WeatherIconConstants.SIZE,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
         FsText(
