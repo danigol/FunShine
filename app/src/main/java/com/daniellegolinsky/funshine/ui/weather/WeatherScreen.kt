@@ -35,6 +35,7 @@ import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshinetheme.components.FsButtonDefaults
 import com.daniellegolinsky.funshinetheme.components.FsIconWithShadow
 import com.daniellegolinsky.funshinetheme.components.FsText
+import com.daniellegolinsky.funshinetheme.designelements.Shadow
 import com.daniellegolinsky.funshinetheme.designelements.getQuarterShadowOffset
 import com.daniellegolinsky.funshinetheme.font.FsTextStyle
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
@@ -97,6 +98,7 @@ fun WeatherScreen(
                 // TODO Make only launch on first launch
                 Row(
                     horizontalArrangement = if (viewState.data.buttonsOnRight) Arrangement.End else Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 4.dp, end = 4.dp, top = 0.dp, bottom = 0.dp) // TODO Make this a constant
@@ -108,7 +110,7 @@ fun WeatherScreen(
                                 id = R.string.down_arrow_helper
                             ),
                             size = FsButtonDefaults.BUTTON_HEIGHT,
-                            providedShadowDepth = getQuarterShadowOffset(),
+                            providedShadowMatrix = Shadow.getControlHintShadow(),
                         )
                     }
 
@@ -121,7 +123,8 @@ fun WeatherScreen(
                                 id = R.string.down_arrow_helper
                             ),
                             size = FsButtonDefaults.BUTTON_HEIGHT,
-                            providedShadowDepth = getQuarterShadowOffset(),
+                            providedShadowMatrix = Shadow.getControlHintShadow(),
+                            modifier = Modifier.padding(end = 64.dp)
                         )
                     }
                 }
@@ -131,7 +134,7 @@ fun WeatherScreen(
                     horizontalArrangement = if (viewState.data.buttonsOnRight) Arrangement.End else Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 32.dp, end = 32.dp, bottom = 32.dp, top = 2.dp) // TODO Make this a constant
+                        .padding(start = 32.dp, end = 32.dp, bottom = 32.dp, top = 0.dp)
                 ) {
                     FsIconButton(
                         buttonIcon = painterResource(id = R.drawable.ic_settings_button_black),
