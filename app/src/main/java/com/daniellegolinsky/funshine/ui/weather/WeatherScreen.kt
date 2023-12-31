@@ -35,6 +35,7 @@ import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshinetheme.components.FsButtonDefaults
 import com.daniellegolinsky.funshinetheme.components.FsIconWithShadow
 import com.daniellegolinsky.funshinetheme.components.FsText
+import com.daniellegolinsky.funshinetheme.designelements.getQuarterShadowOffset
 import com.daniellegolinsky.funshinetheme.font.FsTextStyle
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 
@@ -93,21 +94,36 @@ fun WeatherScreen(
                 }
 
                 // First launch controls helper
+                // TODO Make only launch on first launch
                 Row(
                     horizontalArrangement = if (viewState.data.buttonsOnRight) Arrangement.End else Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp) // TODO Make this a constant
+                        .padding(start = 4.dp, end = 4.dp, top = 0.dp, bottom = 0.dp) // TODO Make this a constant
                 ) {
-                    FsIconWithShadow(
-                        image = painterResource(id = R.drawable.ic_arrow_down_black),
-                        imageResourceContentDescription = stringResource(
-                            id = R.string.down_arrow_helper
-                        ),
-                        size = FsButtonDefaults.BUTTON_HEIGHT,
-                        providedShadowHeight = DpOffset(x = 12.dp, y = 12.dp) // TODO replace this with a theme constant too
-                    )
+                    if (!viewState.data.buttonsOnRight) {
+                        FsIconWithShadow(
+                            image = painterResource(id = R.drawable.ic_arrow_down_black),
+                            imageResourceContentDescription = stringResource(
+                                id = R.string.down_arrow_helper
+                            ),
+                            size = FsButtonDefaults.BUTTON_HEIGHT,
+                            providedShadowDepth = getQuarterShadowOffset(),
+                        )
+                    }
+
                     FsText(text = "Set up your location here", textStyle = getBodyFontStyle())
+
+                    if (viewState.data.buttonsOnRight) {
+                        FsIconWithShadow(
+                            image = painterResource(id = R.drawable.ic_arrow_down_black),
+                            imageResourceContentDescription = stringResource(
+                                id = R.string.down_arrow_helper
+                            ),
+                            size = FsButtonDefaults.BUTTON_HEIGHT,
+                            providedShadowDepth = getQuarterShadowOffset(),
+                        )
+                    }
                 }
 
                 // Controls (TODO: Split this out too)
@@ -115,7 +131,7 @@ fun WeatherScreen(
                     horizontalArrangement = if (viewState.data.buttonsOnRight) Arrangement.End else Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(32.dp) // TODO Make this a constant
+                        .padding(start = 32.dp, end = 32.dp, bottom = 32.dp, top = 2.dp) // TODO Make this a constant
                 ) {
                     FsIconButton(
                         buttonIcon = painterResource(id = R.drawable.ic_settings_button_black),
