@@ -101,7 +101,7 @@ fun WeatherScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 4.dp, end = 4.dp, top = 0.dp, bottom = 0.dp) // TODO Make this a constant
+                        .padding(start = 32.dp, end = 32.dp, top = 0.dp, bottom = 8.dp) // TODO Make this a constant
                 ) {
                     if (!viewState.data.buttonsOnRight) {
                         FsIconWithShadow(
