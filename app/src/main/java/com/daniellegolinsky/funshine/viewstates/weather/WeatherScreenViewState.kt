@@ -10,4 +10,5 @@ data class WeatherScreenViewState(
     val precipitationAmountUnit: String?,
     val forecast: String,
     val buttonsOnRight: Boolean = true,
+    val showSettingsHint: Boolean = false,
 )

@@ -45,11 +45,18 @@ class WeatherViewModel @Inject constructor(
         _weatherViewState.value = ViewState.Loading()
     }
 
+    fun clearSettingsHint() {
+        viewModelScope.launch {
+            settingsRepo.setHasSeenSettingsHint(true)
+        }
+    }
+
     fun updateWeatherScreen() {
         // Make the request and update buttons
         viewModelScope.launch {
             val buttonsOnRight =
-                settingsRepo.getWeatherButtonsOnRight() // TODO Split out state of side effect! Create new update function
+                settingsRepo.getWeatherButtonsOnRight()
+            val shouldShowSettingsHint = !settingsRepo.getHasSeenSettingsHint() // TODO: Split out non-API UI items?
             val weatherRequest = WeatherRequest(
                 location = getLocation(),
                 tempUnit = getTemperatureUnit(),
@@ -98,6 +105,7 @@ class WeatherViewModel @Inject constructor(
                                 lengthUnitString = precipitationString,
                             ),
                             buttonsOnRight = buttonsOnRight,
+                            showSettingsHint = shouldShowSettingsHint,
                         )
                     )
                 }

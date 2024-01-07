@@ -28,6 +28,7 @@ import com.daniellegolinsky.funshinetheme.components.FsText
 import com.daniellegolinsky.funshinetheme.components.FsTextButton
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 import com.daniellegolinsky.themeresources.R
+import com.daniellegolinsky.themeresources.WeatherIconConstants
 
 @Composable
 fun ErrorScreen(
@@ -51,6 +52,7 @@ fun ErrorScreen(
             FsIconWithShadow(
                 image = painterResource(R.drawable.ic_circle_x_black),
                 imageResourceContentDescription = stringResource(id = com.daniellegolinsky.funshine.R.string.wc_unknown),
+                size = WeatherIconConstants.SIZE,
             )
         }
         Spacer(modifier = Modifier.height(16.dp))

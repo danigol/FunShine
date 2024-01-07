@@ -16,6 +16,7 @@ import com.daniellegolinsky.funshine.R
 import com.daniellegolinsky.funshinetheme.components.FsIconWithShadow
 import com.daniellegolinsky.funshinetheme.components.FsText
 import com.daniellegolinsky.funshinetheme.font.getHeadingFontStyle
+import com.daniellegolinsky.themeresources.WeatherIconConstants
 
 @Composable
 fun LoadingScreen(
@@ -33,6 +34,7 @@ fun LoadingScreen(
             FsIconWithShadow(
                 image = painterResource(com.daniellegolinsky.themeresources.R.drawable.ic_loading_black),
                 imageResourceContentDescription = stringResource(id = R.string.wc_loading),
+                size = WeatherIconConstants.SIZE,
             )
         }
         FsText(

@@ -34,4 +34,6 @@ interface IWeatherSettingsDataStore {
     suspend fun resetApiCallCount()
     suspend fun getWeatherButtonsOnRight(): Boolean
     suspend fun setWeatherButtonsOnRight(isRight: Boolean)
+    suspend fun getHasSeenSettingsHint(): Boolean
+    suspend fun setHasSeenSettingsHint(hasSeen: Boolean)
 }

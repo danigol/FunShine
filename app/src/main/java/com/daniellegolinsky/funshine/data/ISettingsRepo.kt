@@ -28,4 +28,6 @@ interface ISettingsRepo {
     suspend fun getLastRequest(): WeatherRequest?
     suspend fun setWeatherButtonsOnRight(isOnRight: Boolean)
     suspend fun getWeatherButtonsOnRight(): Boolean
+    suspend fun getHasSeenSettingsHint(): Boolean
+    suspend fun setHasSeenSettingsHint(hasSeen: Boolean)
 }
