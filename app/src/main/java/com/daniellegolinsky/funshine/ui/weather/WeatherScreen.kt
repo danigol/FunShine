@@ -95,37 +95,43 @@ fun WeatherScreen(
                 }
 
                 // First launch controls helper
-                // TODO Make only launch on first launch
-                Row(
-                    horizontalArrangement = if (viewState.data.buttonsOnRight) Arrangement.End else Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 32.dp, end = 32.dp, top = 0.dp, bottom = 8.dp) // TODO Make this a constant
-                ) {
-                    if (!viewState.data.buttonsOnRight) {
-                        FsIconWithShadow(
-                            image = painterResource(id = R.drawable.ic_arrow_down_black),
-                            imageResourceContentDescription = stringResource(
-                                id = R.string.down_arrow_helper
-                            ),
-                            size = FsButtonDefaults.BUTTON_HEIGHT,
-                            providedShadowMatrix = Shadow.getControlHintShadow(),
-                        )
-                    }
+                if (viewState.data.showSettingsHint) {
+                    Row(
+                        horizontalArrangement = if (viewState.data.buttonsOnRight) Arrangement.End else Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = 32.dp,
+                                end = 32.dp,
+                                top = 0.dp,
+                                bottom = 8.dp
+                            ) // TODO Make this a constant
+                    ) {
+                        if (!viewState.data.buttonsOnRight) {
+                            FsIconWithShadow(
+                                image = painterResource(id = R.drawable.ic_arrow_down_black),
+                                imageResourceContentDescription = stringResource(
+                                    id = R.string.down_arrow_helper
+                                ),
+                                size = FsButtonDefaults.BUTTON_HEIGHT,
+                                providedShadowMatrix = Shadow.getControlHintShadow(),
+                            )
+                        }
 
-                    FsText(text = "Set up your location here", textStyle = getBodyFontStyle())
+                        FsText(text = "Set up your location here", textStyle = getBodyFontStyle())
 
-                    if (viewState.data.buttonsOnRight) {
-                        FsIconWithShadow(
-                            image = painterResource(id = R.drawable.ic_arrow_down_black),
-                            imageResourceContentDescription = stringResource(
-                                id = R.string.down_arrow_helper
-                            ),
-                            size = FsButtonDefaults.BUTTON_HEIGHT,
-                            providedShadowMatrix = Shadow.getControlHintShadow(),
-                            modifier = Modifier.padding(end = 64.dp)
-                        )
+                        if (viewState.data.buttonsOnRight) {
+                            FsIconWithShadow(
+                                image = painterResource(id = R.drawable.ic_arrow_down_black),
+                                imageResourceContentDescription = stringResource(
+                                    id = R.string.down_arrow_helper
+                                ),
+                                size = FsButtonDefaults.BUTTON_HEIGHT,
+                                providedShadowMatrix = Shadow.getControlHintShadow(),
+                                modifier = Modifier.padding(end = 64.dp)
+                            )
+                        }
                     }
                 }
 
@@ -141,6 +147,7 @@ fun WeatherScreen(
                         buttonIconContentDescription = stringResource(id = R.string.ic_settings_button_content_description),
                         onClick = {
                             navigateToSettings()
+                            viewModel.clearSettingsHint()
                         }
                     )
                     Spacer(modifier = Modifier.width(2.dp))

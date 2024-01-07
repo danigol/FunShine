@@ -45,6 +45,12 @@ class WeatherViewModel @Inject constructor(
         _weatherViewState.value = ViewState.Loading()
     }
 
+    fun clearSettingsHint() {
+        viewModelScope.launch {
+            settingsRepo.setHasSeenSettingsHint(true)
+        }
+    }
+
     fun updateWeatherScreen() {
         // Make the request and update buttons
         viewModelScope.launch {
