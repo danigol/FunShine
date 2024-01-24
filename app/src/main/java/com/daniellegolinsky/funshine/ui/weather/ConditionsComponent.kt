@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.daniellegolinsky.funshinetheme.components.FsIconWithShadow
 import com.daniellegolinsky.funshinetheme.components.FsText
@@ -22,6 +24,7 @@ import com.daniellegolinsky.themeresources.WeatherIconConstants
 fun ConditionsComponent(
     weatherIconResource: Int,
     weatherIconContentDescription: Int,
+    weatherIconSize: Dp,
     temperature: Int,
     temperatureUnit: String,
     modifier: Modifier = Modifier,
@@ -38,7 +41,7 @@ fun ConditionsComponent(
             FsIconWithShadow(
                 image = painterResource(weatherIconResource),
                 imageResourceContentDescription = stringResource(id = weatherIconContentDescription),
-                size = WeatherIconConstants.SIZE,
+                size = weatherIconSize,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -56,6 +59,7 @@ fun PreviewConditionsComponent() {
     ConditionsComponent(
         weatherIconResource = com.daniellegolinsky.themeresources.R.drawable.ic_sunny_black,
         weatherIconContentDescription = com.daniellegolinsky.themeresources.R.string.ic_sunny_content_description,
+        weatherIconSize = WeatherIconConstants.SIZE,
         temperature = 74,
         temperatureUnit = "ºF",
     )
