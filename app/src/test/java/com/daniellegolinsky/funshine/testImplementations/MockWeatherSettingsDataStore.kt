@@ -136,4 +136,12 @@ class MockWeatherSettingsDataStore(
     override suspend fun setWeatherButtonsOnRight(isRight: Boolean) {
         TODO("Not yet implemented")
     }
+
+    override suspend fun getHasSeenSettingsHint(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun setHasSeenSettingsHint(hasSeen: Boolean) {
+        TODO("Not yet implemented")
+    }
 }

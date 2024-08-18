@@ -11,6 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
+import com.daniellegolinsky.themeresources.WeatherIconConstants
 
 @Composable
 fun WeatherComponentSmall(
@@ -28,6 +29,7 @@ fun WeatherComponentSmall(
         ConditionsComponent(
             weatherIconResource = data.weatherIconResource,
             weatherIconContentDescription = data.weatherIconContentDescription,
+            weatherIconSize = WeatherIconConstants.SMALL_SIZE,
             temperature = data.temperature,
             temperatureUnit = data.temperatureUnit,
             modifier = Modifier
