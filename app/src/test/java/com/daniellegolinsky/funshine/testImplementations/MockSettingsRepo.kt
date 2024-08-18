@@ -18,6 +18,7 @@ class MockSettingsRepo(): ISettingsRepo {
     private var isInch = false
     private var isMph = false
     private var buttonSideRight = false
+    private var hasSeenSettingsHint = false
 
     override suspend fun setLocation(lat: Float, long: Float) {
         location = Location(lat, long)
@@ -110,5 +111,13 @@ class MockSettingsRepo(): ISettingsRepo {
 
     override suspend fun getWeatherButtonsOnRight(): Boolean {
         return buttonSideRight
+    }
+
+    override suspend fun getHasSeenSettingsHint(): Boolean {
+        return hasSeenSettingsHint
+    }
+
+    override suspend fun setHasSeenSettingsHint(hasSeen: Boolean) {
+        hasSeenSettingsHint = hasSeen
     }
 }
