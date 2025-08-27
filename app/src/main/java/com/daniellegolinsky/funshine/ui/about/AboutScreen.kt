@@ -41,6 +41,7 @@ fun AboutScreen(
         verticalArrangement = Arrangement.Top,
         modifier = modifier.padding(top = ScreenConstants.SCREEN_PADDING)
     ) {
+        // TODO Set top bar and other attributes in a main scaffold
         Spacer(modifier = Modifier.height(32.dp))
         FsAppBar(headingText = stringResource(id = R.string.settings_about)) {
             navigateUp()
