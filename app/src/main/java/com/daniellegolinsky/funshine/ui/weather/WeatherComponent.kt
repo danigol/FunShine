@@ -19,7 +19,7 @@ fun WeatherComponent(
 ) {
     val data = viewState.data
     Column(
-        verticalArrangement = Arrangement.Top,
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(32.dp)
     ) {

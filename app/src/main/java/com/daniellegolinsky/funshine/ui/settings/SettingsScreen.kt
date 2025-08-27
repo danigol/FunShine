@@ -115,10 +115,12 @@ fun SettingsScreen(
 
             Column(
                 horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Top,
                 modifier = modifier
                     .fillMaxSize()
                     .padding(vertical = ScreenConstants.SCREEN_PADDING)
             ) {
+                Spacer(modifier = Modifier.height(32.dp))
                 FsAppBar(
                     headingText = stringResource(string.settings_heading),
                     backButtonAction = { cancelAndGoBack() }
