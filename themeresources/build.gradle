@@ -1,11 +1,12 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace 'com.daniellegolinsky.themeresources'
-    compileSdk 33
+    compileSdk 36
 
     buildFeatures {
         compose = true

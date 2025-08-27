@@ -126,9 +126,9 @@ class WeatherViewModel @Inject constructor(
 
     private fun getErrorStringFromError(error: ForecastError?): String {
         return if (error != null) {
-            if (error.errorMessage?.startsWith(WeatherRepo.API_REQUEST_ERROR) == true) {
+            if (error.errorMessage.startsWith(WeatherRepo.API_REQUEST_ERROR)) {
                 var hoursLeft = if (error.hoursLeft > 0) {
-                    error?.hoursLeft
+                    error.hoursLeft
                 } else {
                     ForecastTimestamp.HOURS_IN_DAY
                 }
