@@ -182,7 +182,7 @@ class WeatherSettingsDataStore @Inject constructor(
 
         if (jsonForecast != null && jsonForecast != "null") {
 
-            jsonForecast?.let {
+            jsonForecast.let {
                 try {
                     forecast = Json.decodeFromString<Forecast>(it)
                 } catch (jsonException: JSONException) {

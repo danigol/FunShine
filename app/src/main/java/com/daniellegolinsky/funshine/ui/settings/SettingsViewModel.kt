@@ -154,6 +154,10 @@ class SettingsViewModel @Inject constructor(
         return ioDispatcher
     }
 
+    /**
+     * Fetches location using high accuracy, but tosses it out
+     * Only passes along 1 hundredth of a degree, or about 0.69 miles, rounding up
+     */
     @SuppressLint("MissingPermission")
     fun getApproximateLocation(
         locationGranted: Boolean,
@@ -170,12 +174,16 @@ class SettingsViewModel @Inject constructor(
                         Priority.PRIORITY_HIGH_ACCURACY,
                         CancellationTokenSource().token,
                     ).addOnCompleteListener {
-                        val locationResult = it?.result
-                        val latitude = locationResult?.latitude?.toBigDecimal()
-                            ?.setScale(2, RoundingMode.UP)?.toFloat() ?: 0.0f
-                        val longitude = locationResult?.longitude?.toBigDecimal()
-                            ?.setScale(2, RoundingMode.UP)?.toFloat() ?: 0.0f
-                        setViewStateLocation("${latitude},${longitude}")
+                        val locationResult = it.result
+                        locationResult?.let { location ->
+                            // Create a less-accurate version of the location
+                            // Safer for protecting identities as much as we can with this data
+                            val latitude = location.latitude.toBigDecimal()
+                                .setScale(1, RoundingMode.UP)?.toFloat() ?: 0.0f
+                            val longitude = location.longitude.toBigDecimal()
+                                .setScale(1, RoundingMode.UP)?.toFloat() ?: 0.0f
+                            setViewStateLocation("${latitude},${longitude}")
+                        }
                         setIsLoadingLocation(false)
                     }
                 } catch (e: Exception) {
