@@ -69,11 +69,14 @@ class MainActivity : ComponentActivity() {
     private fun setLocationCallback() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
-                p0?.let { location -> // Curiously this is nullable in other builds, so to be safe...
-                    settingsViewModel.respondToLocationChange(
-                        locationGranted = canGetLocation, // TODO FETCH PERMISSIONS HERE TOO
-                        locationResult = location
-                    )
+                // Only run the function if we're already waiting on the location anyway
+                if (settingsViewModel.getHasRequestedLocation()) {
+                    p0?.let { location -> // Curiously this is nullable in other builds, so to be safe...
+                        settingsViewModel.respondToLocationChange(
+                            locationGranted = canGetLocation,
+                            locationResult = location
+                        )
+                    }
                 }
             }
         }
