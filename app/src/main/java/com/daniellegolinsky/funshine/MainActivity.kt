@@ -1,6 +1,5 @@
 package com.daniellegolinsky.funshine
 
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -35,7 +34,7 @@ class MainActivity : ComponentActivity() {
         updatePermissionVariable()
 
         // This should only actually get called if we request location.
-        // Though we may want to double check location permissions here too
+        // Though we may want to double-check location permissions here too
         setLocationCallback()
 
         setContent {
