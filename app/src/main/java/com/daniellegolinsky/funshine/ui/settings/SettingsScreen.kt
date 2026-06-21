@@ -1,6 +1,8 @@
 package com.daniellegolinsky.funshine.ui.settings
 
 import android.annotation.SuppressLint
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -68,8 +70,16 @@ fun SettingsScreen(
         }
 
         is ViewState.Error -> {
-            // TODO Shouldn't happen, currently never set to error
+            // TODO This should be an error screen
+            Log.e("SETTINGS_LOCATION", viewState.errorString)
+            Toast.makeText(
+                LocalContext.current,
+                viewState.errorString,
+                Toast.LENGTH_LONG,
+            ).show()
+            viewModel.restoreSavedStateFromDatastore()
         }
+
 
         is ViewState.Success -> {
             val viewData = viewState.data

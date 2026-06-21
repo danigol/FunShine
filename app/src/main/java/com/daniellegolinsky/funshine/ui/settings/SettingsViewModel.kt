@@ -20,6 +20,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -43,6 +44,10 @@ class SettingsViewModel @Inject constructor(
     private var hasRequestedLocation: Boolean = false
 
     init {
+        restoreSavedStateFromDatastore()
+    }
+
+    fun restoreSavedStateFromDatastore() {
         viewModelScope.launch {
             updateViewStateFromDataStore()
         }
@@ -183,22 +188,33 @@ class SettingsViewModel @Inject constructor(
                         Priority.PRIORITY_HIGH_ACCURACY,
                         CancellationTokenSource().token,
                     ).addOnCompleteListener {
-                        val locationResult = it.result
-                        locationResult?.let { location ->
-                            // Create a less-accurate version of the location
-                            // Safer for protecting identities as much as we can with this data
-                            val latitude = getLocationScale(location.latitude.toBigDecimal())
-                            val longitude = getLocationScale(location.longitude.toBigDecimal())
-                            setViewStateLocation("${latitude},${longitude}")
-                            hasRequestedLocation = false
+                        if (it.isSuccessful) {
+                            val locationResult = it.result
+                            locationResult?.let { location ->
+                                // Create a less-accurate version of the location
+                                // Safer for protecting identities as much as we can with this data
+                                val latitude = getLocationScale(location.latitude.toBigDecimal())
+                                val longitude = getLocationScale(location.longitude.toBigDecimal())
+                                setViewStateLocation("${latitude},${longitude}")
+                                hasRequestedLocation = false
+                                setIsLoadingLocation(false)
+                            } ?: {
+                                setViewStateLocation("0.00, 0.00")
+                                // TODO Add a real error here
+                                updateViewStateWithError("Location result empty, try entering your latitude and longitude manually.")
+                            }
+                        } else {
+                            setViewStateLocation("0.00, 0.00")
+                            // TODO Add a real error here
+                            updateViewStateWithError("Location API lookup failure, try entering your latitude and longitude manually.")
                         }
-                        setIsLoadingLocation(false)
                     }
                 } catch (e: Exception) {
+                    // TODO THis should also be an error state
                     // The only way this could be called is bad programmers calling this without permission
                     // Fortunately, Android will shut that down. This just prevents a crash.
                     e.printStackTrace()
-                    setIsLoadingLocation(false)
+                    updateViewStateWithError("Unknown error occurred")
                 }
             }
         }
@@ -370,6 +386,16 @@ class SettingsViewModel @Inject constructor(
                 weatherButtonsOnRight = weatherButtonsOnRight ?: getViewStateButtonsOnRight(),
             )
         )
+    }
+
+    private fun updateViewStateWithError(
+        errorString: String,
+    ) {
+        _settingsViewState.update {
+            ViewState.Error(
+                errorString = errorString,
+            )
+        }
     }
 
     private fun mapSettingsToViewState(
