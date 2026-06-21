@@ -70,16 +70,12 @@ fun SettingsScreen(
         }
 
         is ViewState.Error -> {
-            // TODO This should be an error screen
-            Log.e("SETTINGS_LOCATION", viewState.errorString)
-            Toast.makeText(
-                LocalContext.current,
-                viewState.errorString,
-                Toast.LENGTH_LONG,
-            ).show()
-            viewModel.restoreSavedStateFromDatastore()
+            SettingsErrorDialog(
+                errorText = viewState.errorString,
+            ) {
+                viewModel.restoreSavedStateFromDatastore()
+            }
         }
-
 
         is ViewState.Success -> {
             val viewData = viewState.data

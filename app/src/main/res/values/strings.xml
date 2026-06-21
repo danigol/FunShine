@@ -31,6 +31,8 @@
     <string name="button_side_option_label">Bottom Button Side:</string>
     <string name="left">Left</string>
     <string name="right">Right</string>
+    <string name="error_dialog_heading">Error</string>
+    <string name="error_dialog_dismiss">Dismiss</string>
 
     <!-- Weather Condition String -->
     <string name="max_temp">Max daily temp:</string>
