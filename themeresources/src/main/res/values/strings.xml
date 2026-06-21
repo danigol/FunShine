@@ -15,4 +15,6 @@
     <string name="ic_settings_button_content_description">Settings button icon</string>
     <string name="ic_settings_button_back">Back button icon</string>
     <string name="ic_precise_location_button">Precise location arrow button</string>
+
+    <string name="settings_lat_long">Latitude, Longitude: </string>
 </resources>

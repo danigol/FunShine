@@ -13,6 +13,7 @@ import com.daniellegolinsky.funshine.models.TemperatureUnit
 import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +21,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import java.math.RoundingMode
 import javax.inject.Inject
 import javax.inject.Named
@@ -34,9 +36,11 @@ class SettingsViewModel @Inject constructor(
 
     private val tag = "SETTINGS_VIEW_MODEL"
 
-    private var _settingsViewState: MutableStateFlow<ViewState<SettingsViewState>> =
+    private val _settingsViewState: MutableStateFlow<ViewState<SettingsViewState>> =
             MutableStateFlow(ViewState.Loading())
     val settingsViewState: StateFlow<ViewState<SettingsViewState>> = _settingsViewState
+
+    private var hasRequestedLocation: Boolean = false
 
     init {
         viewModelScope.launch {
@@ -154,6 +158,14 @@ class SettingsViewModel @Inject constructor(
         return ioDispatcher
     }
 
+    fun getHasRequestedLocation(): Boolean {
+        return hasRequestedLocation
+    }
+
+    /**
+     * Fetches location using high accuracy, but tosses it out
+     * Only passes along 1 hundredth of a degree, or about 0.69 miles, rounding up
+     */
     @SuppressLint("MissingPermission")
     fun getApproximateLocation(
         locationGranted: Boolean,
@@ -164,18 +176,22 @@ class SettingsViewModel @Inject constructor(
             setGrantedPermission(locationGranted)
             // If granted location access, request it
             if (locationGranted) {
+                hasRequestedLocation = true
                 setIsLoadingLocation(true)
                 try {
                     locationClient.getCurrentLocation(
                         Priority.PRIORITY_HIGH_ACCURACY,
                         CancellationTokenSource().token,
                     ).addOnCompleteListener {
-                        val locationResult = it?.result
-                        val latitude = locationResult?.latitude?.toBigDecimal()
-                            ?.setScale(2, RoundingMode.UP)?.toFloat() ?: 0.0f
-                        val longitude = locationResult?.longitude?.toBigDecimal()
-                            ?.setScale(2, RoundingMode.UP)?.toFloat() ?: 0.0f
-                        setViewStateLocation("${latitude},${longitude}")
+                        val locationResult = it.result
+                        locationResult?.let { location ->
+                            // Create a less-accurate version of the location
+                            // Safer for protecting identities as much as we can with this data
+                            val latitude = getLocationScale(location.latitude.toBigDecimal())
+                            val longitude = getLocationScale(location.longitude.toBigDecimal())
+                            setViewStateLocation("${latitude},${longitude}")
+                            hasRequestedLocation = false
+                        }
                         setIsLoadingLocation(false)
                     }
                 } catch (e: Exception) {
@@ -186,6 +202,28 @@ class SettingsViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    // Registered as a listener in the activity for a single location change at start
+    // This should make it easier to look up locations later
+    fun respondToLocationChange(
+        locationGranted: Boolean = false,
+        locationResult: LocationResult
+    ) {
+        if (locationGranted) {
+            hasRequestedLocation = false
+            locationResult.lastLocation?.let { location ->
+                // Create a less-accurate version of the location
+                // Safer for protecting identities as much as we can with this data
+                val latitude = getLocationScale(location.latitude.toBigDecimal())
+                val longitude = getLocationScale(location.longitude.toBigDecimal())
+                setViewStateLocation("${latitude},${longitude}")
+            }
+        }
+    }
+
+    private fun getLocationScale(location: BigDecimal): Float {
+        return location.setScale(2, RoundingMode.UP)?.toFloat() ?: 0.0f
     }
 
     // Only allow digits, decimals, comma separators, or the negative sign. Will allow spaces
