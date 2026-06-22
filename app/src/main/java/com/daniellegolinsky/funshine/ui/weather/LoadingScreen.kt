@@ -3,15 +3,17 @@ package com.daniellegolinsky.funshine.ui.weather
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.daniellegolinsky.funshine.R
 import com.daniellegolinsky.funshinetheme.components.FsIconWithShadow
 import com.daniellegolinsky.funshinetheme.components.FsText
@@ -29,18 +31,19 @@ fun LoadingScreen(
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth(0.6f)
+            modifier = Modifier.fillMaxWidth(0.7f)
         ) {
             FsIconWithShadow(
                 image = painterResource(com.daniellegolinsky.themeresources.R.drawable.ic_loading_black),
                 imageResourceContentDescription = stringResource(id = R.string.wc_loading),
-                size = WeatherIconConstants.SIZE,
+                size = (WeatherIconConstants.SIZE.value * 0.7f).dp,
             )
         }
         FsText(
             text = stringResource(id = R.string.loading),
             textStyle = getHeadingFontStyle(),
-            maxLines = 1
+            maxLines = 1,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
