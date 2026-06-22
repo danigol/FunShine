@@ -37,7 +37,8 @@ fun WeatherComponentSmall(
         )
         ForecastComponent(
             forecast = data.forecast,
-            modifier = Modifier.fillMaxWidth(0.65f)
+            isOnSmallDisplay = true,
+            modifier = Modifier.fillMaxWidth(0.65f),
         )
     }
 }

@@ -69,25 +69,26 @@ fun WeatherScreen(
             }
 
             is ViewState.Success -> {
+                val config = LocalConfiguration.current
+                val widthHeightRatio: Float =
+                    config.screenWidthDp.toFloat() / config.screenHeightDp.toFloat()
+                val isSmallDisplay = config.screenHeightDp < config.screenWidthDp
+                    || widthHeightRatio < 1.25f && widthHeightRatio > 0.75f // It's square-like
+                    || config.screenWidthDp > (config.screenHeightDp * 1.5) // It's landscape
+
                 Column(
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = modifier
-                        .verticalScroll(rememberScrollState())
-                        .weight(1f)
+                    modifier = if (isSmallDisplay) {
+                        modifier
+                            .weight(1f)
+                    } else {
+                        modifier
+                            .verticalScroll(rememberScrollState())
+                            .weight(1f)
+                    }
                 ) {
-                    /* TODO
-                     *  May want to use foldable methods here with
-                     *      WindowInfoTracker on the containing activity
-                     *  But using recomposition from folding/unfolding to swap these out also works
-                     */
-                    val config = LocalConfiguration.current
-                    val widthHeightRatio: Float =
-                        config.screenWidthDp.toFloat() / config.screenHeightDp.toFloat()
-                    if (config.screenHeightDp < config.screenWidthDp
-                        || widthHeightRatio < 1.25f && widthHeightRatio > 0.75f // It's square-like
-                        || config.screenWidthDp > (config.screenHeightDp * 1.5) // It's landscape
-                    ) {
+                    if (isSmallDisplay) {
                         WeatherComponentSmall(viewState = viewState)
                     } else {
                         WeatherComponent(viewState = viewState)

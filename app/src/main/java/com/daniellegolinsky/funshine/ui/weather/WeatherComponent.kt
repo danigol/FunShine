@@ -30,7 +30,7 @@ fun WeatherComponent(
             temperature = data.temperature,
             temperatureUnit = data.temperatureUnit
         )
-        ForecastComponent(forecast = data.forecast)
+        ForecastComponent(forecast = data.forecast, isOnSmallDisplay = false)
     }
 }
 
