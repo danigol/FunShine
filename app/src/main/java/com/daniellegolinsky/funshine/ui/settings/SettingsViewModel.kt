@@ -205,12 +205,10 @@ class SettingsViewModel @Inject constructor(
                             }
                         } else {
                             setViewStateLocation("0.00, 0.00")
-                            // TODO Add a real error here
                             updateViewStateWithError("Location API lookup failure, try entering your latitude and longitude manually.")
                         }
                     }
                 } catch (e: Exception) {
-                    // TODO THis should also be an error state
                     // The only way this could be called is bad programmers calling this without permission
                     // Fortunately, Android will shut that down. This just prevents a crash.
                     e.printStackTrace()

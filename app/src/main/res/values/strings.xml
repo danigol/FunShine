@@ -33,6 +33,7 @@
     <string name="right">Right</string>
     <string name="error_dialog_heading">Error</string>
     <string name="error_dialog_dismiss">Dismiss</string>
+    <string name="settings_lat_lng">Latitude, Longitude: </string>
 
     <!-- Weather Condition String -->
     <string name="max_temp">Max daily temp:</string>

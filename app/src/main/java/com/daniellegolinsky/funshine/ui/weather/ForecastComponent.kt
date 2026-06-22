@@ -19,12 +19,12 @@ fun ForecastComponent(
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.padding(top = 8.dp),
+        modifier = modifier.padding(top = 12.dp, bottom = 12.dp),
     ) {
         FsText(
             text = forecast,
             textStyle = getBodyFontStyle(),
-            maxLines = 15,
+            maxLines = 25,
         )
     }
 }

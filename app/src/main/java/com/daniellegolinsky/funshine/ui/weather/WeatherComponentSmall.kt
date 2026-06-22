@@ -23,7 +23,7 @@ fun WeatherComponentSmall(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
         modifier = modifier
-            .padding(start = 0.dp, end = 2.dp, top = 8.dp, bottom = 4.dp)
+            .padding(start = 0.dp, end = 2.dp, top = 8.dp, bottom = 8.dp)
             .fillMaxWidth()
     ) {
         ConditionsComponent(

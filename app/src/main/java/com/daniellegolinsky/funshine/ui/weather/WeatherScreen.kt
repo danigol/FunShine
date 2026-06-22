@@ -140,7 +140,7 @@ fun WeatherScreen(
                     horizontalArrangement = if (viewState.data.buttonsOnRight) Arrangement.End else Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 32.dp, end = 32.dp, bottom = 32.dp, top = 0.dp)
+                        .padding(start = 32.dp, end = 32.dp, bottom = 20.dp, top = 8.dp)
                 ) {
                     FsIconButton(
                         buttonIcon = painterResource(id = R.drawable.ic_settings_button_black),

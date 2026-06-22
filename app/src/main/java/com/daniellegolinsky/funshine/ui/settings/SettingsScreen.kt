@@ -1,9 +1,6 @@
 package com.daniellegolinsky.funshine.ui.settings
 
 import android.annotation.SuppressLint
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,10 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +41,6 @@ import com.daniellegolinsky.funshinetheme.components.FsForwardButton
 import com.daniellegolinsky.funshinetheme.components.FsIconButton
 import com.daniellegolinsky.funshinetheme.components.FsLocationButton
 import com.daniellegolinsky.funshinetheme.components.FsTwoStateSwitch
-import com.daniellegolinsky.funshinetheme.designelements.getBackgroundColor
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyleWithoutShadow
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -112,7 +105,7 @@ fun SettingsScreen(
                         .fillMaxSize()
                         .padding(vertical = ScreenConstants.SCREEN_PADDING)
                 ) {
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                     FsAppBar(
                         headingText = stringResource(string.settings_heading),
                         backButtonAction = { cancelAndGoBack() }
@@ -121,12 +114,12 @@ fun SettingsScreen(
                     // Content
                     Column(
                         modifier = Modifier
-                            .padding(start = 32.dp, end = 32.dp)
+                            .padding(start = 20.dp, end = 20.dp)
                             .weight(1f)
                             .verticalScroll(rememberScrollState())
                     ) {
                         FsText(
-                            text = "Latitude, Longitude: ", // TODO NOOOOOOO How did I miss this?
+                            text = stringResource(string.settings_lat_lng),
                             textStyle = getBodyFontStyle(),
                             modifier = Modifier.align(alignment = Alignment.Start)
                         )
