@@ -12,8 +12,8 @@ class LocationProvider @Inject constructor(
     val locationService: LocationService,
 ) {
     fun getLocation(): Flow<Location> {
-        flow {
+        return flow {
             emit(locationService.getCurrentLocation())
-        }.flowOn()
+        }.flowOn(dispatcher)
     }
 }

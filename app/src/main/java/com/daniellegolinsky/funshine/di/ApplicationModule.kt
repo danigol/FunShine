@@ -122,10 +122,12 @@ object ApplicationModule {
         return WeatherRepo(weatherService, settingsRepo, apiRequestLimiter)
     }
 
+    // TODO Load up different location getter depending on build flavor
+
     @Provides
     @Singleton
     fun providesLocationService(
-        
+
     ): LocationService {
 
     }

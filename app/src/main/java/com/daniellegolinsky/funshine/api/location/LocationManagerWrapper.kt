@@ -2,7 +2,7 @@ package com.daniellegolinsky.funshine.api.location
 
 import com.daniellegolinsky.funshine.models.Location
 
-class FusedLocationProviderWrapper(): LocationService {
+class LocationManagerWrapper(): LocationService {
     override suspend fun getCurrentLocation(): Location {
 
     }
