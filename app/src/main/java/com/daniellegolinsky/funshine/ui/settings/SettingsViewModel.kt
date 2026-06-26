@@ -186,63 +186,26 @@ class SettingsViewModel @Inject constructor(
             if (locationGranted) {
                 hasRequestedLocation = true
                 setIsLoadingLocation(true)
-                // TODO also handle errors better here
                 try {
                     locationService.getCurrentLocation()
-                        .catch { error ->
-                            setViewStateLocation("0.00, 0.00")
-                            updateViewStateWithError(
-                                error.message ?: "Unknown Error"
-                            )
-                        }
                         .collect { locationResult ->
                             if (locationResult is LocationWrapperResult.Success) {
                                 val location = locationResult.location ?: Location(0.12f, 3.45f)
                                 setViewStateLocation("${location.latitude},${location.longitude}")
+                                hasRequestedLocation = false
+                                setIsLoadingLocation(false)
                             } else if (locationResult is LocationWrapperResult.Error){
                                 val error = locationResult.errorString
+                                setViewStateLocation("0.01, 0.02")
                                 updateViewStateWithError(error)
                             }
-                            hasRequestedLocation = false
-                            setIsLoadingLocation(false)
                         }
                 } catch (e: Exception) {
-                    setViewStateLocation("0.00, 0.00")
+                    setViewStateLocation("0.11, 0.13")
                     updateViewStateWithError(
                         e.message ?: "Unknown Error"
                     )
                 }
-//                try {
-//                    locationClient.getCurrentLocation(
-//                        Priority.PRIORITY_HIGH_ACCURACY,
-//                        CancellationTokenSource().token,
-//                    ).addOnCompleteListener {
-//                        if (it.isSuccessful) {
-//                            val locationResult = it.result
-//                            locationResult?.let { location ->
-//                                // Create a less-accurate version of the location
-//                                // Safer for protecting identities as much as we can with this data
-//                                val latitude = getLocationScale(location.latitude.toBigDecimal())
-//                                val longitude = getLocationScale(location.longitude.toBigDecimal())
-//                                setViewStateLocation("${latitude},${longitude}")
-//                                hasRequestedLocation = false
-//                                setIsLoadingLocation(false)
-//                            } ?: {
-//                                setViewStateLocation("0.00, 0.00")
-//                                // TODO Add a real error here
-//                                updateViewStateWithError("Location result empty, try entering your latitude and longitude manually.")
-//                            }
-//                        } else {
-//                            setViewStateLocation("0.00, 0.00")
-//                            updateViewStateWithError("Location API lookup failure, try entering your latitude and longitude manually.")
-//                        }
-//                    }
-//                } catch (e: Exception) {
-//                    // The only way this could be called is bad programmers calling this without permission
-//                    // Fortunately, Android will shut that down. This just prevents a crash.
-//                    e.printStackTrace()
-//                    updateViewStateWithError("Unknown error occurred")
-//                }
             }
         }
     }
