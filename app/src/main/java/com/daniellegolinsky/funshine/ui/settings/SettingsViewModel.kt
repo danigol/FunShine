@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.daniellegolinsky.funshine.api.location.LocationService
 import com.daniellegolinsky.funshine.data.SettingsRepo
 import com.daniellegolinsky.funshine.di.ApplicationModule
 import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
+import com.daniellegolinsky.funshine.usecase.GetLocationScaleUseCase
 import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -20,6 +22,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -30,9 +33,11 @@ import kotlin.math.absoluteValue
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsRepo: SettingsRepo, @Named(
+    private val settingsRepo: SettingsRepo,
+    @Named(
         ApplicationModule.IO_DISPATCHER
-    ) private val ioDispatcher: CoroutineDispatcher
+    ) private val ioDispatcher: CoroutineDispatcher,
+    private val locationService: LocationService,
 ) : ViewModel() {
 
     private val tag = "SETTINGS_VIEW_MODEL"
@@ -183,37 +188,43 @@ class SettingsViewModel @Inject constructor(
             if (locationGranted) {
                 hasRequestedLocation = true
                 setIsLoadingLocation(true)
-                try {
-                    locationClient.getCurrentLocation(
-                        Priority.PRIORITY_HIGH_ACCURACY,
-                        CancellationTokenSource().token,
-                    ).addOnCompleteListener {
-                        if (it.isSuccessful) {
-                            val locationResult = it.result
-                            locationResult?.let { location ->
-                                // Create a less-accurate version of the location
-                                // Safer for protecting identities as much as we can with this data
-                                val latitude = getLocationScale(location.latitude.toBigDecimal())
-                                val longitude = getLocationScale(location.longitude.toBigDecimal())
-                                setViewStateLocation("${latitude},${longitude}")
-                                hasRequestedLocation = false
-                                setIsLoadingLocation(false)
-                            } ?: {
-                                setViewStateLocation("0.00, 0.00")
-                                // TODO Add a real error here
-                                updateViewStateWithError("Location result empty, try entering your latitude and longitude manually.")
-                            }
-                        } else {
-                            setViewStateLocation("0.00, 0.00")
-                            updateViewStateWithError("Location API lookup failure, try entering your latitude and longitude manually.")
-                        }
-                    }
-                } catch (e: Exception) {
-                    // The only way this could be called is bad programmers calling this without permission
-                    // Fortunately, Android will shut that down. This just prevents a crash.
-                    e.printStackTrace()
-                    updateViewStateWithError("Unknown error occurred")
+                // TODO also handle errors here
+                locationService.getCurrentLocation().filterNotNull().collect { location ->
+                    setViewStateLocation("${location.latitude},${location.longitude}")
+                    hasRequestedLocation = false
+                    setIsLoadingLocation(false)
                 }
+//                try {
+//                    locationClient.getCurrentLocation(
+//                        Priority.PRIORITY_HIGH_ACCURACY,
+//                        CancellationTokenSource().token,
+//                    ).addOnCompleteListener {
+//                        if (it.isSuccessful) {
+//                            val locationResult = it.result
+//                            locationResult?.let { location ->
+//                                // Create a less-accurate version of the location
+//                                // Safer for protecting identities as much as we can with this data
+//                                val latitude = getLocationScale(location.latitude.toBigDecimal())
+//                                val longitude = getLocationScale(location.longitude.toBigDecimal())
+//                                setViewStateLocation("${latitude},${longitude}")
+//                                hasRequestedLocation = false
+//                                setIsLoadingLocation(false)
+//                            } ?: {
+//                                setViewStateLocation("0.00, 0.00")
+//                                // TODO Add a real error here
+//                                updateViewStateWithError("Location result empty, try entering your latitude and longitude manually.")
+//                            }
+//                        } else {
+//                            setViewStateLocation("0.00, 0.00")
+//                            updateViewStateWithError("Location API lookup failure, try entering your latitude and longitude manually.")
+//                        }
+//                    }
+//                } catch (e: Exception) {
+//                    // The only way this could be called is bad programmers calling this without permission
+//                    // Fortunately, Android will shut that down. This just prevents a crash.
+//                    e.printStackTrace()
+//                    updateViewStateWithError("Unknown error occurred")
+//                }
             }
         }
     }

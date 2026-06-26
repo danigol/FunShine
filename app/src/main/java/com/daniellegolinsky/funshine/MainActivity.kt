@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
+        // TODO replace this with something that can swap out or ignore it entirely depending on the build
         val fusedLocationProvider = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationProvider.removeLocationUpdates(locationCallback)
     }
