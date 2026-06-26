@@ -33,6 +33,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField("long", "VERSION_CODE", "${defaultConfig.versionCode}")
             buildConfigField("String","VERSION_NAME","\"${defaultConfig.versionName}\"")
+            applicationIdSuffix = ".foss"
         }
         debug {
             buildConfigField("long", "VERSION_CODE", "${defaultConfig.versionCode}")
@@ -41,6 +42,8 @@ android {
         debugFoss {
             buildConfigField("long", "VERSION_CODE", "${defaultConfig.versionCode}")
             buildConfigField("String","VERSION_NAME","\"${defaultConfig.versionName}\"")
+            applicationIdSuffix = ".foss"
+            signingConfig signingConfigs.debug
         }
     }
     compileOptions {

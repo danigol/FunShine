@@ -9,20 +9,18 @@ import com.daniellegolinsky.funshine.data.SettingsRepo
 import com.daniellegolinsky.funshine.di.ApplicationModule
 import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
+import com.daniellegolinsky.funshine.models.LocationWrapperResult
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
-import com.daniellegolinsky.funshine.usecase.GetLocationScaleUseCase
 import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -188,11 +186,31 @@ class SettingsViewModel @Inject constructor(
             if (locationGranted) {
                 hasRequestedLocation = true
                 setIsLoadingLocation(true)
-                // TODO also handle errors here
-                locationService.getCurrentLocation().filterNotNull().collect { location ->
-                    setViewStateLocation("${location.latitude},${location.longitude}")
-                    hasRequestedLocation = false
-                    setIsLoadingLocation(false)
+                // TODO also handle errors better here
+                try {
+                    locationService.getCurrentLocation()
+                        .catch { error ->
+                            setViewStateLocation("0.00, 0.00")
+                            updateViewStateWithError(
+                                error.message ?: "Unknown Error"
+                            )
+                        }
+                        .collect { locationResult ->
+                            if (locationResult is LocationWrapperResult.Success) {
+                                val location = locationResult.location ?: Location(0.12f, 3.45f)
+                                setViewStateLocation("${location.latitude},${location.longitude}")
+                            } else if (locationResult is LocationWrapperResult.Error){
+                                val error = locationResult.errorString
+                                updateViewStateWithError(error)
+                            }
+                            hasRequestedLocation = false
+                            setIsLoadingLocation(false)
+                        }
+                } catch (e: Exception) {
+                    setViewStateLocation("0.00, 0.00")
+                    updateViewStateWithError(
+                        e.message ?: "Unknown Error"
+                    )
                 }
 //                try {
 //                    locationClient.getCurrentLocation(
@@ -231,6 +249,7 @@ class SettingsViewModel @Inject constructor(
 
     // Registered as a listener in the activity for a single location change at start
     // This should make it easier to look up locations later
+    // TODO This also has to be disabled for foss builds
     fun respondToLocationChange(
         locationGranted: Boolean = false,
         locationResult: LocationResult
