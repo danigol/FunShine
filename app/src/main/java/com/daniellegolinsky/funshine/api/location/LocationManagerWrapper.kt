@@ -23,10 +23,15 @@ class LocationManagerWrapper(
             LocationWrapperResult.Loading()
         )
 
-        val lastLoc =
-            locationClient.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)?.toLocation()
+        // Prefer network provider, only get last GPS location if it's null
+        var lastLoc =
+            locationClient.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+        if (lastLoc == null) {
+           lastLoc =
+               locationClient.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        }
         if (lastLoc != null) {
-            locationFlow.update { LocationWrapperResult.Success(lastLoc) }
+            locationFlow.update { LocationWrapperResult.Success(lastLoc.toLocation()) }
         } else {
             // TODO Can try to do get last known location first, and if it has nothing, do the rest
             locationFlow.update {
