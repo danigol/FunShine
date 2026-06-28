@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.daniellegolinsky.funshine.BuildConfig
 import com.daniellegolinsky.funshine.api.location.LocationService
 import com.daniellegolinsky.funshine.data.SettingsRepo
 import com.daniellegolinsky.funshine.di.ApplicationModule
@@ -217,7 +218,7 @@ class SettingsViewModel @Inject constructor(
         locationGranted: Boolean = false,
         locationResult: LocationResult
     ) {
-        if (locationGranted) {
+        if (locationGranted && !BuildConfig.BUILD_TYPE.lowercase().contains("foss")) {
             hasRequestedLocation = false
             locationResult.lastLocation?.let { location ->
                 // Create a less-accurate version of the location

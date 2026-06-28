@@ -25,6 +25,8 @@ class MainActivity : ComponentActivity() {
 
     private val settingsViewModel: SettingsViewModel by viewModels()
 
+    private val isFoss = BuildConfig.BUILD_TYPE.lowercase().contains("foss")
+
     private var canGetLocation = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,9 +50,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        // TODO replace this with something that can swap out or ignore it entirely depending on the build
-        val fusedLocationProvider = LocationServices.getFusedLocationProviderClient(this)
-        fusedLocationProvider.removeLocationUpdates(locationCallback)
+        if (!isFoss) {
+            val fusedLocationProvider = LocationServices.getFusedLocationProviderClient(this)
+            fusedLocationProvider.removeLocationUpdates(locationCallback)
+        }
     }
 
     override fun onResume() {
@@ -67,15 +70,18 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setLocationCallback() {
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(p0: LocationResult) {
-                // Only run the function if we're already waiting on the location anyway
-                if (settingsViewModel.getHasRequestedLocation()) {
-                    p0?.let { location -> // Curiously this is nullable in other builds, so to be safe...
-                        settingsViewModel.respondToLocationChange(
-                            locationGranted = canGetLocation,
-                            locationResult = location
-                        )
+        // This uses google libraries, we don't want those running in the foss versions
+        if (!isFoss) {
+            locationCallback = object : LocationCallback() {
+                override fun onLocationResult(p0: LocationResult) {
+                    // Only run the function if we're already waiting on the location anyway
+                    if (settingsViewModel.getHasRequestedLocation()) {
+                        p0?.let { location -> // Curiously this is nullable in other builds, so to be safe...
+                            settingsViewModel.respondToLocationChange(
+                                locationGranted = canGetLocation,
+                                locationResult = location
+                            )
+                        }
                     }
                 }
             }
