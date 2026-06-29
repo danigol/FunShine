@@ -48,6 +48,7 @@
     <string name="kph">kph</string>
     <string name="currently">right now</string>
     <string name="inch_abbreviation">in</string>
+    <string name="scroll_indicator">.  .  .</string>
 
     <!--      ***      -->
     <!-- Weather Codes -->

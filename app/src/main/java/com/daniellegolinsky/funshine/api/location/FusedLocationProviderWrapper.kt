@@ -16,7 +16,7 @@ class FusedLocationProviderWrapper(
     private val getLocationScaleUseCase: GetLocationScaleUseCase,
     private val locationClient: FusedLocationProviderClient,
 ) : LocationService {
-    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_COARSE_LOCATION])
     override suspend fun getCurrentLocation(): Flow<LocationWrapperResult<Location?>> {
         val locationFlow: MutableStateFlow<LocationWrapperResult<Location?>> = MutableStateFlow(
             LocationWrapperResult.Loading()

@@ -23,12 +23,12 @@ class LocationManagerWrapper(
             LocationWrapperResult.Loading()
         )
 
-        // Prefer network provider, only get last GPS location if it's null
+        // Get last location first, before the more complicated process of getting current
         var lastLoc =
-            locationClient.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+            locationClient.getLastKnownLocation(LocationManager.GPS_PROVIDER)
         if (lastLoc == null) {
            lastLoc =
-               locationClient.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+               locationClient.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
         }
         if (lastLoc != null) {
             locationFlow.update { LocationWrapperResult.Success(lastLoc.toLocation()) }
