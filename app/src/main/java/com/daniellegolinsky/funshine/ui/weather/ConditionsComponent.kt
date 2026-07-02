@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.daniellegolinsky.funshine.ui.getShadowMatrix
@@ -31,33 +32,42 @@ fun ConditionsComponent(
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        modifier = modifier.fillMaxWidth()
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
+            modifier = Modifier.fillMaxWidth()
         ) {
             // Small screens will use hint shadow to reduce padding
             FsIconWithShadow(
                 image = painterResource(weatherIconResource),
-                imageResourceContentDescription = stringResource(id = weatherIconContentDescription),
+                imageResourceContentDescription =
+                    stringResource(id = weatherIconContentDescription),
                 size = weatherIconSize,
                 modifier = Modifier.fillMaxWidth(),
                 providedShadowMatrix = getShadowMatrix(isOnSmallDisplay)
             )
         }
-        FsText(
-            text = "${temperature}${temperatureUnit}",
-            textStyle = if (isOnSmallDisplay) {
-                getHeadingFontStyle(
-                    shadowOffsetX = ThemeConstants.SHADOW_OFFSET_X_QUARTER,
-                    shadowOffsetY = ThemeConstants.SHADOW_OFFSET_Y_QUARTER,
-                )
-            } else {
-                getHeadingFontStyle()
-            },
-            maxLines = 1,
-        )
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            FsText(
+                text = "${temperature}${temperatureUnit}",
+                textStyle = if (isOnSmallDisplay) {
+                    getHeadingFontStyle(
+                        shadowOffsetX = ThemeConstants.SHADOW_OFFSET_X_QUARTER,
+                        shadowOffsetY = ThemeConstants.SHADOW_OFFSET_Y_QUARTER,
+                        blurRadius = ThemeConstants.SHADOW_BLUR_RADIUS_QUARTER,
+                    )
+                } else {
+                    getHeadingFontStyle()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+            )
+        }
     }
 }
 
@@ -70,5 +80,18 @@ fun PreviewConditionsComponent() {
         weatherIconSize = WeatherIconConstants.SIZE,
         temperature = 74,
         temperatureUnit = "ºF",
+    )
+}
+
+@Preview
+@Composable
+fun PreviewConditionsComponentSmall() {
+    ConditionsComponent(
+        weatherIconResource = com.daniellegolinsky.themeresources.R.drawable.ic_sunny_black,
+        weatherIconContentDescription = com.daniellegolinsky.themeresources.R.string.ic_sunny_content_description,
+        weatherIconSize = WeatherIconConstants.SIZE,
+        temperature = 74,
+        temperatureUnit = "ºF",
+        isOnSmallDisplay = true,
     )
 }

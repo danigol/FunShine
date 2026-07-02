@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.daniellegolinsky.funshine.ui.components.ScrollIndicatorDots
 import com.daniellegolinsky.funshinetheme.components.FsText
 import com.daniellegolinsky.funshinetheme.designelements.ThemeConstants
+import com.daniellegolinsky.funshinetheme.designelements.getShadowBlurRadius
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 
 @Composable
@@ -47,6 +48,7 @@ fun ForecastComponent(
                 getBodyFontStyle(
                     shadowOffsetX = ThemeConstants.SHADOW_OFFSET_X_QUARTER,
                     shadowOffsetY = ThemeConstants.SHADOW_OFFSET_Y_QUARTER,
+                    blurRadius = ThemeConstants.SHADOW_BLUR_RADIUS_QUARTER,
                 )
             } else {
                 getBodyFontStyle()
