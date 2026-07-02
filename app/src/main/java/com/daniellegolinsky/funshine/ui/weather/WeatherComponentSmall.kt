@@ -32,6 +32,7 @@ fun WeatherComponentSmall(
             weatherIconSize = WeatherIconConstants.SMALL_SIZE,
             temperature = data.temperature,
             temperatureUnit = data.temperatureUnit,
+            isOnSmallDisplay = true,
             modifier = Modifier
                 .fillMaxWidth(0.35f)
         )

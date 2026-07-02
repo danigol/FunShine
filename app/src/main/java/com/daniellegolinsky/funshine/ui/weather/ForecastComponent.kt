@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.daniellegolinsky.funshine.ui.components.ScrollIndicatorDots
 import com.daniellegolinsky.funshinetheme.components.FsText
+import com.daniellegolinsky.funshinetheme.designelements.ThemeConstants
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 
 @Composable
@@ -42,7 +43,14 @@ fun ForecastComponent(
     ) {
         FsText(
             text = forecast,
-            textStyle = getBodyFontStyle(),
+            textStyle = if (isOnSmallDisplay) {
+                getBodyFontStyle(
+                    shadowOffsetX = ThemeConstants.SHADOW_OFFSET_X_QUARTER,
+                    shadowOffsetY = ThemeConstants.SHADOW_OFFSET_Y_QUARTER,
+                )
+            } else {
+                getBodyFontStyle()
+            },
             maxLines = 25,
             modifier = if (isOnSmallDisplay) {
                 Modifier.weight(1f).verticalScroll(scrollState!!)
