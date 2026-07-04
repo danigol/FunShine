@@ -5,5 +5,5 @@ import com.daniellegolinsky.funshine.models.LocationWrapperResult
 import kotlinx.coroutines.flow.Flow
 
 interface LocationService {
-    suspend fun getCurrentLocation(): Flow<LocationWrapperResult<Location?>>
+    suspend fun getCurrentLocation(): Flow<LocationWrapperResult<Location>>
 }

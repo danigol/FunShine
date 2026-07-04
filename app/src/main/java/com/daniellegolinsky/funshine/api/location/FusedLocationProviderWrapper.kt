@@ -16,13 +16,13 @@ class FusedLocationProviderWrapper(
     private val getLocationScaleUseCase: GetLocationScaleUseCase,
     private val locationClient: FusedLocationProviderClient,
 ) : LocationService {
-    @RequiresPermission(allOf = [Manifest.permission.ACCESS_COARSE_LOCATION])
-    override suspend fun getCurrentLocation(): Flow<LocationWrapperResult<Location?>> {
-        val locationFlow: MutableStateFlow<LocationWrapperResult<Location?>> = MutableStateFlow(
+    @RequiresPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+    override suspend fun getCurrentLocation(): Flow<LocationWrapperResult<Location>> {
+        val locationFlow: MutableStateFlow<LocationWrapperResult<Location>> = MutableStateFlow(
             LocationWrapperResult.Loading()
         )
         locationClient.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
+            Priority.PRIORITY_BALANCED_POWER_ACCURACY,
             CancellationTokenSource().token,
         ).addOnCompleteListener {
             if (it.isSuccessful) {

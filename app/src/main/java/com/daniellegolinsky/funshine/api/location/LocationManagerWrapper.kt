@@ -17,9 +17,9 @@ class LocationManagerWrapper(
     private val dispatcher: CoroutineDispatcher,
 ): LocationService {
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_COARSE_LOCATION])
-    override suspend fun getCurrentLocation(): Flow<LocationWrapperResult<Location?>> {
+    override suspend fun getCurrentLocation(): Flow<LocationWrapperResult<Location>> {
         // TODO This will be put together after the fused location provider works
-        val locationFlow: MutableStateFlow<LocationWrapperResult<Location?>> = MutableStateFlow(
+        val locationFlow: MutableStateFlow<LocationWrapperResult<Location>> = MutableStateFlow(
             LocationWrapperResult.Loading()
         )
 

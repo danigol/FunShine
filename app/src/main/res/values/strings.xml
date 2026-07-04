@@ -35,6 +35,8 @@
     <string name="error_dialog_heading">Error</string>
     <string name="error_dialog_dismiss">Dismiss</string>
     <string name="settings_lat_lng">Latitude, Longitude: </string>
+    <string name="settings_timeout_error">Timeout error.\nYou may need to turn on \"Improve Location Accuracy\" if your device is using Google Play Services. You could also try going outside to get a GPS signal, and opening your maps app to check if it can obtain a location.</string>
+    <string name="settings_unknown_error">Unknown Error</string>
 
     <!-- Weather Condition String -->
     <string name="max_temp">Max daily temp:</string>

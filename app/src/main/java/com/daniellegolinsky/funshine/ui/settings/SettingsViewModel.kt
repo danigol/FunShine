@@ -13,22 +13,28 @@ import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.LocationWrapperResult
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
+import com.daniellegolinsky.funshine.utilities.ResourceProvider
 import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
+import com.daniellegolinsky.funshinetheme.R
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.math.absoluteValue
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -37,6 +43,7 @@ class SettingsViewModel @Inject constructor(
         ApplicationModule.IO_DISPATCHER
     ) private val ioDispatcher: CoroutineDispatcher,
     private val locationService: LocationService,
+    private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
     private val tag = "SETTINGS_VIEW_MODEL"
@@ -188,23 +195,39 @@ class SettingsViewModel @Inject constructor(
                 hasRequestedLocation = true
                 setIsLoadingLocation(true)
                 try {
-                    locationService.getCurrentLocation()
-                        .collect { locationResult ->
-                            if (locationResult is LocationWrapperResult.Success) {
-                                val location = locationResult.location ?: Location(0.12f, 3.45f)
-                                setViewStateLocation("${location.latitude},${location.longitude}")
-                                hasRequestedLocation = false
-                                setIsLoadingLocation(false)
-                            } else if (locationResult is LocationWrapperResult.Error){
-                                val error = locationResult.errorString
-                                setViewStateLocation("0.01, 0.02")
-                                updateViewStateWithError(error)
+                    withTimeout(15000.milliseconds) {
+                        locationService.getCurrentLocation()
+                            .collect { locationResult ->
+                                when (locationResult) {
+                                    is LocationWrapperResult.Success -> {
+                                        val location = locationResult.location
+                                        setViewStateLocation("${location.latitude},${location.longitude}")
+                                        hasRequestedLocation = false
+                                        setIsLoadingLocation(false)
+                                    }
+                                    is LocationWrapperResult.Error -> {
+                                        val error = locationResult.errorString
+                                        setViewStateLocation("0.0, 0.0")
+                                        updateViewStateWithError(error)
+                                    }
+                                    else -> {
+                                        setIsLoadingLocation(true)
+                                    }
+                                }
                             }
-                        }
-                } catch (e: Exception) {
-                    setViewStateLocation("0.11, 0.13")
+                    }
+                } catch (_: TimeoutCancellationException) {
                     updateViewStateWithError(
-                        e.message ?: "Unknown Error"
+                        resourceProvider.getString(
+                            com.daniellegolinsky.funshine.R.string.settings_timeout_error
+                        )
+                    )
+                }
+                catch (e: Exception) {
+                    updateViewStateWithError(
+                        e.message ?: resourceProvider.getString(
+                            com.daniellegolinsky.funshine.R.string.settings_unknown_error
+                        )
                     )
                 }
             }
@@ -383,6 +406,8 @@ class SettingsViewModel @Inject constructor(
     private fun updateViewStateWithError(
         errorString: String,
     ) {
+        setIsLoadingLocation(false)
+        setViewStateLocation("0.0, 0.0")
         _settingsViewState.update {
             ViewState.Error(
                 errorString = errorString,
