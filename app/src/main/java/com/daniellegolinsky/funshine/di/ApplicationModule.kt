@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.daniellegolinsky.funshine.BuildConfig
+import com.daniellegolinsky.funshine.FunshineApplication
 import com.daniellegolinsky.funshine.api.OpenMeteoWeatherService
 import com.daniellegolinsky.funshine.api.location.FusedLocationProviderWrapper
 import com.daniellegolinsky.funshine.api.location.LocationManagerWrapper
@@ -139,7 +140,6 @@ object ApplicationModule {
     fun providesLocationService(
         getLocationScaleUseCase: GetLocationScaleUseCase,
         @ApplicationContext appContext: Context,
-        @Named(IO_DISPATCHER) dispatcher: CoroutineDispatcher
     ): LocationService {
         return if (!BuildConfig.BUILD_TYPE.lowercase().contains("foss")) {
             FusedLocationProviderWrapper(
@@ -151,7 +151,7 @@ object ApplicationModule {
                 getLocationScaleUseCase = getLocationScaleUseCase,
                 locationClient = appContext
                     .getSystemService(Context.LOCATION_SERVICE) as LocationManager,
-                dispatcher,
+                mainExecutor = appContext.mainExecutor,
             )
         }
     }

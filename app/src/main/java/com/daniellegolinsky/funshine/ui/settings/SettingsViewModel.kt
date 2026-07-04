@@ -195,7 +195,7 @@ class SettingsViewModel @Inject constructor(
                 hasRequestedLocation = true
                 setIsLoadingLocation(true)
                 try {
-                    withTimeout(15000.milliseconds) {
+                    withTimeout(30000.milliseconds) {
                         locationService.getCurrentLocation()
                             .collect { locationResult ->
                                 when (locationResult) {
