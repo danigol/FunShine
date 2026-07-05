@@ -118,6 +118,13 @@ class SettingsViewModel @Inject constructor(
     private fun setIsLoadingLocation(isLoading: Boolean) {
         _settingsViewState.value = updateViewState(isLoadingLocation = isLoading)
     }
+    private fun isLoadingLocation(): Boolean {
+        return if (_settingsViewState.value is ViewState.Success) {
+            (_settingsViewState.value as ViewState.Success<SettingsViewState>).data.isLoadingLocation
+        } else {
+            false
+        }
+    }
 
     private suspend fun setGrantedPermission(granted: Boolean) {
         settingsRepo.setGrantedLocationPermissionBefore(granted)
@@ -217,11 +224,13 @@ class SettingsViewModel @Inject constructor(
                             }
                     }
                 } catch (_: TimeoutCancellationException) {
-                    updateViewStateWithError(
-                        resourceProvider.getString(
-                            com.daniellegolinsky.funshine.R.string.settings_timeout_error
+                    if (isLoadingLocation()) {
+                        updateViewStateWithError(
+                            resourceProvider.getString(
+                                com.daniellegolinsky.funshine.R.string.settings_timeout_error
+                            )
                         )
-                    )
+                    }
                 }
                 catch (e: Exception) {
                     updateViewStateWithError(

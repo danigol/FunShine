@@ -36,6 +36,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asExecutor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -140,6 +141,7 @@ object ApplicationModule {
     fun providesLocationService(
         getLocationScaleUseCase: GetLocationScaleUseCase,
         @ApplicationContext appContext: Context,
+        @Named(IO_DISPATCHER) dispatcher: CoroutineDispatcher,
     ): LocationService {
         return if (!BuildConfig.BUILD_TYPE.lowercase().contains("foss")) {
             FusedLocationProviderWrapper(
@@ -151,7 +153,8 @@ object ApplicationModule {
                 getLocationScaleUseCase = getLocationScaleUseCase,
                 locationClient = appContext
                     .getSystemService(Context.LOCATION_SERVICE) as LocationManager,
-                mainExecutor = appContext.mainExecutor,
+//                mainExecutor = appContext.mainExecutor,
+                mainExecutor = dispatcher.asExecutor(),
             )
         }
     }
