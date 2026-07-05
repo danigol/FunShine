@@ -4,18 +4,13 @@ import android.Manifest
 import android.location.LocationManager
 import android.os.Build.VERSION.SDK_INT
 import androidx.annotation.RequiresPermission
-import com.daniellegolinsky.funshine.FunshineApplication
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.LocationWrapperResult
 import com.daniellegolinsky.funshine.usecase.GetLocationScaleUseCase
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.concurrent.Executor
-import java.util.function.Consumer
 
 class LocationManagerWrapper(
     private val getLocationScaleUseCase: GetLocationScaleUseCase,
@@ -30,29 +25,42 @@ class LocationManagerWrapper(
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_COARSE_LOCATION])
     override suspend fun getCurrentLocation(): Flow<LocationWrapperResult<Location>> {
 
-        if (SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            locationClient.getCurrentLocation(
-                LocationManager.GPS_PROVIDER,
-                null,
-                mainExecutor,
-            ) { location ->
-                if (location != null) {
-                    locationFlow.update {
-                        LocationWrapperResult.Success(location.toLocation())
+        // Only get the last known location if we can,
+        // It's faster and usually accurate
+        if (!getLastKnownLocation()) {
+            // Try another way, if we can
+            if (SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                locationClient.getCurrentLocation(
+                    LocationManager.GPS_PROVIDER,
+                    null,
+                    mainExecutor,
+                ) { location ->
+                    if (location != null) {
+                        locationFlow.update {
+                            LocationWrapperResult.Success(location.toLocation())
+                        }
+                    } else {
+                        informUserOfLocationError()
                     }
-                } else {
-                    getLessAccurateLocation()
                 }
+            } else {
+                informUserOfLocationError()
             }
-        } else {
-            getLessAccurateLocation()
         }
 
         return locationFlow
     }
 
+    private fun informUserOfLocationError() {
+        locationFlow.update {
+            LocationWrapperResult.Error(
+                "Could not get location. Try going outside, opening your maps app, and ensuring location permissions are turned on and active on your device."
+            )
+        }
+    }
+
     @RequiresPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-    private fun getLessAccurateLocation() {
+    private fun getLastKnownLocation(): Boolean {
         var lastLoc =
             locationClient.getLastKnownLocation(LocationManager.GPS_PROVIDER)
         if (lastLoc == null) {
@@ -61,13 +69,8 @@ class LocationManagerWrapper(
         }
         if (lastLoc != null) {
             locationFlow.update { LocationWrapperResult.Success(lastLoc.toLocation()) }
-        } else {
-            locationFlow.update {
-                LocationWrapperResult.Error(
-                    "Could not get location. Try going outside, opening your maps app, and ensuring location permissions are turned on and active on your device."
-                )
-            }
         }
+        return lastLoc != null
     }
 
     fun android.location.Location.toLocation():  Location {
