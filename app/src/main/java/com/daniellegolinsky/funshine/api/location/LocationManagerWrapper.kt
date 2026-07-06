@@ -1,6 +1,7 @@
 package com.daniellegolinsky.funshine.api.location
 
 import android.Manifest
+import android.location.Criteria
 import android.location.LocationManager
 import android.os.Build.VERSION.SDK_INT
 import androidx.annotation.RequiresPermission
@@ -30,8 +31,14 @@ class LocationManagerWrapper(
         if (!getLastKnownLocation()) {
             // Try another way, if we can
             if (SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                val criteria = Criteria()
+                criteria.accuracy = Criteria.ACCURACY_COARSE
+                val bestProvider = locationClient.getBestProvider(
+                    criteria,
+                    true,
+                ) ?: LocationManager.GPS_PROVIDER
                 locationClient.getCurrentLocation(
-                    LocationManager.GPS_PROVIDER,
+                    bestProvider,
                     null,
                     mainExecutor,
                 ) { location ->
