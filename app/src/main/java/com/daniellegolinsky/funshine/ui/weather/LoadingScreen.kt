@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.daniellegolinsky.funshine.R
+import com.daniellegolinsky.funshine.ui.getIsSmallDisplay
+import com.daniellegolinsky.funshine.ui.getShadowMatrix
 import com.daniellegolinsky.funshinetheme.components.FsIconWithShadow
 import com.daniellegolinsky.funshinetheme.components.FsText
 import com.daniellegolinsky.funshinetheme.font.getHeadingFontStyle
@@ -25,6 +28,7 @@ import com.daniellegolinsky.themeresources.WeatherIconConstants
 fun LoadingScreen(
     modifier: Modifier = Modifier,
 ) {
+    val isOnSmallDisplay = getIsSmallDisplay(LocalConfiguration.current)
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -38,11 +42,12 @@ fun LoadingScreen(
                 image = painterResource(com.daniellegolinsky.themeresources.R.drawable.ic_loading_black),
                 imageResourceContentDescription = stringResource(id = R.string.wc_loading),
                 size = (WeatherIconConstants.SIZE.value * 0.7f).dp,
+                providedShadowMatrix = getShadowMatrix(isOnSmallDisplay),
             )
         }
         FsText(
             text = stringResource(id = R.string.loading),
-            textStyle = getHeadingFontStyle(),
+            textStyle = getHeadingFontStyle(isOnSmallDisplay),
             maxLines = 1,
             modifier = Modifier.fillMaxWidth(),
         )

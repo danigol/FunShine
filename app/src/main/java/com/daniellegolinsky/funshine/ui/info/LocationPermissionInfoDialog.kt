@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.daniellegolinsky.funshine.R
 import com.daniellegolinsky.funshine.R.string
 import com.daniellegolinsky.funshine.ui.components.FullScreenDialog
+import com.daniellegolinsky.funshine.ui.getIsSmallDisplay
 import com.daniellegolinsky.funshinetheme.components.FsLocationButton
 import com.daniellegolinsky.funshinetheme.components.FsText
 import com.daniellegolinsky.funshinetheme.components.FsTextButton
@@ -32,6 +34,7 @@ fun LocationPermissionInfoDialog(
 ) {
     val uriHandler = LocalUriHandler.current
     val openMeteoTermsLink = stringResource(id = R.string.open_meteo_terms_link)
+    val isOnSmallDisplay = getIsSmallDisplay(LocalConfiguration.current)
 
     FullScreenDialog(
         heading = stringResource(id = R.string.welcome_to_funshine),
@@ -40,18 +43,18 @@ fun LocationPermissionInfoDialog(
         body = @Composable {
             FsText(
                 text = stringResource(id = R.string.location_button_introduction),
-                textStyle = getBodyFontStyle()
+                textStyle = getBodyFontStyle(isOnSmallDisplay)
             )
             FsLocationButton {}
             FsText(
                 text = stringResource(id = R.string.location_explanation),
                 maxLines = 31,
-                textStyle = getBodyFontStyle()
+                textStyle = getBodyFontStyle(isOnSmallDisplay)
             )
             Spacer(modifier = Modifier.height(8.dp))
             FsText(
                 text = openMeteoTermsLink,
-                textStyle = getBodyFontStyle(),
+                textStyle = getBodyFontStyle(isOnSmallDisplay),
                 modifier = Modifier.clickable(role = Role.Button) {
                     uriHandler.openUri(openMeteoTermsLink)
                 }

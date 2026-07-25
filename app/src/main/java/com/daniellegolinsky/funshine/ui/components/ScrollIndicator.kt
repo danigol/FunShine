@@ -11,10 +11,11 @@ import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 @Composable
 fun ScrollIndicatorDots(
     modifier: Modifier = Modifier,
+    isOnSmallDisplay: Boolean = true,
 ) {
     FsText(
         text = stringResource(R.string.scroll_indicator),
-        textStyle = getBodyFontStyle(),
+        textStyle = getBodyFontStyle(isOnSmallDisplay),
         modifier = modifier,
     )
 }

@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -33,6 +34,7 @@ import com.daniellegolinsky.funshinetheme.components.FsTextButton
 import com.daniellegolinsky.funshinetheme.components.FsTextField
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 import com.daniellegolinsky.funshine.ui.ScreenConstants
+import com.daniellegolinsky.funshine.ui.getIsSmallDisplay
 import com.daniellegolinsky.funshine.ui.info.LocationPermissionInfoDialog
 import com.daniellegolinsky.funshine.ui.weather.LoadingScreen
 import com.daniellegolinsky.funshine.viewstates.ViewState
@@ -57,6 +59,7 @@ fun SettingsScreen(
     navigateToAbout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isOnSmallDisplay = getIsSmallDisplay(LocalConfiguration.current)
 
     when (val viewState = viewModel.settingsViewState.collectAsStateWithLifecycle().value) {
         is ViewState.Loading -> {
@@ -120,7 +123,7 @@ fun SettingsScreen(
                     ) {
                         FsText(
                             text = stringResource(string.settings_lat_lng),
-                            textStyle = getBodyFontStyle(),
+                            textStyle = getBodyFontStyle(isOnSmallDisplay),
                             modifier = Modifier.align(alignment = Alignment.Start)
                         )
                         FsTextField(

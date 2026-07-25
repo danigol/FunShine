@@ -44,15 +44,7 @@ fun ForecastComponent(
     ) {
         FsText(
             text = forecast,
-            textStyle = if (isOnSmallDisplay) {
-                getBodyFontStyle(
-                    shadowOffsetX = ThemeConstants.SHADOW_OFFSET_X_QUARTER,
-                    shadowOffsetY = ThemeConstants.SHADOW_OFFSET_Y_QUARTER,
-                    blurRadius = ThemeConstants.SHADOW_BLUR_RADIUS_QUARTER,
-                )
-            } else {
-                getBodyFontStyle()
-            },
+            textStyle = getBodyFontStyle(isOnSmallDisplay),
             maxLines = 25,
             modifier = if (isOnSmallDisplay) {
                 Modifier.weight(1f).verticalScroll(scrollState!!)

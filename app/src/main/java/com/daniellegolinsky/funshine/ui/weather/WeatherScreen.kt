@@ -33,6 +33,7 @@ import com.daniellegolinsky.funshinetheme.components.FsText
 import com.daniellegolinsky.funshinetheme.designelements.Shadow
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
 import com.daniellegolinsky.funshine.R.string
+import com.daniellegolinsky.funshine.ui.getIsSmallDisplay
 
 @Composable
 fun WeatherScreen(
@@ -64,11 +65,7 @@ fun WeatherScreen(
 
             is ViewState.Success -> {
                 val config = LocalConfiguration.current
-                val widthHeightRatio: Float =
-                    config.screenWidthDp.toFloat() / config.screenHeightDp.toFloat()
-                val isSmallDisplay = config.screenHeightDp < config.screenWidthDp
-                    || widthHeightRatio < 1.25f && widthHeightRatio > 0.75f // It's square-like
-                    || config.screenWidthDp > (config.screenHeightDp * 1.5) // It's landscape
+                val isSmallDisplay = getIsSmallDisplay(config)
 
                 Column(
                     verticalArrangement = Arrangement.Top,

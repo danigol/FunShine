@@ -47,25 +47,16 @@ fun ConditionsComponent(
                     stringResource(id = weatherIconContentDescription),
                 size = weatherIconSize,
                 modifier = Modifier.fillMaxWidth(),
-                providedShadowMatrix = getShadowMatrix(isOnSmallDisplay)
+                providedShadowMatrix = getShadowMatrix(isOnSmallDisplay),
             )
         }
         Row(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            val textStyle = if (isOnSmallDisplay) {
-                getHeadingFontStyle(
-                    shadowOffsetX = ThemeConstants.SHADOW_OFFSET_X_QUARTER,
-                    shadowOffsetY = ThemeConstants.SHADOW_OFFSET_Y_QUARTER,
-                    blurRadius = ThemeConstants.SHADOW_BLUR_RADIUS_QUARTER,
-                )
-            } else {
-                getHeadingFontStyle()
-            }
             FsText(
                 text = "${temperature}${temperatureUnit}",
-                textStyle = textStyle,
+                textStyle = getHeadingFontStyle(isOnSmallDisplay),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 maxLines = 1,

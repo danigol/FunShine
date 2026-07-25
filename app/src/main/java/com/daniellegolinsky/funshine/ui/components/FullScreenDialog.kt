@@ -14,10 +14,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.daniellegolinsky.funshine.ui.getIsSmallDisplay
 import com.daniellegolinsky.funshinetheme.components.FsText
 import com.daniellegolinsky.funshinetheme.components.FsTextButton
 import com.daniellegolinsky.funshinetheme.designelements.getBackgroundColor
@@ -33,6 +35,7 @@ fun FullScreenDialog(
     body: @Composable ColumnScope.() -> Unit,
     buttonAction: () -> Unit,
 ) {
+    val isOnSmallDisplay = getIsSmallDisplay(LocalConfiguration.current)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -44,7 +47,7 @@ fun FullScreenDialog(
         Spacer(modifier = Modifier.height(16.dp))
         FsText(
             text = heading,
-            textStyle = getHeadingFontStyle()
+            textStyle = getHeadingFontStyle(isOnSmallDisplay)
         )
         Spacer(modifier = Modifier.height(8.dp))
 

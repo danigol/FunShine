@@ -1,5 +1,6 @@
 package com.daniellegolinsky.funshine.ui
 
+import android.content.res.Configuration
 import androidx.compose.ui.unit.dp
 import com.daniellegolinsky.funshinetheme.designelements.Shadow
 import com.daniellegolinsky.funshinetheme.designelements.ShadowMatrix
@@ -15,4 +16,13 @@ fun getShadowMatrix(isOnSmallDisplay: Boolean): ShadowMatrix?{
     } else {
         null // Will go to defaults
     }
+}
+
+fun getIsSmallDisplay(config: Configuration): Boolean {
+    val widthHeightRatio: Float =
+        config.screenWidthDp.toFloat() / config.screenHeightDp.toFloat()
+
+    return config.screenHeightDp < config.screenWidthDp
+            || widthHeightRatio < 1.25f && widthHeightRatio > 0.75f // It's square-like
+            || config.screenWidthDp > (config.screenHeightDp * 1.5) // It's landscape
 }
