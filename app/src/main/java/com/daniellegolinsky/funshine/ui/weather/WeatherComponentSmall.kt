@@ -23,7 +23,7 @@ fun WeatherComponentSmall(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
         modifier = modifier
-            .padding(start = 0.dp, end = 2.dp, top = 8.dp, bottom = 4.dp)
+            .padding(start = 0.dp, end = 2.dp, top = 8.dp, bottom = 8.dp)
             .fillMaxWidth()
     ) {
         ConditionsComponent(
@@ -32,12 +32,14 @@ fun WeatherComponentSmall(
             weatherIconSize = WeatherIconConstants.SMALL_SIZE,
             temperature = data.temperature,
             temperatureUnit = data.temperatureUnit,
+            isOnSmallDisplay = true,
             modifier = Modifier
                 .fillMaxWidth(0.35f)
         )
         ForecastComponent(
             forecast = data.forecast,
-            modifier = Modifier.fillMaxWidth(0.65f)
+            isOnSmallDisplay = true,
+            modifier = Modifier.fillMaxWidth(0.65f),
         )
     }
 }

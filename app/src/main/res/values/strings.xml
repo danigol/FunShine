@@ -7,6 +7,7 @@
     <string name="error_help">Check your internet connection and contact the developer if you still see this message. </string>
     <string name="api_limit_error">You have made too many API requests today. Please try again in %1$d hours.</string>
     <string name="unknown_error">Unknown</string>
+    <string name="weather_startup_enter_your_location">Enter your location</string>
 
     <!-- Settings Screen -->
     <string name="welcome_to_funshine">Welcome to FunShine!</string>
@@ -31,6 +32,11 @@
     <string name="button_side_option_label">Bottom Button Side:</string>
     <string name="left">Left</string>
     <string name="right">Right</string>
+    <string name="error_dialog_heading">Error</string>
+    <string name="error_dialog_dismiss">Dismiss</string>
+    <string name="settings_lat_lng">Latitude, Longitude: </string>
+    <string name="settings_timeout_error">Timeout error.\nYou may need to turn on \"Improve Location Accuracy\" if your device is using Google Play Services. You could also try going outside to get a GPS signal, and opening your maps app to check if it can obtain a location.</string>
+    <string name="settings_unknown_error">Unknown Error</string>
 
     <!-- Weather Condition String -->
     <string name="max_temp">Max daily temp:</string>
@@ -44,6 +50,7 @@
     <string name="kph">kph</string>
     <string name="currently">right now</string>
     <string name="inch_abbreviation">in</string>
+    <string name="scroll_indicator">.  .  .</string>
 
     <!--      ***      -->
     <!-- Weather Codes -->

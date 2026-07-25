@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,6 +22,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.daniellegolinsky.funshine.navigation.MainNavHost
+import com.daniellegolinsky.funshine.ui.getIsSmallDisplay
+import com.daniellegolinsky.funshine.ui.getShadowMatrix
 import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshine.viewstates.weather.WeatherScreenViewState
 import com.daniellegolinsky.funshinetheme.components.FsIconWithShadow
@@ -37,6 +40,8 @@ fun ErrorScreen(
     updateWeatherScreen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isOnSmallDisplay = getIsSmallDisplay(LocalConfiguration.current)
+
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -53,12 +58,13 @@ fun ErrorScreen(
                 image = painterResource(R.drawable.ic_circle_x_black),
                 imageResourceContentDescription = stringResource(id = com.daniellegolinsky.funshine.R.string.wc_unknown),
                 size = WeatherIconConstants.SIZE,
+                providedShadowMatrix = getShadowMatrix(isOnSmallDisplay),
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
         FsText(
             text = viewState.errorString,
-            textStyle = getBodyFontStyle(),
+            textStyle = getBodyFontStyle(isOnSmallDisplay),
         )
         Spacer(modifier = Modifier.height(32.dp))
         FsTextButton(buttonText = stringResource(id = R.string.button_retry)) {

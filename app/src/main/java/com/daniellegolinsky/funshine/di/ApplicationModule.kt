@@ -1,13 +1,20 @@
 package com.daniellegolinsky.funshine.di
 
 import android.content.Context
+import android.location.LocationManager
+import android.os.Build
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.daniellegolinsky.funshine.BuildConfig
+import com.daniellegolinsky.funshine.FunshineApplication
 import com.daniellegolinsky.funshine.api.OpenMeteoWeatherService
+import com.daniellegolinsky.funshine.api.location.FusedLocationProviderWrapper
+import com.daniellegolinsky.funshine.api.location.LocationManagerWrapper
+import com.daniellegolinsky.funshine.api.location.LocationService
 import com.daniellegolinsky.funshine.data.ApiRequestLimiter
 import com.daniellegolinsky.funshine.data.ISettingsRepo
 import com.daniellegolinsky.funshine.data.IWeatherRepo
@@ -15,8 +22,10 @@ import com.daniellegolinsky.funshine.data.SettingsRepo
 import com.daniellegolinsky.funshine.data.WeatherRepo
 import com.daniellegolinsky.funshine.datastore.IWeatherSettingsDataStore
 import com.daniellegolinsky.funshine.datastore.WeatherSettingsDataStore
+import com.daniellegolinsky.funshine.usecase.GetLocationScaleUseCase
 import com.daniellegolinsky.funshine.utilities.IResourceProvider
 import com.daniellegolinsky.funshine.utilities.ResourceProvider
+import com.google.android.gms.location.LocationServices
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
@@ -27,6 +36,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asExecutor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -39,7 +49,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ApplicationModule {
     // Named dependencies
-    const val APPLICATION_CONTEXT = "APPLICATION_CONTEXT"
     const val IO_DISPATCHER = "IO_DISPATCHER"
     const val DATABASE_SCOPE = "DATABASE_SCOPE"
     const val SETTINGS_DATASTORE = "SETTINGS_DATASTORE"
@@ -119,5 +128,34 @@ object ApplicationModule {
             settingsRepo: SettingsRepo,
             apiRequestLimiter: ApiRequestLimiter): IWeatherRepo {
         return WeatherRepo(weatherService, settingsRepo, apiRequestLimiter)
+    }
+
+    @Provides
+    @Singleton
+    fun providesGetLocationScaleUseCase(): GetLocationScaleUseCase {
+        return GetLocationScaleUseCase()
+    }
+
+    @Provides
+    @Singleton
+    fun providesLocationService(
+        getLocationScaleUseCase: GetLocationScaleUseCase,
+        @ApplicationContext appContext: Context,
+        @Named(IO_DISPATCHER) dispatcher: CoroutineDispatcher,
+    ): LocationService {
+        return if (!BuildConfig.BUILD_TYPE.lowercase().contains("foss")) {
+            FusedLocationProviderWrapper(
+                getLocationScaleUseCase = getLocationScaleUseCase,
+                locationClient = LocationServices.getFusedLocationProviderClient(appContext)
+            )
+        } else {
+            LocationManagerWrapper(
+                getLocationScaleUseCase = getLocationScaleUseCase,
+                locationClient = appContext
+                    .getSystemService(Context.LOCATION_SERVICE) as LocationManager,
+//                mainExecutor = appContext.mainExecutor,
+                mainExecutor = dispatcher.asExecutor(),
+            )
+        }
     }
 }

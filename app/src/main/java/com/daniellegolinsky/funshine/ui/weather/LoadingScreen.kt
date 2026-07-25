@@ -3,16 +3,22 @@ package com.daniellegolinsky.funshine.ui.weather
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.daniellegolinsky.funshine.R
+import com.daniellegolinsky.funshine.ui.getIsSmallDisplay
+import com.daniellegolinsky.funshine.ui.getShadowMatrix
 import com.daniellegolinsky.funshinetheme.components.FsIconWithShadow
 import com.daniellegolinsky.funshinetheme.components.FsText
 import com.daniellegolinsky.funshinetheme.font.getHeadingFontStyle
@@ -22,25 +28,28 @@ import com.daniellegolinsky.themeresources.WeatherIconConstants
 fun LoadingScreen(
     modifier: Modifier = Modifier,
 ) {
+    val isOnSmallDisplay = getIsSmallDisplay(LocalConfiguration.current)
     Column(
-        verticalArrangement = Arrangement.Top,
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize().padding(16.dp)
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth(0.6f)
+            modifier = Modifier.fillMaxWidth(0.7f)
         ) {
             FsIconWithShadow(
                 image = painterResource(com.daniellegolinsky.themeresources.R.drawable.ic_loading_black),
                 imageResourceContentDescription = stringResource(id = R.string.wc_loading),
-                size = WeatherIconConstants.SIZE,
+                size = (WeatherIconConstants.SIZE.value * 0.7f).dp,
+                providedShadowMatrix = getShadowMatrix(isOnSmallDisplay),
             )
         }
         FsText(
             text = stringResource(id = R.string.loading),
-            textStyle = getHeadingFontStyle(),
-            maxLines = 1
+            textStyle = getHeadingFontStyle(isOnSmallDisplay),
+            maxLines = 1,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

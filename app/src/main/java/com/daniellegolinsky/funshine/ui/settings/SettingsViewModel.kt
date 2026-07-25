@@ -4,34 +4,46 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.daniellegolinsky.funshine.BuildConfig
+import com.daniellegolinsky.funshine.api.location.LocationService
 import com.daniellegolinsky.funshine.data.SettingsRepo
 import com.daniellegolinsky.funshine.di.ApplicationModule
 import com.daniellegolinsky.funshine.models.LengthUnit
 import com.daniellegolinsky.funshine.models.Location
+import com.daniellegolinsky.funshine.models.LocationWrapperResult
 import com.daniellegolinsky.funshine.models.SpeedUnit
 import com.daniellegolinsky.funshine.models.TemperatureUnit
+import com.daniellegolinsky.funshine.utilities.ResourceProvider
 import com.daniellegolinsky.funshine.viewstates.ViewState
 import com.daniellegolinsky.funshine.viewstates.settings.SettingsViewState
+import com.daniellegolinsky.funshinetheme.R
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.math.absoluteValue
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsRepo: SettingsRepo, @Named(
+    private val settingsRepo: SettingsRepo,
+    @Named(
         ApplicationModule.IO_DISPATCHER
-    ) private val ioDispatcher: CoroutineDispatcher
+    ) private val ioDispatcher: CoroutineDispatcher,
+    private val locationService: LocationService,
+    private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
     private val tag = "SETTINGS_VIEW_MODEL"
@@ -43,6 +55,10 @@ class SettingsViewModel @Inject constructor(
     private var hasRequestedLocation: Boolean = false
 
     init {
+        restoreSavedStateFromDatastore()
+    }
+
+    fun restoreSavedStateFromDatastore() {
         viewModelScope.launch {
             updateViewStateFromDataStore()
         }
@@ -101,6 +117,13 @@ class SettingsViewModel @Inject constructor(
 
     private fun setIsLoadingLocation(isLoading: Boolean) {
         _settingsViewState.value = updateViewState(isLoadingLocation = isLoading)
+    }
+    private fun isLoadingLocation(): Boolean {
+        return if (_settingsViewState.value is ViewState.Success) {
+            (_settingsViewState.value as ViewState.Success<SettingsViewState>).data.isLoadingLocation
+        } else {
+            false
+        }
     }
 
     private suspend fun setGrantedPermission(granted: Boolean) {
@@ -179,26 +202,42 @@ class SettingsViewModel @Inject constructor(
                 hasRequestedLocation = true
                 setIsLoadingLocation(true)
                 try {
-                    locationClient.getCurrentLocation(
-                        Priority.PRIORITY_HIGH_ACCURACY,
-                        CancellationTokenSource().token,
-                    ).addOnCompleteListener {
-                        val locationResult = it.result
-                        locationResult?.let { location ->
-                            // Create a less-accurate version of the location
-                            // Safer for protecting identities as much as we can with this data
-                            val latitude = getLocationScale(location.latitude.toBigDecimal())
-                            val longitude = getLocationScale(location.longitude.toBigDecimal())
-                            setViewStateLocation("${latitude},${longitude}")
-                            hasRequestedLocation = false
-                        }
-                        setIsLoadingLocation(false)
+                    withTimeout(15000.milliseconds) {
+                        locationService.getCurrentLocation()
+                            .collect { locationResult ->
+                                when (locationResult) {
+                                    is LocationWrapperResult.Success -> {
+                                        val location = locationResult.location
+                                        setViewStateLocation("${location.latitude},${location.longitude}")
+                                        hasRequestedLocation = false
+                                        setIsLoadingLocation(false)
+                                    }
+                                    is LocationWrapperResult.Error -> {
+                                        val error = locationResult.errorString
+                                        setViewStateLocation("0.0, 0.0")
+                                        updateViewStateWithError(error)
+                                    }
+                                    else -> {
+                                        setIsLoadingLocation(true)
+                                    }
+                                }
+                            }
                     }
-                } catch (e: Exception) {
-                    // The only way this could be called is bad programmers calling this without permission
-                    // Fortunately, Android will shut that down. This just prevents a crash.
-                    e.printStackTrace()
-                    setIsLoadingLocation(false)
+                } catch (_: TimeoutCancellationException) {
+                    if (isLoadingLocation()) {
+                        updateViewStateWithError(
+                            resourceProvider.getString(
+                                com.daniellegolinsky.funshine.R.string.settings_timeout_error
+                            )
+                        )
+                    }
+                }
+                catch (e: Exception) {
+                    updateViewStateWithError(
+                        e.message ?: resourceProvider.getString(
+                            com.daniellegolinsky.funshine.R.string.settings_unknown_error
+                        )
+                    )
                 }
             }
         }
@@ -206,11 +245,12 @@ class SettingsViewModel @Inject constructor(
 
     // Registered as a listener in the activity for a single location change at start
     // This should make it easier to look up locations later
+    // TODO This also has to be disabled for foss builds
     fun respondToLocationChange(
         locationGranted: Boolean = false,
         locationResult: LocationResult
     ) {
-        if (locationGranted) {
+        if (locationGranted && !BuildConfig.BUILD_TYPE.lowercase().contains("foss")) {
             hasRequestedLocation = false
             locationResult.lastLocation?.let { location ->
                 // Create a less-accurate version of the location
@@ -370,6 +410,18 @@ class SettingsViewModel @Inject constructor(
                 weatherButtonsOnRight = weatherButtonsOnRight ?: getViewStateButtonsOnRight(),
             )
         )
+    }
+
+    private fun updateViewStateWithError(
+        errorString: String,
+    ) {
+        setIsLoadingLocation(false)
+        setViewStateLocation("0.0, 0.0")
+        _settingsViewState.update {
+            ViewState.Error(
+                errorString = errorString,
+            )
+        }
     }
 
     private fun mapSettingsToViewState(

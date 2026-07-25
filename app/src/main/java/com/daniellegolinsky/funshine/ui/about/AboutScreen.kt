@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.daniellegolinsky.funshine.BuildConfig
 import com.daniellegolinsky.funshine.R
 import com.daniellegolinsky.funshine.ui.ScreenConstants
+import com.daniellegolinsky.funshine.ui.getIsSmallDisplay
 import com.daniellegolinsky.funshinetheme.components.FsAppBar
 import com.daniellegolinsky.funshinetheme.components.FsText
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyle
@@ -35,6 +37,7 @@ fun AboutScreen(
     val funshinePrivacyLink = stringResource(id = R.string.funshine_privacy_link)
     val openMeteoTermsLink = stringResource(id = R.string.open_meteo_terms_link)
     val version = BuildConfig.VERSION_NAME
+    val isOnSmalLDisplay = getIsSmallDisplay(LocalConfiguration.current)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -42,7 +45,7 @@ fun AboutScreen(
         modifier = modifier.padding(top = ScreenConstants.SCREEN_PADDING)
     ) {
         // TODO Set top bar and other attributes in a main scaffold
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(20.dp))
         FsAppBar(headingText = stringResource(id = R.string.settings_about)) {
             navigateUp()
         }
@@ -55,14 +58,14 @@ fun AboutScreen(
                 .verticalScroll(rememberScrollState())) {
             FsText(
                 text = stringResource(id = R.string.about_information),
-                textStyle = getBodyFontStyle(),
+                textStyle = getBodyFontStyle(isOnSmalLDisplay),
                 maxLines = 15,
                 modifier = Modifier.padding(horizontal = ScreenConstants.DOUBLE_SCREEN_PADDING)
             )
             Spacer(modifier = Modifier.height(12.dp))
             FsText(
                 text = stringResource(id = R.string.funshine_privacy),
-                textStyle = getHeadingFontStyle(),
+                textStyle = getHeadingFontStyle(isOnSmalLDisplay),
                 textDecoration = TextDecoration.Underline,
                 modifier = Modifier.clickable(role = Role.Button) {
                     uriHandler.openUri(funshinePrivacyLink)
@@ -72,14 +75,14 @@ fun AboutScreen(
 
             FsText(
                 text = stringResource(id = R.string.about_information_2),
-                textStyle = getBodyFontStyle(),
+                textStyle = getBodyFontStyle(isOnSmalLDisplay),
                 maxLines = 15,
                 modifier = Modifier.padding(horizontal = ScreenConstants.DOUBLE_SCREEN_PADDING)
             )
             Spacer(modifier = Modifier.height(12.dp))
             FsText(
                 text = stringResource(id = R.string.open_meteo_terms),
-                textStyle = getHeadingFontStyle(),
+                textStyle = getHeadingFontStyle(isOnSmalLDisplay),
                 textDecoration = TextDecoration.Underline,
                 modifier = Modifier.clickable(role = Role.Button) {
                     uriHandler.openUri(openMeteoTermsLink)
