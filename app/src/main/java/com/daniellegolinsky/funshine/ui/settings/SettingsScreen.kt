@@ -46,6 +46,7 @@ import com.daniellegolinsky.funshinetheme.components.FsTwoStateSwitch
 import com.daniellegolinsky.funshinetheme.font.getBodyFontStyleWithoutShadow
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.LocationServices
 
@@ -81,17 +82,22 @@ fun SettingsScreen(
             val locationClient = remember {
                 LocationServices.getFusedLocationProviderClient(localContext)
             }
-            val coarseLocationPermissionState = rememberPermissionState(
-                permission = android.Manifest.permission.ACCESS_COARSE_LOCATION
-            ) { granted ->
-                viewModel.getApproximateLocation(
-                    locationGranted = granted,
-                    locationClient = locationClient
+            val locationPermissionState = rememberMultiplePermissionsState(
+                permissions = listOf(
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
                 )
+            ) { granted ->
+                if (!granted.containsValue(false)) {
+                    viewModel.getApproximateLocation(
+                        locationGranted = true,
+                        locationClient = locationClient
+                    )
+                }
             }
 
             // Only show the warning if they haven't seen it and we don't have permission
-            if (!hasSeenLocationWarning && !coarseLocationPermissionState.status.isGranted) {
+            if (!hasSeenLocationWarning && !locationPermissionState.allPermissionsGranted) {
                 val showAlert = remember { mutableStateOf(true) }
                 if (showAlert.value) {
                     LocationPermissionInfoDialog {
@@ -138,9 +144,9 @@ fun SettingsScreen(
                                 } else {
                                     FsLocationButton(modifier = Modifier.height(16.dp)) {
                                         viewModel.setViewStateLocation("0.00,0.00")
-                                        if (coarseLocationPermissionState.status.isGranted) {
+                                        if (locationPermissionState.allPermissionsGranted) {
                                             viewModel.getApproximateLocation(
-                                                coarseLocationPermissionState.status.isGranted,
+                                                locationPermissionState.allPermissionsGranted,
                                                 locationClient
                                             )
                                         } else {
@@ -149,7 +155,7 @@ fun SettingsScreen(
                                             //      can't just add it to the view state like the location warning dialog.
                                             if (viewData.hasBeenPromptedForLocationPermission) {
                                                 if (viewData.grantedPermissionLastTime) {
-                                                    coarseLocationPermissionState.launchPermissionRequest()
+                                                    locationPermissionState.launchMultiplePermissionRequest()
                                                 } else {
                                                     // If they denied the permission last time, we have to just
                                                     //      show them instructions to add it backs
@@ -159,7 +165,7 @@ fun SettingsScreen(
                                                 viewModel.setHasBeenPromptedForLocationPermission(
                                                     true
                                                 )
-                                                coarseLocationPermissionState.launchPermissionRequest()
+                                                locationPermissionState.launchMultiplePermissionRequest()
                                             }
                                         }
                                     }

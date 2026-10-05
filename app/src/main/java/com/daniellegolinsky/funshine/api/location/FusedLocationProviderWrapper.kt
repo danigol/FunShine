@@ -1,6 +1,7 @@
 package com.daniellegolinsky.funshine.api.location
 
-import android.Manifest
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.Manifest.permission.ACCESS_FINE_LOCATION
 import androidx.annotation.RequiresPermission
 import com.daniellegolinsky.funshine.models.Location
 import com.daniellegolinsky.funshine.models.LocationWrapperResult
@@ -16,7 +17,7 @@ class FusedLocationProviderWrapper(
     private val getLocationScaleUseCase: GetLocationScaleUseCase,
     private val locationClient: FusedLocationProviderClient,
 ) : LocationService {
-    @RequiresPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+    @RequiresPermission(allOf = [ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION])
     override suspend fun getCurrentLocation(): Flow<LocationWrapperResult<Location>> {
         val locationFlow: MutableStateFlow<LocationWrapperResult<Location>> = MutableStateFlow(
             LocationWrapperResult.Loading()
